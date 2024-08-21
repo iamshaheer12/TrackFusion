@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">
+    <background android:drawable="@drawable/Spotify_Icon_RGB_White" />
+    <foreground android:drawable="@drawable/Spotify_Icon_RGB_White" />
+    <monochrome android:drawable="@drawable/Spotify_Icon_RGB_White" />
+</adaptive-icon>

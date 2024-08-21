@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/mainActivity">
+
+    <activity
+        android:id="@+id/mainActivity"
+        android:name="com.example.testprojectmusicplayer.MainActivity"
+        android:label="activity_main"
+        tools:layout="@layout/activity_main" />
+    <fragment
+        android:id="@+id/splashScreenFragment"
+        android:name="com.example.testprojectmusicplayer.SplashScreenFragment"
+        android:label="fragment_splash_screen"
+        tools:layout="@layout/fragment_splash_screen" />
+    <fragment
+        android:id="@+id/startingFragment"
+        android:name="com.example.testprojectmusicplayer.StartingFragment"
+        android:label="fragment_starting"
+        tools:layout="@layout/fragment_starting" />
+    <fragment
+        android:id="@+id/loginFragment"
+        android:name="com.example.testprojectmusicplayer.LoginFragment"
+        android:label="fragment_login"
+        tools:layout="@layout/fragment_login" />
+    <fragment
+        android:id="@+id/signUpFragment"
+        android:name="com.example.testprojectmusicplayer.SignUpFragment"
+        android:label="fragment_sign_up"
+        tools:layout="@layout/fragment_sign_up" />
+    <fragment
+        android:id="@+id/emailLoginFragment"
+        android:name="com.example.testprojectmusicplayer.EmailLoginFragment"
+        android:label="fragment_email_login"
+        tools:layout="@layout/fragment_email_login" />
+</navigation>

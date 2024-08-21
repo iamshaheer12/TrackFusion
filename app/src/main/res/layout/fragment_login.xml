@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:background="@color/material_dynamic_primary0"
+    android:layout_height="match_parent"
+    android:fillViewport="true"
+    tools:context=".LoginFragment">
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <ImageView
+            android:layout_margin="16dp"
+            android:id="@+id/arrow_back"
+            android:clickable="true"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/arrow_back"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            />
+
+        <ImageView
+            android:id="@+id/spotify_icon"
+            android:layout_width="100dp"
+
+            android:layout_height="100dp"
+
+            android:src="@drawable/Spotify_Icon_RGB_Green"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/arrow_back"
+            />
+
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/user_email_layout"
+            style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="40dp"
+            android:layout_marginEnd="16dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/spotify_icon">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/lg_email"
+                android:layout_width="match_parent"
+                android:layout_height="60dp"
+                android:hint="@string/email"
+
+                android:maxLines="1"
+                android:padding="12dp"
+                android:textColor="@android:color/black"
+                android:textSize="18sp" />
+        </com.google.android.material.textfield.TextInputLayout>
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/password_layout"
+            style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginEnd="16dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/user_email_layout"
+            app:passwordToggleEnabled="true">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/lg_password"
+                android:layout_width="match_parent"
+                android:layout_height="60dp"
+                android:hint="@string/password"
+                android:maxLines="1"
+                android:padding="12dp"
+                android:textColor="@android:color/black"
+                android:textSize="18sp" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <Button
+            android:id="@+id/si_button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="16dp"
+            android:backgroundTint="@color/spotify_green"
+            android:text="@string/log_in"
+            android:textSize="@dimen/default_text_size"
+            android:textColor="@color/spotify_black"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/password_layout" />
+
+
+
+      <Button
+          android:id="@+id/log_without_password"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:layout_marginTop="8dp"
+          android:textSize="@dimen/default_text_size"
+          android:background="@drawable/custom_circular_border"
+          app:layout_constraintStart_toStartOf="parent"
+          app:layout_constraintEnd_toEndOf="parent"
+          android:text="@string/log_in_without_password"
+          app:layout_constraintTop_toBottomOf="@+id/si_button"/>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+
+
+
+
+</ScrollView>

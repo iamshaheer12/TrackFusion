@@ -1,0 +1,16 @@
+<resources>
+    <string name="app_name">Spotify</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="email">Email</string>
+    <string name="password">Password</string>
+    <string name="log_in">Log in</string>
+    <string name="log_in_without_password">Log in without password</string>
+    <string name="name">Name</string>
+    <string name="create_account">Create Account</string>
+    <string name="date_of_birth">Date Of Birth</string>
+    <string name="select_gender">Select Gender</string>
+    <string name="create">Create</string>
+    <string name="email_login_text">We\'ll send you an email with link that will log you in</string>
+    <string name="get_link">Get link</string>
+</resources>

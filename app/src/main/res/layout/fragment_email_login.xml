@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    tools:context=".EmailLoginFragment">
+
+
+    <LinearLayout
+        android:id="@+id/el_linear_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <ImageView
+            android:id="@+id/arrow_back"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginBottom="16dp"
+
+            android:clickable="true"
+            android:src="@drawable/arrow_back"
+            android:layout_gravity="center_vertical" />
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:textSize="21sp"
+            android:textStyle="bold"
+            android:text="@string/log_in_without_password"
+            android:gravity="center" />
+    </LinearLayout>
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/el_user_email_layout"
+        style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="40dp"
+        android:layout_marginEnd="16dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/el_linear_layout">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/el_email"
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:hint="@string/email"
+            android:maxLines="1"
+            android:padding="12dp"
+            android:textColor="@android:color/black"
+            android:textSize="18sp" />
+    </com.google.android.material.textfield.TextInputLayout>
+    <TextView
+        android:id="@+id/el_text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:gravity="start"
+        android:layout_marginLeft="16dp"
+        android:layout_marginRight="16dp"
+        android:text="@string/email_login_text"
+        android:textSize="18sp"
+        app:layout_constraintTop_toBottomOf="@+id/el_user_email_layout"/>
+    <Button
+        android:id="@+id/el_button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        android:backgroundTint="@color/spotify_green"
+        android:text="@string/get_link"
+        android:textSize="@dimen/default_text_size"
+        android:textColor="@color/spotify_black"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/el_text" />
+
+
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>
