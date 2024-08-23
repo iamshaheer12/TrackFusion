@@ -27,7 +27,7 @@
 
             android:layout_height="100dp"
 
-            android:src="@drawable/Spotify_Icon_RGB_Green"
+            android:src="@drawable/spotify_icon_green"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/arrow_back"

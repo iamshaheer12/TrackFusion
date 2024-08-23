@@ -11,7 +11,7 @@
     <ImageView
         android:layout_width="245dp"
         android:layout_height="245dp"
-        android:src="@drawable/Spotify_Icon_RGB_White"
+        android:src="@drawable/spotify_icon_white"
 
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"

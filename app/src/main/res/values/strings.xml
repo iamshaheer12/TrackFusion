@@ -13,4 +13,9 @@
     <string name="create">Create</string>
     <string name="email_login_text">We\'ll send you an email with link that will log you in</string>
     <string name="get_link">Get link</string>
+    <string name="to_get_you_started">To get You started</string>
+    <string name="recently_played">Recently Played</string>
+    <string name="recommended_for_today">Recommended for today</string>
+    <string name="suggested_artists">Suggested Artists</string>
+    <string name="lyrics_preview">Lyrics preview</string>
 </resources>

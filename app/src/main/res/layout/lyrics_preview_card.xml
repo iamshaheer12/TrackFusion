@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/lp_card"
+    android:background="@color/lyrics_card_background"
+    app:cardCornerRadius="12dp"
+    android:layout_height="wrap_content">
+   <androidx.constraintlayout.widget.ConstraintLayout
+       android:layout_width="match_parent"
+       android:background="@color/lyrics_card_background"
+       android:padding="16dp"
+
+       android:layout_height="match_parent"
+       >
+       <TextView
+           android:id="@+id/lp_tittle"
+           android:layout_width="wrap_content"
+           android:layout_height="wrap_content"
+           android:textColor="@color/spotify_white"
+           android:text="@string/lyrics_preview"
+           android:textStyle="bold"
+           app:layout_constraintTop_toTopOf="parent"
+           app:layout_constraintStart_toStartOf="parent"
+           />
+       <TextView
+           android:id="@+id/lp_lyrics"
+           android:layout_marginTop="16dp"
+           android:layout_width="wrap_content"
+           android:layout_height="wrap_content"
+           android:textColor="@color/spotify_black"
+           android:text="Ab Aisa Na Karo Ke Dil Judna Paye Wapis Don’t be so cruel that my heart never heals from the heartbreak. Teri Baaton Se Bikhar Jaun Haan I grow emotional from what you say. Mana Zamana Hai Deewana I agree that the rest of the world admires your beauty. Isilye Tune Na Jana Tere Liye Main Kaafi Hoon That is why you didn’t have to know I would suffice.... - Full article: Husn Lyrics (Translation): Anuv Jain | Dekho Dekho Jaise Mere - https://lyricsraag.com/husn-translation-anuv-jain/"
+           android:maxLines="4"
+           android:textFontWeight="500"
+           android:textSize="@dimen/artist_text_size"
+           android:fadingEdge="vertical"
+           app:layout_constraintTop_toBottomOf="@+id/lp_tittle"
+           app:layout_constraintStart_toStartOf="parent"
+           />
+       <Button
+           android:id="@+id/show_lyrics_btn"
+           android:layout_width="wrap_content"
+           android:layout_height="wrap_content"
+           android:layout_marginTop="24dp"
+           android:backgroundTint="@color/spotify_black"
+           android:text="Show lyrics"
+           android:textColor="@color/spotify_white"
+           app:layout_constraintTop_toBottomOf="@id/lp_lyrics"
+           app:layout_constraintStart_toStartOf="parent"/>
+
+
+
+
+
+
+
+   </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+
+</androidx.cardview.widget.CardView>
