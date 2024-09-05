@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/spotify_dark_gray"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <ImageView
+        android:id="@+id/notification_image"
+        android:layout_width="100dp"
+        android:layout_height="150dp"
+        android:scaleType="centerCrop"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        android:src="@drawable/atif"/>
+
+    <LinearLayout
+        android:id="@+id/notification_linear_layout"
+        android:layout_width="0dp"
+        android:gravity="start"
+        android:layout_marginStart="16dp"
+        android:orientation="vertical"
+        android:layout_height="wrap_content"
+        app:layout_constraintStart_toEndOf="@+id/notification_image"
+        app:layout_constraintTop_toTopOf="@+id/notification_image"
+        app:layout_constraintBottom_toBottomOf="@+id/notification_image"
+        >
+        <TextView
+            android:id="@+id/notification_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="This is the "
+            android:textSize="@dimen/heading_text_size"
+            android:textStyle="bold"
+            android:maxLines="1"
+            android:ellipsize="end"
+            android:textColor="@color/spotify_white"/>
+        <TextView
+            android:id="@+id/notification_description"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="This is the "
+            android:maxLines="1"
+            android:ellipsize="end"
+            android:textSize="@dimen/default_text_size"
+            android:textStyle="bold"
+            android:textColor="@color/spotify_light_gray"/>
+
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_marginTop="16dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <ImageView
+                    android:id="@+id/notification_previous"
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:focusable="true"
+                    android:clickable="true"
+                    android:src="@drawable/ic_previous_play"
+                    />
+                <ImageView
+                    android:id="@+id/notification_play"
+                    android:layout_marginStart="24dp"
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:src="@drawable/ic_play"/>
+                <ImageView
+                    android:id="@+id/notification_next"
+                    android:layout_marginStart="24dp"
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:src="@drawable/ic_next_play"/>
+
+
+            </LinearLayout>
+
+
+
+    </LinearLayout>
+
+
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

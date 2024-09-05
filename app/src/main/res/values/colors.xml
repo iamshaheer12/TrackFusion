@@ -8,4 +8,5 @@
     <color name="spotify_light_gray">#B3B3B3</color>
     <color name="music_player_screen_background">#55e343</color>
     <color name="lyrics_card_background">#368793</color>
+    <color name="semi_transparent_black">#80000000</color>
 </resources>

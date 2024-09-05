@@ -1,24 +1,24 @@
-
+<?xml version="1.0" encoding="utf-8"?>
 
 <ScrollView
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:background="@color/spotify_dark_gray"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_marginStart="16dp"
-
         android:layout_marginEnd="16dp"
         android:layout_width="match_parent"
-
         android:layout_height="wrap_content"
        >
-
         <ImageView
             android:id="@+id/mp_arrow_down"
+            android:clickable="true"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:focusable="true"
             android:foregroundGravity="center_vertical"
             android:src="@drawable/ic_arrow_down"
             app:layout_constraintStart_toStartOf="parent"
@@ -72,6 +72,7 @@
         <ImageView
             android:id="@+id/mp_more_menu"
             android:clickable="true"
+            android:focusable="true"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:src="@drawable/ic_more_vert"
@@ -119,6 +120,8 @@
             android:id="@+id/mp_liked_btn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:clickable="true"
+            android:focusable="true"
             android:src="@drawable/ic_unlike"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="@+id/mp_song_title"
@@ -162,12 +165,13 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="14dp"
-
             android:clickable="true"
+            android:focusable="true"
             android:src="@drawable/ic_shuffle"
             app:layout_constraintBottom_toBottomOf="@+id/mp_btn_row"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/mp_initial_progress_text" />
+            app:layout_constraintTop_toBottomOf="@+id/mp_initial_progress_text"
+            tools:ignore="TouchTargetSizeCheck" />
 
         <LinearLayout
             android:id="@+id/mp_btn_row"
@@ -181,6 +185,7 @@
             <ImageView
                 android:id="@+id/mp_previous_btn"
                 android:layout_marginEnd="32dp"
+                android:focusable="true"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:src="@drawable/ic_previous_play"
@@ -190,7 +195,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:src="@drawable/ic_pause_circle"
-
+android:focusable="true"
                 android:clickable="true"/>
             <ImageView
                 android:id="@+id/mp_next_btn"
@@ -198,6 +203,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:src="@drawable/ic_next_play"
+                android:focusable="true"
                 android:clickable="true"/>
 
 
@@ -209,7 +215,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="14dp"
-
+android:focusable="true"
             android:clickable="true"
             android:src="@drawable/ic_loop"
             app:layout_constraintBottom_toBottomOf="@+id/mp_btn_row"
@@ -221,32 +227,13 @@
             app:layout_constraintTop_toBottomOf="@+id/mp_loop_btn"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-
             />
         <include
-            android:id="@+id/mp_aba_card"
             layout="@layout/about_artist_card"
             app:layout_constraintTop_toBottomOf="@+id/mp_lyrics_preview"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             />
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     </androidx.constraintlayout.widget.ConstraintLayout>
-
 </ScrollView>
 

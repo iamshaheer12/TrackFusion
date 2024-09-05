@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:background="@color/spotify_background_black"
     android:layout_height="match_parent"
-    tools:context=".SplashScreenFragment">
+    tools:context=".view.SplashScreenFragment">
 
     <!-- TODO: Update blank fragment layout -->
     <ImageView

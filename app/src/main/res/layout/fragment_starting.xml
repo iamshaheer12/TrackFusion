@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
   android:background="@color/spotify_background_black"
     android:layout_height="match_parent"
-    tools:context=".StartingFragment">
+    tools:context=".view.StartingFragment">
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/top_guideline"
         android:layout_width="wrap_content"
@@ -68,23 +68,23 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/st_sign_up_btn"
         tools:layout_editor_absoluteY="237dp" />
-    <com.google.android.material.button.MaterialButton
-        android:layout_marginTop="4dp"
-        android:id="@+id/st_facebook_sign_btn"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:textSize="@dimen/default_text_size"
+<!--    <com.google.android.material.button.MaterialButton-->
+<!--        android:layout_marginTop="4dp"-->
+<!--        android:id="@+id/st_facebook_sign_btn"-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:textSize="@dimen/default_text_size"-->
 
-        android:layout_marginStart="12dp"
-        android:layout_marginEnd="12dp"
-        android:background="@drawable/custom_circular_border"
-        android:text="Continue with Facebook "
-        app:icon="@drawable/ic_facebook"
-        app:iconGravity="start"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/st_google_sign_btn"
-        tools:layout_editor_absoluteY="237dp" />
+<!--        android:layout_marginStart="12dp"-->
+<!--        android:layout_marginEnd="12dp"-->
+<!--        android:background="@drawable/custom_circular_border"-->
+<!--        android:text="Continue with Facebook "-->
+<!--        app:icon="@drawable/ic_facebook"-->
+<!--        app:iconGravity="start"-->
+<!--        app:layout_constraintEnd_toEndOf="parent"-->
+<!--        app:layout_constraintStart_toStartOf="parent"-->
+<!--        app:layout_constraintTop_toBottomOf="@id/st_google_sign_btn"-->
+<!--        tools:layout_editor_absoluteY="237dp" />-->
     <TextView
         android:clickable="true"
         android:layout_marginTop="12dp"
@@ -97,7 +97,7 @@
         android:textColor="@color/spotify_white"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/st_facebook_sign_btn"/>
+        app:layout_constraintTop_toBottomOf="@+id/st_google_sign_btn"/>
 
 
 

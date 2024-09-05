@@ -18,4 +18,12 @@
     <string name="recommended_for_today">Recommended for today</string>
     <string name="suggested_artists">Suggested Artists</string>
     <string name="lyrics_preview">Lyrics preview</string>
+    <string name="artist_songs">Artist,Songs</string>
+    <string name="search">Search</string>
+    <string name="browse_all">Browse all</string>
+    <string name="your_library">Your Library</string>
+    <string name="artists">Artists</string>
+    <string name="playlist">Playlists</string>
+    <string name="premium">Premium</string>
+    <string name="home">Home</string>
 </resources>

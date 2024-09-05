@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/spotify_background_black"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context=".view.SearchScreen2Fragment">
+
+    <!-- AppBarLayout to hold the Toolbar and SearchView -->
+    <com.google.android.material.appbar.AppBarLayout
+
+        android:id="@+id/appBarLayout2"
+        android:layout_width="match_parent"
+        android:background="@color/spotify_dark_gray"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toTopOf="parent"
+
+      >
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            app:layout_anchor="@+id/appBarLayout2"
+            app:layout_anchorGravity="center"
+            app:popupTheme="@style/ThemeOverlay.AppCompat.Dark">
+
+            <!-- SearchView in Toolbar -->
+<!--            <androidx.appcompat.widget.SearchView-->
+<!--                android:id="@+id/search_view"-->
+<!--                android:layout_width="match_parent"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:queryHint="Search..."-->
+<!--                android:iconifiedByDefault="false"-->
+<!--                app:hideNavigationIcon="false"-->
+<!--                app:animateNavigationIcon="true"-->
+
+
+<!--                app:layout_collapseMode="pin" />-->
+<!--            <com.google.android.material.search.SearchBar-->
+<!--                android:id="@+id/search_bar"-->
+<!--                android:background="@color/spotify_background_black"-->
+<!--                android:layout_width="match_parent"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                app:forceDefaultNavigationOnClickListener="true"-->
+<!--                app:navigationIcon="@drawable/arrow_back"-->
+<!--                android:hint="hallo" />-->
+
+        </androidx.appcompat.widget.Toolbar>
+
+        <!-- Toolbar with SearchView -->
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <!-- RecyclerView to display the list of items -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:layout_margin="16dp"
+        android:id="@+id/recycler_view_searchBar"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+        app:layout_constraintTop_toBottomOf="@+id/appBarLayout2"
+        android:layout_marginTop="?attr/actionBarSize"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:scrollbars="vertical" />
+
+    <ProgressBar
+        android:id="@+id/search_progress_bar"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_gravity="center"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        />
+
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,4 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
-  
+    <item
+        android:id="@+id/home"
+        android:title="@string/home"
+        android:icon="@drawable/ic_home_unselected"
+        />
+    <item
+        android:id="@+id/search"
+        android:title="@string/search"
+        android:icon="@drawable/ic_search_unselected"
+        />
+    <item
+        android:id="@+id/library"
+        android:title="Your Library"
+        android:icon="@drawable/ic_library_unselected"
+        />
+    <item
+        android:id="@+id/premium"
+        android:title="@string/premium"
+        android:icon="@drawable/ic_premium_unselected"
+        />
+
 </menu>

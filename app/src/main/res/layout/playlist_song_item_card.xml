@@ -2,10 +2,14 @@
 <androidx.constraintlayout.widget.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_marginTop="16dp"
+
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/Playlist_song_item"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_margin="16dp">
+    android:layout_marginBottom="8dp"
+   >
 
     <ImageView
         android:id="@+id/psi_image"
@@ -37,7 +41,7 @@
             android:maxLines="1"
             android:text="Shukran Allah"
             android:textStyle="bold"
-            android:textColor="@android:color/black" />
+            android:textColor="@color/spotify_white" />
 
         <TextView
             android:id="@+id/psi_description"
@@ -46,12 +50,14 @@
             android:maxLines="1"
             android:ellipsize="end"
             android:text="Pritam, Amit Mishra Sonu Nigham, Shilpa Rao, A.R.Rahman, Momina Mustehsan"
-            android:textColor="@android:color/black"
+            android:textColor="@color/spotify_light_gray"
             android:layout_marginTop="2dp" />
     </LinearLayout>
 
     <ImageView
         android:id="@+id/psi_more"
+        android:clickable="true"
+        android:focusable="true"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:src="@drawable/ic_more_vert"

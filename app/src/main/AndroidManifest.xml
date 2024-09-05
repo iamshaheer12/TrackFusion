@@ -1,26 +1,67 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK"/>
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
+
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"
+        android:maxSdkVersion="32" />
     <application
+        android:name=".view.FusionApplication"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
-        android:icon="@mipmap/ic_launcher"
+        android:icon="@mipmap/ic_launcher_round"
         android:label="@string/app_name"
-        android:roundIcon="@drawable/spotify_icon_white"
+        android:roundIcon="@drawable/ic_launcher_background"
         android:theme="@style/Theme.TestProjectMusicPlayer"
         tools:targetApi="31">
         <activity
-            android:name=".MainActivity"
+            android:name=".view.MainActivity"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar"
             android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <!-- Scheme and host as configured in your ActionCodeSettings or Firebase console -->
+                <data
+                    android:scheme="https"
+                    android:host="your app.page.link" />
+
+                <!-- Optional: Path prefix to handle specific paths -->
+                <data
+                    android:pathPrefix="/finishSignUp" />
+            </intent-filter>
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <service
+            android:name=".utils.AudioPlaybackService"
+
+            android:exported="false"
+            android:foregroundServiceType="mediaPlayback">
+            <intent-filter>
+                <action android:name="com.example.testprojectmusicplayer.ACTION_PLAY" />
+                <action android:name="com.example.testprojectmusicplayer.ACTION_PLAY_ALL" />
+                <action android:name="com.example.testprojectmusicplayer.ACTION_PAUSE" />
+                <action android:name="com.example.testprojectmusicplayer.ACTION_STOP" />
+                <action android:name="com.example.testprojectmusicplayer.ACTION_NEXT" />
+                <action android:name="com.example.testprojectmusicplayer.ACTION_PREVIOUS" />
+            </intent-filter>
+        </service>
+<!--        <service android:name=".utils.ForeGround"-->
+<!--            android:foregroundServiceType="mediaPlayback"-->
+
+<!--            />-->
     </application>
 
 </manifest>
