@@ -167,21 +167,50 @@ class SongRepoImplementation(
     override suspend fun getSongsLikedByUser(
         userId: String,
         result: (UiStates<List<Song>?>) -> Unit
-    ) {
+    ) {try {
 
-            firestore.collection(FireStoreCons.songsCollection)
-                .whereArrayContains("likedBy", userId)
+        firestore.collection(FireStoreCons.songsCollection)
+            .whereArrayContains("likedBy", userId)
+            .get()
+            .addOnSuccessListener { querySnapshot ->
+                val songs = querySnapshot?.documents?.mapNotNull { document ->
+                    document.toObject(Song::class.java)
+                }
+                result.invoke(UiStates.Success(songs))
+            }
+            .addOnFailureListener { exception ->
+                // Handle any errors
+                // exception.printStackTrace()
+                result.invoke(UiStates.Failure(exception.localizedMessage.toString()))
+            }
+    }
+    catch (e:Exception){
+        result.invoke(UiStates.Failure(e.localizedMessage.toString()))
+
+    }
+
+        }
+
+
+    override suspend fun getSongByGenres(genres: String, result: (UiStates<List<Song>>) -> Unit) {
+        try {
+            val document = firestore.collection(FireStoreCons.songsCollection).whereEqualTo("genres",genres)
                 .get()
-                .addOnSuccessListener { querySnapshot ->
-                    val songs = querySnapshot?.documents?.mapNotNull { document ->
+                .addOnSuccessListener {
+                        querySnapshot ->
+                    val songs = querySnapshot.documents.mapNotNull { document ->
                         document.toObject(Song::class.java)
                     }
                     result.invoke(UiStates.Success(songs))
                 }
-                .addOnFailureListener { exception ->
-                    // Handle any errors
-                   // exception.printStackTrace()
-                    result.invoke(UiStates.Failure(exception.localizedMessage))
+                .addOnFailureListener {
+                    result.invoke(UiStates.Failure(it.localizedMessage))
                 }
         }
+        catch (e:Exception){
+            result.invoke(UiStates.Failure(e.localizedMessage))
+
+        }
+
+    }
 }

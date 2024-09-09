@@ -12,16 +12,20 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.media.AudioManager
 import android.media.MediaPlayer
+import android.net.Uri
+import android.os.Binder
 import android.os.Build
 import android.os.IBinder
 import android.support.v4.media.session.MediaSessionCompat
 import android.support.v4.media.session.PlaybackStateCompat
 import android.util.Log
+import android.widget.RemoteViews
 import android.widget.Toast
 import androidx.core.app.NotificationCompat
 import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelStoreOwner
+import com.bumptech.glide.Glide
 import com.example.testprojectmusicplayer.R
 //import com.example.testprojectmusicplayer.di.ViewModelFactory
 import com.example.testprojectmusicplayer.model.Song
@@ -42,10 +46,15 @@ class AudioPlaybackService : Service() {
     private lateinit var notificationManager: NotificationManager
    private lateinit var notification: Notification
     private lateinit var mediaSession: MediaSessionCompat
-//    @Inject
-//    lateinit var viewModelFactory: ViewModelFactory
     private var mediaPlayer: MediaPlayer? = null
     private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
+
+    private val binder = LocalBinder()
+
+    // Binder class
+    inner class LocalBinder : Binder() {
+        fun getService(): AudioPlaybackService = this@AudioPlaybackService
+    }
 
 
    lateinit  var viewModel: HomeViewModel
@@ -212,27 +221,46 @@ class AudioPlaybackService : Service() {
         )
     }
 
+    @SuppressLint("RemoteViewLayout")
     private fun updateNotification() {
-        val playPauseAction = if (mediaPlayer?.isPlaying == true) {
-            NotificationCompat.Action(R.drawable.ic_pause_circle, "Pause", getPendingIntent(ACTION_PAUSE))
+        // Create RemoteViews object for custom notification layout
+        val customView = RemoteViews(packageName, R.layout.notification_layout)
+        customView.setTextViewText(R.id.notification_title, audioFiles[currentSongIndex].title)
+        customView.setTextViewText(R.id.notification_description, audioFiles[currentSongIndex].description)
+
+
+        customView.setImageViewUri(R.id.notification_image, Uri.parse( audioFiles[currentSongIndex].imageUrl)
+            )
+
+        // Update the play/pause button state based on media playback status
+        if (mediaPlayer?.isPlaying == true) {
+            customView.setImageViewResource(R.id.notification_play, R.drawable.ic_play_button_green)
+            customView.setOnClickPendingIntent(R.id.notification_play, getPendingIntent(ACTION_PAUSE))
         } else {
-            NotificationCompat.Action(R.drawable.ic_play, "Play", getPendingIntent(ACTION_PLAY))
+            customView.setImageViewResource(R.id.notification_play, R.drawable.ic_play)
+            customView.setOnClickPendingIntent(R.id.notification_play, getPendingIntent(ACTION_PLAY))
         }
+        customView.setOnClickPendingIntent(R.id.notification_next,getPendingIntent(ACTION_NEXT))
+        customView.setOnClickPendingIntent(R.id.notification_previous,getPendingIntent(
+            ACTION_PREVIOUS))
+
+
+        // Create a NotificationCompat.Action for Previous and Next actions
+
 
         val notification = NotificationCompat.Builder(this, notificationChannelId)
-            .setContentTitle("Playing: ")
-            .setContentText("Artist: ")
             .setSmallIcon(R.drawable.default_image) // Replace with your actual icon
-            .addAction(R.drawable.ic_previous_play, "Previous", getPendingIntent(ACTION_PREVIOUS))
-            .addAction(playPauseAction)
-            .addAction(R.drawable.ic_next_play, "Next", getPendingIntent(ACTION_NEXT))
+            .setCustomContentView(customView) // Use the custom content view
+            .setCustomBigContentView(customView) // Use the custom content view for expanded notification // Add Next action
             .setStyle(
                 androidx.media.app.NotificationCompat.MediaStyle()
                     .setMediaSession(mediaSession.sessionToken)
             )
             .build()
+
         this.notification = notification
     }
+
 
     private fun createNotificationChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -263,7 +291,7 @@ class AudioPlaybackService : Service() {
         super.onDestroy()
     }
 
-    override fun onBind(intent: Intent?): IBinder? = null
+    override fun onBind(intent: Intent?): IBinder? = binder
 
     private val becomingNoisyReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {

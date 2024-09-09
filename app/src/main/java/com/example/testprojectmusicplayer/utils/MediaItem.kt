@@ -1,3 +1,5 @@
+package com.example.testprojectmusicplayer.utils
+
 import android.os.Parcelable
 import com.example.testprojectmusicplayer.model.Album
 import com.example.testprojectmusicplayer.model.Artist

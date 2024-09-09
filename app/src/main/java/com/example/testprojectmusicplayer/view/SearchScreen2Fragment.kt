@@ -1,8 +1,10 @@
 package com.example.testprojectmusicplayer.view
 
-import MediaAdapter
-import MediaItem
+import com.example.testprojectmusicplayer.adapters.MediaAdapter
+import com.example.testprojectmusicplayer.utils.MediaItem
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -13,13 +15,11 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
-import com.example.testprojectmusicplayer.R
 import com.example.testprojectmusicplayer.adapters.OnItemClickListener
 import com.example.testprojectmusicplayer.databinding.FragmentSearchScreen2Binding
 import com.example.testprojectmusicplayer.utils.UiStates
 import com.example.testprojectmusicplayer.viewModel.SearchViewModel
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 @AndroidEntryPoint
 class SearchScreen2Fragment : Fragment(), OnItemClickListener {
@@ -43,6 +43,8 @@ class SearchScreen2Fragment : Fragment(), OnItemClickListener {
         viewModel.getRecentPlayedSongs()
         setUpAdapter()
         observers()
+        setupLiveSearch()
+
     }
 
     private fun setUpAdapter() {
@@ -54,11 +56,12 @@ class SearchScreen2Fragment : Fragment(), OnItemClickListener {
     private fun observers() {
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.combinedMediaItems.collect { state ->
+                viewModel.filteredMediaItems.collect { state ->
                     when (state) {
                         is UiStates.Loading -> {
                             // Show loading indicator
                             binding.searchProgressBar.visibility = View.VISIBLE
+
                         }
                         is UiStates.Success -> {
                             binding.searchProgressBar.visibility = View.GONE
@@ -72,6 +75,22 @@ class SearchScreen2Fragment : Fragment(), OnItemClickListener {
                 }
             }
         }
+    }
+    private fun setupLiveSearch() {
+        binding.searchText.addTextChangedListener(object : TextWatcher {
+            override fun afterTextChanged(s: Editable?) {
+                // No action needed here
+            }
+
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+                // No action needed here
+            }
+
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                val query = s.toString()
+                viewModel.filterMediaItems(query) // Trigger filtering in the ViewModel
+            }
+        })
     }
 
     override fun onItemClick(item: MediaItem) {
@@ -91,7 +110,6 @@ class SearchScreen2Fragment : Fragment(), OnItemClickListener {
 
             }
 
-            else -> {}
         }
     }
 }

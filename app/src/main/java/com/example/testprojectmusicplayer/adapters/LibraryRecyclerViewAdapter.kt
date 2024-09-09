@@ -9,28 +9,25 @@ import com.bumptech.glide.request.RequestOptions
 import com.example.testprojectmusicplayer.R
 import com.example.testprojectmusicplayer.databinding.PlaylistSongItemCardBinding
 import com.example.testprojectmusicplayer.databinding.SearchArtistItemsBinding
-import com.example.testprojectmusicplayer.databinding.SongItemForsearchBinding
 import com.example.testprojectmusicplayer.model.Album
 import com.example.testprojectmusicplayer.model.Artist
-import com.example.testprojectmusicplayer.model.Song
-import com.example.testprojectmusicplayer.utils.MediaItem
+import com.example.testprojectmusicplayer.utils.AlbumArtist
 
-class MediaAdapter(
-    private var items: List<MediaItem>,
-    private val itemClickListener: OnItemClickListener
+class LibraryRecyclerViewAdapter(
+    private var items: List<AlbumArtist>,
+    private val itemClickListener: OnItemClickListener1
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     companion object {
         private const val VIEW_TYPE_ALBUM = 0
         private const val VIEW_TYPE_ARTIST = 1
-        private const val VIEW_TYPE_SONG = 2
     }
 
     override fun getItemViewType(position: Int): Int {
         return when (items[position]) {
-            is MediaItem.AlbumItem -> VIEW_TYPE_ALBUM
-            is MediaItem.ArtistItem -> VIEW_TYPE_ARTIST
-            is MediaItem.SongItem -> VIEW_TYPE_SONG
+            is AlbumArtist.AlbumItem -> VIEW_TYPE_ALBUM
+            is AlbumArtist.ArtistItem -> VIEW_TYPE_ARTIST
+
             else -> throw IllegalArgumentException("Invalid view type")
         }
     }
@@ -53,23 +50,15 @@ class MediaAdapter(
                 )
                 ArtistViewHolder(binding)
             }
-            VIEW_TYPE_SONG -> {
-                val binding = SongItemForsearchBinding.inflate(
-                    LayoutInflater.from(parent.context),
-                    parent,
-                    false
-                )
-                SongViewHolder(binding)
-            }
+
             else -> throw IllegalArgumentException("Invalid view type")
         }
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         when (val item = items[position]) {
-            is MediaItem.AlbumItem -> (holder as AlbumViewHolder).bind(item.album)
-            is MediaItem.ArtistItem -> (holder as ArtistViewHolder).bind(item.artist)
-            is MediaItem.SongItem -> (holder as SongViewHolder).bind(item.song)
+            is AlbumArtist.AlbumItem -> (holder as AlbumViewHolder).bind(item.album)
+            is AlbumArtist.ArtistItem -> (holder as ArtistViewHolder).bind(item.artist)
 
             else -> {}
         }
@@ -77,7 +66,7 @@ class MediaAdapter(
 
     override fun getItemCount(): Int = items.size
 
-    fun updateItems(newItems: List<MediaItem>) {
+    fun updateItems(newItems: List<AlbumArtist>) {
         items = newItems
         notifyDataSetChanged()
     }
@@ -143,31 +132,5 @@ class MediaAdapter(
     }
 
     // ViewHolder for Song
-    inner class SongViewHolder(private val binding: SongItemForsearchBinding) :
-        RecyclerView.ViewHolder(binding.root) {
-        init {
-            itemView.setOnClickListener {
-                val position = adapterPosition
-                if (position != RecyclerView.NO_POSITION) {
-                    itemClickListener.onItemClick(items[position])
-                }
-            }
-        }
 
-        fun bind(song: Song) {
-            binding.searchSongTitle.text = song.title
-            binding.searchSongDescription.text = song.description
-            Glide.with(binding.searchSongImage.context)
-                .load(song.imageUrl)
-                .apply(
-                    RequestOptions()
-                        .placeholder(R.drawable.default_image) // Replace with your default image resource
-                        .error(R.drawable.default_image) // Shown when there is an error loading the image
-                )
-                .into(binding.searchSongImage)
-
-
-            // Set other UI elements as needed
-        }
-    }
 }

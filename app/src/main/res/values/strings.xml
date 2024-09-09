@@ -26,4 +26,12 @@
     <string name="playlist">Playlists</string>
     <string name="premium">Premium</string>
     <string name="home">Home</string>
+    <string name="artist">Artist</string>
+    <string name="all">All</string>
+    <string name="playlist_item_text">Pritam, Amit Mishra Sonu Nigham, Shilpa Rao, A.R.Rahman, Momina Mustehsan</string>
+    <string name="create_playlist">Create Playlist</string>
+    <string name="title">Title</string>
+    <string name="description">Description</string>
+    <string name="share">Share</string>
+    <string name="like"> Add to Liked Song</string>
 </resources>

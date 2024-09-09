@@ -1,9 +1,11 @@
 package com.example.testprojectmusicplayer.repositories
 
+import android.annotation.SuppressLint
 import com.example.testprojectmusicplayer.model.Album
 import com.example.testprojectmusicplayer.model.Song
 import com.example.testprojectmusicplayer.utils.FireStoreCons
 import com.example.testprojectmusicplayer.utils.UiStates
+import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.toObject
 import kotlinx.coroutines.tasks.await
@@ -178,4 +180,123 @@ class AlbumRepoImplementation(
                 result.invoke(UiStates.Failure(exception.localizedMessage))
             }
     }
+
+    @SuppressLint("SuspiciousIndentation")
+    override suspend fun createAlbum(
+        album: Album,
+        result: (UiStates<String>) -> Unit
+    ) {
+        val document = firestore.collection(FireStoreCons.albumCollection).document()
+        album.id = document.id
+          document.set(album)
+              .addOnSuccessListener {
+                  result.invoke(UiStates.Success("Album Created Successfully"))
+              }
+              .addOnFailureListener {
+                  result.invoke(UiStates.Failure("Sorry Album is not created"))
+              }
+
+    }
+
+    override suspend fun deleteAlbum(id: String,result: (UiStates<String>) -> Unit) {
+        firestore.collection(FireStoreCons.albumCollection).document(id)
+            .delete()
+            .addOnSuccessListener {
+                result.invoke(UiStates.Success("Deleted Successfully"))
+            }
+            .addOnFailureListener {
+                result.invoke(UiStates.Failure("Sorry something going wrong"))
+            }
+
+
+    }
+
+    override suspend fun updateAlbum(album: Album, result: (UiStates<String>) -> Unit) {
+        val document = firestore.collection(FireStoreCons.albumCollection).document()
+        album.id = document.id
+        document.set(album)
+            .addOnSuccessListener {
+                result.invoke(UiStates.Success("Album Updated  Successfully"))
+            }
+            .addOnFailureListener {
+                result.invoke(UiStates.Failure("Sorry Album is not created"))
+            }
+
+    }
+
+    override suspend fun addSongToAlbums(
+        songId: String,
+        list: List<String>,
+        result: (UiStates<String>) -> Unit
+    ) {
+
+        val albumsCollection = firestore.collection(FireStoreCons.albumCollection) // Collection name for albums
+
+        try {
+            // Iterate through each album ID
+            list.forEach { albumId ->
+                firestore.runTransaction { transaction ->
+                    // Get the reference to the album document
+                    val albumRef = albumsCollection.document(albumId)
+
+                    // Get the current snapshot of the album document
+                    val albumSnapshot = transaction.get(albumRef)
+
+                    // Retrieve the current list of songs
+                    val currentSongs = albumSnapshot.get("songs") as? List<String> ?: emptyList()
+
+                    // Check if the song ID is already in the album's song list
+                    if (!currentSongs.contains(songId)) {
+                        // If not, add the song ID to the list
+                        transaction.update(albumRef, "songs", FieldValue.arrayUnion(songId))
+                    }
+                }.addOnSuccessListener {
+                    // Handle success for each album update
+                    result(UiStates.Success("Song added to album: $albumId"))
+                }.addOnFailureListener { e ->
+                    // Handle failure for each album update
+                    result(UiStates.Failure("Failed to add song to album: $albumId", ))
+                }
+            }
+        } catch (e: Exception) {
+            // Handle any exceptions that occur during the operation
+            result(UiStates.Failure("An error occurred while adding the song to albums", ))
+        }
+    }
+
+
+    override suspend fun removeSongFromAlbum(songId: String,albumId: String, result: (UiStates<String>) -> Unit) {
+
+        try {
+            val document = firestore.collection(FireStoreCons.albumCollection).document(albumId)
+        val transaction =     firestore.runTransaction {transaction->
+
+            val snapshot = transaction.get(document)
+            val songs = snapshot.get("songs")as? List<String>?: emptyList()
+            if (songs.contains(songId)){
+               val  newSongs  = songs - songId
+                transaction.update(document,"songs",newSongs)
+
+
+            }
+
+        }
+            .addOnSuccessListener {
+                result.invoke(UiStates.Success("Successfully removed from  Album"))
+
+            }
+            .addOnFailureListener{
+                result.invoke(UiStates.Failure("Unknown error"))
+
+            }
+
+        }
+        catch (e:Exception){
+            result.invoke(UiStates.Failure("Unknown error"))
+        }
+
+
+
+    }
+
 }

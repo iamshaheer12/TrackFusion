@@ -1,7 +1,5 @@
 package com.example.testprojectmusicplayer.adapters
 
-import android.annotation.SuppressLint
-import android.net.Uri
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
@@ -30,7 +28,7 @@ class HomeGetStartedRecyclerViewAdapter(
                         .error(R.drawable.default_image) // Shown when there is an error loading the image
                 )
                 .into(binding.crCardImage)
-            binding.crPlaylistDescription.text = item.description
+            binding.crPlaylistDescription.text = item.descriptions
 
             binding.crItem.setOnClickListener {
                 onItemClicked.invoke(adapterPosition, item)

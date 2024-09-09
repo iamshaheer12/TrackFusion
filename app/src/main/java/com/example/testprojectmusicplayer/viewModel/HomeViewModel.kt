@@ -1,6 +1,6 @@
 package com.example.testprojectmusicplayer.viewModel
 
-import MediaItem
+import com.example.testprojectmusicplayer.utils.MediaItem
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.testprojectmusicplayer.model.Album
@@ -60,7 +60,7 @@ class HomeViewModel @Inject constructor(
                 val currentAlbums = (albumsState as? UiStates.Success)?.data ?: emptyList()
                 val currentArtists = (artistsState as? UiStates.Success)?.data ?: emptyList()
 
-                // Map each data type to MediaItem
+                // Map each data type to com.example.testprojectmusicplayer.utils.MediaItem
                 val combinedList = mutableListOf<MediaItem>().apply {
                     addAll(currentSongs.map { MediaItem.SongItem(it) })
                     addAll(currentAlbums.map { MediaItem.AlbumItem(it) })
@@ -121,11 +121,11 @@ class HomeViewModel @Inject constructor(
 //            val currentAlbums = (_allAlbumsState.value as? UiStates.Success)?.data ?: emptyList()
 //            val currentArtists = (_allArtistsState.value as? UiStates.Success)?.data ?: emptyList()
 //
-//            // Combine into a single list of MediaItem
-//            val combinedList = mutableListOf<MediaItem>().apply {
-//                addAll(currentSongs.map { MediaItem.SongItem(it) })
-//                addAll(currentAlbums.map { MediaItem.AlbumItem(it) })
-//                addAll(currentArtists.map { MediaItem.ArtistItem(it) })
+//            // Combine into a single list of com.example.testprojectmusicplayer.utils.MediaItem
+//            val combinedList = mutableListOf<com.example.testprojectmusicplayer.utils.MediaItem>().apply {
+//                addAll(currentSongs.map { com.example.testprojectmusicplayer.utils.MediaItem.SongItem(it) })
+//                addAll(currentAlbums.map { com.example.testprojectmusicplayer.utils.MediaItem.AlbumItem(it) })
+//                addAll(currentArtists.map { com.example.testprojectmusicplayer.utils.MediaItem.ArtistItem(it) })
 //            }
 //
 //            // Update the combined state

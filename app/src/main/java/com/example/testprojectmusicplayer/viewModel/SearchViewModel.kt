@@ -1,6 +1,6 @@
 package com.example.testprojectmusicplayer.viewModel
 
-import MediaItem
+import com.example.testprojectmusicplayer.utils.MediaItem
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.testprojectmusicplayer.model.Album
@@ -22,112 +22,91 @@ import javax.inject.Inject
 class SearchViewModel @Inject constructor(
     private val songRepository: SongRepository,
     private val albumRepository: AlbumRepository,
-    private val artistRepository: ArtistRepository,
+    private val artistRepository: ArtistRepository
+) : ViewModel() {
 
-    ) :ViewModel() {
+    private val _allSongsState = MutableStateFlow<UiStates<List<Song>>>(UiStates.Loading)
+    val allSongsState: StateFlow<UiStates<List<Song>>> = _allSongsState
 
+    private val _allAlbumsState = MutableStateFlow<UiStates<List<Album>>>(UiStates.Loading)
+    val allAlbumsState: StateFlow<UiStates<List<Album>>> = _allAlbumsState
 
+    private val _allArtistsState = MutableStateFlow<UiStates<List<Artist>>>(UiStates.Loading)
+    val allArtistsState: StateFlow<UiStates<List<Artist>>> = _allArtistsState
 
-    private val _allSongsState  = MutableStateFlow<UiStates<List<Song>>>(UiStates.Loading)
-    val allSongsState :StateFlow<UiStates<List<Song>>> = _allSongsState
+//    private val _combinedMediaItems = MutableStateFlow<UiStates<List<MediaItem>>>(UiStates.Loading)
+//    val combinedMediaItems: StateFlow<UiStates<List<MediaItem>>> = _combinedMediaItems
 
-    private val _allAlbumsState  = MutableStateFlow<UiStates<List<Album>>>(UiStates.Loading)
-    val allAlbumsState :StateFlow<UiStates<List<Album>>> = _allAlbumsState
+    private val _filteredMediaItems = MutableStateFlow<UiStates<List<MediaItem>>>(UiStates.Success(emptyList()))
+    val filteredMediaItems: StateFlow<UiStates<List<MediaItem>>> = _filteredMediaItems
 
-
-    private val _allArtistsState  = MutableStateFlow<UiStates<List<Artist>>>(UiStates.Loading)
-    val allArtistsState :StateFlow<UiStates<List<Artist>>> = _allArtistsState
-
-    private val _combinedMediaItems = MutableStateFlow<UiStates<List<MediaItem>>>(UiStates.Loading)
-    val combinedMediaItems: StateFlow<UiStates<List<MediaItem>>> = _combinedMediaItems
-
-
-
-
+    private val allMediaItems = mutableListOf<MediaItem>() // Holds all media items initially loaded
 
     init {
-        // Combine the states of songs, albums, and artists
         viewModelScope.launch {
             combine(_allSongsState, _allAlbumsState, _allArtistsState) { songsState, albumsState, artistsState ->
-                // Combine all media items into a single list
                 val currentSongs = (songsState as? UiStates.Success)?.data ?: emptyList()
                 val currentAlbums = (albumsState as? UiStates.Success)?.data ?: emptyList()
                 val currentArtists = (artistsState as? UiStates.Success)?.data ?: emptyList()
 
-                // Map each data type to MediaItem
                 val combinedList = mutableListOf<MediaItem>().apply {
                     addAll(currentSongs.map { MediaItem.SongItem(it) })
                     addAll(currentAlbums.map { MediaItem.AlbumItem(it) })
                     addAll(currentArtists.map { MediaItem.ArtistItem(it) })
                 }
 
-                // Return the combined list
                 UiStates.Success(combinedList)
             }.collect { combinedListState ->
-                _combinedMediaItems.value = combinedListState
+                //_combinedMediaItems.value = combinedListState
+
+                // If data is loaded successfully, update the allMediaItems list and filtered items
+                allMediaItems.clear()
+                allMediaItems.addAll(combinedListState.data)
+                _filteredMediaItems.value = combinedListState // Show all items by default
             }
         }
     }
 
-
-
-
-    fun getStartedAlbums(){
+    fun getStartedAlbums() {
         viewModelScope.launch {
             albumRepository.getAlbums { states ->
-                _allAlbumsState.update {
-                    states
-                }
-                // getMediaItems()
-
+                _allAlbumsState.update { states }
             }
-
         }
     }
 
-    fun getRecentPlayedSongs(){
+    fun getRecentPlayedSongs() {
         viewModelScope.launch {
             songRepository.getAllSongs { state ->
-                _allSongsState.update {
-                    state
-                }
-                // getMediaItems()
+                _allSongsState.update { state }
             }
         }
-
     }
 
-    fun getArtists(){
+    fun getArtists() {
         viewModelScope.launch {
-            artistRepository.getArtists { state->
-                _allArtistsState.update {
-                    state
-
-                }
-                //getMediaItems()
+            artistRepository.getArtists { state ->
+                _allArtistsState.update { state }
             }
         }
     }
 
-//    fun getMediaItems(){
-//
-//            val currentSongs = (_allSongsState.value as? UiStates.Success)?.data ?: emptyList()
-//            val currentAlbums = (_allAlbumsState.value as? UiStates.Success)?.data ?: emptyList()
-//            val currentArtists = (_allArtistsState.value as? UiStates.Success)?.data ?: emptyList()
-//
-//            // Combine into a single list of MediaItem
-//            val combinedList = mutableListOf<MediaItem>().apply {
-//                addAll(currentSongs.map { MediaItem.SongItem(it) })
-//                addAll(currentAlbums.map { MediaItem.AlbumItem(it) })
-//                addAll(currentArtists.map { MediaItem.ArtistItem(it) })
-//            }
-//
-//            // Update the combined state
-//            _combinedMediaItems.update { UiStates.Success(combinedList) }
-//        }
-
-
-
-
-
+    // Function to filter media items based on search query
+    fun filterMediaItems(query: String) {
+        viewModelScope.launch {
+            val filteredItems = if (query.isEmpty()) {
+                allMediaItems // Show all items when the search query is empty
+            } else {
+                allMediaItems.filter { item ->
+                    when (item) {
+                        is MediaItem.ArtistItem -> item.artist.name.contains(query, ignoreCase = true)
+                        is MediaItem.AlbumItem -> item.album.title.contains(query, ignoreCase = true)
+                        is MediaItem.SongItem -> item.song.title.contains(query, ignoreCase = true)
+                        else -> false
+                    }
+                }
+            }
+            _filteredMediaItems.value = UiStates.Success(filteredItems)
+        }
+    }
 }

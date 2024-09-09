@@ -5,20 +5,20 @@
     android:layout_height="match_parent"
     android:background="@color/spotify_background_black"
     xmlns:tools="http://schemas.android.com/tools"
-    tools:context=".view.SearchScreen2Fragment">
+    tools:context=".view.LibSearchFragment">
 
     <!-- AppBarLayout to hold the Toolbar and SearchView -->
     <com.google.android.material.appbar.AppBarLayout
 
-        android:id="@+id/appBarLayout2"
+        android:id="@+id/lib_search_appbar_layout"
         android:layout_width="match_parent"
         android:background="@color/spotify_dark_gray"
         android:layout_height="wrap_content"
         app:layout_constraintTop_toTopOf="parent"
 
-      >
+        >
         <androidx.appcompat.widget.Toolbar
-            android:id="@+id/toolbar"
+            android:id="@+id/lib_search_toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             app:layout_anchor="@+id/appBarLayout2"
@@ -29,7 +29,7 @@
                 android:layout_height="wrap_content">
 
                 <ImageView
-                    android:id="@+id/search_arrow_back"
+                    android:id="@+id/lib_search_arrow_back"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:clickable="true"
@@ -40,7 +40,7 @@
                     app:layout_constraintTop_toTopOf="parent" />
 
                 <com.google.android.material.textfield.TextInputLayout
-                    android:id="@+id/search_layout"
+                    android:id="@+id/lib_search_layout"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_margin="8dp"
@@ -55,7 +55,7 @@
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
 
-                    app:layout_constraintStart_toEndOf="@+id/search_arrow_back"
+                    app:layout_constraintStart_toEndOf="@+id/lib_search_arrow_back"
                     app:layout_constraintTop_toTopOf="parent">
 
                     <com.google.android.material.textfield.TextInputEditText
@@ -80,25 +80,25 @@
 
 
             <!-- SearchView in Toolbar -->
-<!--            <androidx.appcompat.widget.SearchView-->
-<!--                android:id="@+id/search_view"-->
-<!--                android:layout_width="match_parent"-->
-<!--                android:layout_height="wrap_content"-->
-<!--                android:queryHint="Search..."-->
-<!--                android:iconifiedByDefault="false"-->
-<!--                app:hideNavigationIcon="false"-->
-<!--                app:animateNavigationIcon="true"-->
+            <!--            <androidx.appcompat.widget.SearchView-->
+            <!--                android:id="@+id/search_view"-->
+            <!--                android:layout_width="match_parent"-->
+            <!--                android:layout_height="wrap_content"-->
+            <!--                android:queryHint="Search..."-->
+            <!--                android:iconifiedByDefault="false"-->
+            <!--                app:hideNavigationIcon="false"-->
+            <!--                app:animateNavigationIcon="true"-->
 
 
-<!--                app:layout_collapseMode="pin" />-->
-<!--            <com.google.android.material.search.SearchBar-->
-<!--                android:id="@+id/search_bar"-->
-<!--                android:background="@color/spotify_background_black"-->
-<!--                android:layout_width="match_parent"-->
-<!--                android:layout_height="wrap_content"-->
-<!--                app:forceDefaultNavigationOnClickListener="true"-->
-<!--                app:navigationIcon="@drawable/arrow_back"-->
-<!--                android:hint="hallo" />-->
+            <!--                app:layout_collapseMode="pin" />-->
+            <!--            <com.google.android.material.search.SearchBar-->
+            <!--                android:id="@+id/search_bar"-->
+            <!--                android:background="@color/spotify_background_black"-->
+            <!--                android:layout_width="match_parent"-->
+            <!--                android:layout_height="wrap_content"-->
+            <!--                app:forceDefaultNavigationOnClickListener="true"-->
+            <!--                app:navigationIcon="@drawable/arrow_back"-->
+            <!--                android:hint="hallo" />-->
 
         </androidx.appcompat.widget.Toolbar>
 
@@ -108,17 +108,17 @@
     <!-- RecyclerView to display the list of items -->
     <androidx.recyclerview.widget.RecyclerView
         android:layout_margin="16dp"
-        android:id="@+id/recycler_view_searchBar"
+        android:id="@+id/recycler_view_lib_searchBar"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-        app:layout_constraintTop_toBottomOf="@+id/appBarLayout2"
+        app:layout_constraintTop_toBottomOf="@+id/lib_search_appbar_layout"
         android:layout_marginTop="?attr/actionBarSize"
         app:layout_constraintBottom_toBottomOf="parent"
         android:scrollbars="vertical" />
 
     <ProgressBar
-        android:id="@+id/search_progress_bar"
+        android:id="@+id/lib_search_progress_bar"
         android:layout_width="50dp"
         android:layout_height="50dp"
 

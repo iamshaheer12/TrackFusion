@@ -82,7 +82,7 @@ class MusicRecyclerViewAdapter(
                 .into(binding.rCardImage)
 
             binding.rPlaylistTitle.text = album.title
-            binding.rPlaylistDescription.text = album.description
+            binding.rPlaylistDescription.text = album.descriptions
 
             binding.root.setOnClickListener {
                 onItemClicked.invoke(MusicItem.AlbumItem(album))

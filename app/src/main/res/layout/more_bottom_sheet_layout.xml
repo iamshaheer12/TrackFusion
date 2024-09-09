@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:backgroundTint="@color/spotify_dark_gray"
@@ -73,6 +74,188 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/more_bottom_sheet_linearLayout" />
+
+
+        <LinearLayout
+            android:id="@+id/more_bottom_linearlayout_like"
+            android:layout_width="match_parent"
+            android:layout_marginTop="16dp"
+            android:orientation="horizontal"
+            app:layout_constraintTop_toBottomOf="@+id/more_bottom_sheet_divider"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_height="wrap_content">
+            <ImageView
+                android:id="@+id/more_bottom_sheet_like_icn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/ic_unlike"/>
+            <TextView
+                android:id="@+id/more_bottom_sheet_like_text"
+                android:layout_marginStart="16dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/like"
+                android:gravity="center"
+                android:layout_gravity="center"
+                android:textColor="@color/spotify_white"
+                android:textSize="@dimen/default_text_size"/>
+
+        </LinearLayout>
+        <LinearLayout
+            android:id="@+id/more_bottom_linearlayout_add_to_playlist"
+            android:layout_width="match_parent"
+            android:layout_marginTop="16dp"
+            android:orientation="horizontal"
+            app:layout_constraintTop_toBottomOf="@+id/more_bottom_linearlayout_like"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_height="wrap_content">
+            <ImageView
+                android:id="@+id/more_bottom_sheet_playlist"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/music_24"/>
+            <TextView
+                android:id="@+id/more_bottom_sheet_playlist_text"
+                android:layout_marginStart="16dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Add to other Playlist"
+                android:gravity="center"
+                android:layout_gravity="center"
+                android:textColor="@color/spotify_white"
+                android:textSize="@dimen/default_text_size"/>
+
+        </LinearLayout>
+        <LinearLayout
+            android:id="@+id/more_bottom_linearlayout_share"
+            android:layout_width="match_parent"
+            android:clickable="true"
+            android:focusable="true"
+            android:layout_marginTop="16dp"
+            android:orientation="horizontal"
+            app:layout_constraintTop_toBottomOf="@+id/more_bottom_linearlayout_add_to_playlist"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginBottom="24dp"
+            android:layout_height="wrap_content">
+            <ImageView
+                android:id="@+id/more_bottom_sheet_share_icn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/share_24"/>
+            <TextView
+                android:id="@+id/more_bottom_sheet_share_text"
+                android:layout_marginStart="16dp"
+
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/share"
+                android:gravity="center"
+                android:layout_gravity="center"
+
+                android:textColor="@color/spotify_white"
+                android:textSize="@dimen/default_text_size"/>
+
+        </LinearLayout>
+        <LinearLayout
+            android:id="@+id/more_bottom_linearlayout_remove_fromPlaylist"
+            android:layout_width="match_parent"
+            android:clickable="true"
+            android:focusable="true"
+            android:layout_marginTop="16dp"
+            android:orientation="horizontal"
+            app:layout_constraintTop_toBottomOf="@+id/more_bottom_linearlayout_share"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginBottom="24dp"
+            android:layout_height="wrap_content">
+            <ImageView
+                android:id="@+id/more_bottom_sheet_remove_icn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/remove_circle_outline_24"/>
+            <TextView
+                android:id="@+id/more_bottom_sheet_remove_playlist"
+                android:layout_marginStart="16dp"
+
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Remove from this Playlist"
+                android:gravity="center"
+                android:layout_gravity="center"
+
+                android:textColor="@color/spotify_white"
+                android:textSize="@dimen/default_text_size"/>
+
+        </LinearLayout>
+        <LinearLayout
+            android:id="@+id/more_bottom_linearlayout_edit_playlist"
+            android:layout_width="match_parent"
+            android:clickable="true"
+            android:focusable="true"
+            android:layout_marginTop="16dp"
+            android:orientation="horizontal"
+            app:layout_constraintTop_toBottomOf="@+id/more_bottom_linearlayout_remove_fromPlaylist"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginBottom="24dp"
+            android:layout_height="wrap_content"
+            tools:ignore="UseCompoundDrawables">
+            <ImageView
+                android:id="@+id/more_bottom_sheet_edit_icn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/edit_24"/>
+            <TextView
+                android:id="@+id/more_bottom_sheet_edit_playlist"
+                android:layout_marginStart="16dp"
+
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Edit Playlist"
+                android:gravity="center"
+                android:layout_gravity="center"
+
+                android:textColor="@color/spotify_white"
+                android:textSize="@dimen/default_text_size"/>
+
+        </LinearLayout>
+        <LinearLayout
+            android:id="@+id/more_bottom_linearlayout_delete_playlist"
+            android:layout_width="match_parent"
+            android:clickable="true"
+            android:focusable="true"
+            android:layout_marginTop="16dp"
+            android:orientation="horizontal"
+            app:layout_constraintTop_toBottomOf="@+id/more_bottom_linearlayout_edit_playlist"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            android:layout_marginBottom="24dp"
+            android:layout_height="wrap_content"
+            tools:ignore="UseCompoundDrawables">
+            <ImageView
+                android:id="@+id/more_bottom_sheet_delete_icn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/outline_delete_24"/>
+            <TextView
+                android:id="@+id/more_bottom_sheet_delete_playlist"
+                android:layout_marginStart="16dp"
+
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Delete Playlist"
+                android:gravity="center"
+                android:layout_gravity="center"
+
+                android:textColor="@color/spotify_white"
+                android:textSize="@dimen/default_text_size"/>
+
+        </LinearLayout>
+
 
 
     </androidx.constraintlayout.widget.ConstraintLayout>
