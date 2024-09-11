@@ -5,19 +5,22 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import com.bumptech.glide.RequestManager
 import com.example.testprojectmusicplayer.R
 import com.example.testprojectmusicplayer.databinding.PlaylistWithTitleDescriptionCardBinding
 import com.example.testprojectmusicplayer.model.Album
 import com.example.testprojectmusicplayer.model.Song
 import com.example.testprojectmusicplayer.utils.MusicItem
+import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
-
-
-class MusicRecyclerViewAdapter(
-    private val onItemClicked: (MusicItem) -> Unit
+class MusicRecyclerViewAdapter @Inject constructor(
+    private val onItemClicked: (MusicItem) -> Unit,
+    private val glide : RequestManager
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     private var itemList: List<MusicItem> = arrayListOf()
+
 
     companion object {
         private const val TYPE_ALBUM = 0
@@ -75,7 +78,7 @@ class MusicRecyclerViewAdapter(
 
         fun bind(album: Album) {
             // Load album data, including image and description
-            Glide.with(binding.rCardImage.context)
+            glide
                 .load(album.imageUrl)
                 .placeholder(R.drawable.default_image)
                 .error(R.drawable.default_image)

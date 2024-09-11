@@ -4,7 +4,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import com.bumptech.glide.Glide
+import com.bumptech.glide.RequestManager
 import com.bumptech.glide.request.RequestOptions
 import com.example.testprojectmusicplayer.R
 import com.example.testprojectmusicplayer.databinding.PlaylistSongItemCardBinding
@@ -12,10 +12,14 @@ import com.example.testprojectmusicplayer.databinding.SearchArtistItemsBinding
 import com.example.testprojectmusicplayer.model.Album
 import com.example.testprojectmusicplayer.model.Artist
 import com.example.testprojectmusicplayer.utils.AlbumArtist
+import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
-class LibraryRecyclerViewAdapter(
+class LibraryRecyclerViewAdapter @Inject constructor(
     private var items: List<AlbumArtist>,
-    private val itemClickListener: OnItemClickListener1
+    private val itemClickListener: OnItemClickListener1,
+    private val glide : RequestManager,
+
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     companion object {
@@ -87,7 +91,7 @@ class LibraryRecyclerViewAdapter(
             binding.psiMore.visibility = View.GONE
             binding.psiTitle.text = album.title
             binding.psiDescription.text = album.descriptions
-            Glide.with(binding.psiImage.context)
+            glide
                 .load(album.imageUrl)
                 .apply(
                     RequestOptions()
@@ -115,7 +119,8 @@ class LibraryRecyclerViewAdapter(
 
         fun bind(artist: Artist) {
             binding.searchArtistName.text = artist.name
-            Glide.with(binding.searchArtistImage.context)
+            glide
+                //.with(binding.searchArtistImage.context)
                 .load(artist.imageUrl)
                 .apply(
                     RequestOptions()

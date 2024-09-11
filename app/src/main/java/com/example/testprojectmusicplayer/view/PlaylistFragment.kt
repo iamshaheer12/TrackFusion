@@ -1,6 +1,6 @@
 package com.example.testprojectmusicplayer.view
 
-import com.example.testprojectmusicplayer.viewModel.SharedViewModel
+import android.annotation.SuppressLint
 import android.app.AlertDialog
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -13,46 +13,58 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
+import android.widget.LinearLayout
+import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.viewModels
+import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import com.bumptech.glide.RequestManager
+import com.bumptech.glide.request.RequestOptions
 import com.example.testprojectmusicplayer.R
 import com.example.testprojectmusicplayer.adapters.PlaylistItemsRecyclerView
 import com.example.testprojectmusicplayer.databinding.FragmentPlaylistBinding
+import com.example.testprojectmusicplayer.databinding.MoreBottomSheetLayoutBinding
 import com.example.testprojectmusicplayer.model.Song
-import com.example.testprojectmusicplayer.utils.AudioPlaybackService
-import com.example.testprojectmusicplayer.utils.ForeGround
 import com.example.testprojectmusicplayer.utils.UiStates
 import com.example.testprojectmusicplayer.utils.formatDuration.formatDuration
 import com.example.testprojectmusicplayer.viewModel.HomeViewModel
+import com.google.android.material.bottomsheet.BottomSheetDialog
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 @AndroidEntryPoint
-class PlaylistFragment : Fragment(){
+class PlaylistFragment : Fragment() {
+
+    @Inject
+    lateinit var glide: RequestManager
     private val permissionCode = 100
     private lateinit var requestPermissionsLauncher: ActivityResultLauncher<Array<String>>
-
     private lateinit var binding: FragmentPlaylistBinding
-    private val adapter by lazy {
-        PlaylistItemsRecyclerView(
-            onMoreClicked ={ song,_ ->},
-            onItemClicked ={song ->
-                playSong(song)
-                           } ,
+    private lateinit var bottomBinding: MoreBottomSheetLayoutBinding
 
+    private var isLikedAlbum = false
+    private val adapter by lazy {
+        PlaylistItemsRecyclerView(glide = glide,
+            onMoreClicked = { song, pos ->
+                settingUpBottomSheet(song)
+
+            },
+            onItemClicked = { song ->
+                Log.d("CurrentIndex",song.toString())
+                playSong(song) // Handles song item click
+            }
         )
     }
-    private val homeViewModel: HomeViewModel by viewModels()
 
-
+    private val homeViewModel: HomeViewModel by activityViewModels()
     private var isPlayingAll = false
     private var songs: List<Song> = emptyList()
 
@@ -60,113 +72,226 @@ class PlaylistFragment : Fragment(){
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        binding = FragmentPlaylistBinding.inflate(layoutInflater)
+        binding = FragmentPlaylistBinding.inflate(inflater, container, false)
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        bottomBinding = MoreBottomSheetLayoutBinding.inflate(layoutInflater)
 
         requestPermissionResult()
-
-
-
         setRecyclerView()
         displayPlaylistDuration()
+
         onClick()
         observers()
         homeViewModel.getRecentPlayedSongs()
+        homeViewModel.isLikedSong("mnw6BmhcgP0ajRFOZkmq","1234")
+        homeViewModel.isLikedAlbum("Lw6vYw6iz72gmU4CyF49","1234")
     }
-    private fun observers(){
+
+    private fun observers() {
         lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.STARTED){
-                homeViewModel.allSongsState.collect{state ->
-                    when (state) {
-                        is UiStates.Loading -> {
-                            // Show loading indicator
-                            Toast.makeText(requireContext(), "Loading", Toast.LENGTH_SHORT).show()
-
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                launch {
+                    homeViewModel.allSongsState.collect { state ->
+                        when (state) {
+                            is UiStates.Loading -> {
+                                Toast.makeText(requireContext(), "Loading", Toast.LENGTH_SHORT).show()
+                            }
+                            is UiStates.Success -> {
+                                songs = state.data.toMutableList()
+                                Toast.makeText(requireContext(), "Success: ${songs.size} songs loaded", Toast.LENGTH_SHORT).show()
+                                Log.e("SongsData", songs.toString())
+                                adapter.updateList(songs)
+                            }
+                            is UiStates.Failure -> {
+                                Toast.makeText(requireContext(), state.error, Toast.LENGTH_SHORT).show()
+                            }
                         }
-                        is UiStates.Success -> {
-                            songs = state.data.toMutableList()
-                            Toast.makeText(requireContext(), "Success"+songs, Toast.LENGTH_SHORT).show()
+                    }
+                }
 
-                            Log.e("SongsData",state.data.toMutableList().toString())
-                            adapter.updateList(state.data.toMutableList())
+                launch {
+                    homeViewModel.isPlaying.collect { isPlaying ->
+                        isPlayingAll = isPlaying
+                        val playButtonIcon = if (isPlaying) R.drawable.ic_play else R.drawable.ic_play_button_green
+                        binding.playlistPlayBtn.setImageResource(playButtonIcon)
+                    }
+                }
 
-                            // Navigate to the next screen or show success message
+                launch {
+                    homeViewModel.currentSongIndex.collect { currentIndex ->
+                        Log.d("CurrentIndes",currentIndex.toString())
+                        adapter.updateSelection(currentIndex)
+                    }
+                }
+
+                launch {
+                    homeViewModel.isLikedAlbum.collect{
+                        state ->
+                        updateLikeButtonStateAlbum(state)
+
+                        isLikedAlbum = state
+                    }
+
+                }
+
+                launch {
+                    homeViewModel.likedAlbum.collect{
+                            state ->
+                        when(state){
+                            is UiStates.Loading -> {
+                                Toast.makeText(requireContext(), "Loading", Toast.LENGTH_SHORT).show()
+
+
+                            }
+                            is UiStates.Success -> {
+                                Toast.makeText(requireContext(), state.data, Toast.LENGTH_SHORT).show()
+
+
+                            }
+                            is UiStates.Failure -> {
+                                Toast.makeText(requireContext(), state.error, Toast.LENGTH_SHORT).show()
+
+
+                            }
                         }
-                        is UiStates.Failure -> {
-                            // Show error message
-                            Toast.makeText(requireContext(), state.error, Toast.LENGTH_SHORT).show()
+                    }
+
+                }
+                launch {
+                    homeViewModel.unLikedAlbum.collect{
+                            state ->
+                        when(state){
+                            is UiStates.Loading -> {
+                                Toast.makeText(requireContext(), "Loading", Toast.LENGTH_SHORT).show()
+
+
+                            }
+                            is UiStates.Success -> {
+                                Toast.makeText(requireContext(), state.data, Toast.LENGTH_SHORT).show()
+
+
+                            }
+                            is UiStates.Failure -> {
+                                Toast.makeText(requireContext(), state.error, Toast.LENGTH_SHORT).show()
+
+
+                            }
+                        }
+                    }
+
+                }
+                launch {
+                    homeViewModel.isLikedSong.collect{
+                            state ->
+                        updateLikedButtonStateSong(state)
+
+
+                    }
+
+                }
+
+                launch {
+                    homeViewModel.likedSong.collect{
+                            state ->
+                        when(state){
+                            is UiStates.Loading -> {
+                                Toast.makeText(requireContext(), "Loading", Toast.LENGTH_SHORT).show()
+
+
+                            }
+                            is UiStates.Success -> {
+                                Toast.makeText(requireContext(), state.data, Toast.LENGTH_SHORT).show()
+
+
+                            }
+                            is UiStates.Failure -> {
+                                Toast.makeText(requireContext(), state.error, Toast.LENGTH_SHORT).show()
+
+
+                            }
+                        }
+                    }
+
+                }
+                launch {
+                    homeViewModel.unLikedSong.collect{
+                            state ->
+                        when(state){
+                            is UiStates.Loading -> {
+                                Toast.makeText(requireContext(), "Loading", Toast.LENGTH_SHORT).show()
+
+
+                            }
+                            is UiStates.Success -> {
+                                Toast.makeText(requireContext(), state.data, Toast.LENGTH_SHORT).show()
+
+
+                            }
+                            is UiStates.Failure -> {
+                                Toast.makeText(requireContext(), state.error, Toast.LENGTH_SHORT).show()
+
+
+                            }
                         }
                     }
 
                 }
             }
         }
+
+
     }
 
-    private fun  onClick(){
-
+    private fun onClick() {
         binding.playlistPlayBtn.setOnClickListener {
             checkAndRequestPermissions()
-//            if (isPlayingAll) {
-//              //  pauseAllSongs()
-//            } else {
-//               // playAllSongs()
-//            }
+        }
+        binding.playlistLikedBtn.setOnClickListener {
+            Log.d("LikedSong343", isLikedAlbum.toString())
+            if (homeViewModel.isLikedAlbum.value){
+                homeViewModel.onUnLikedAlbum("Lw6vYw6iz72gmU4CyF49","1234")
+            }
+            else{
+                homeViewModel.onLikedAlbum("Lw6vYw6iz72gmU4CyF49","1234")
+            }
+
         }
 
+        this.bottomBinding.moreBottomLinearlayoutLike
+            .setOnClickListener {
+            if (homeViewModel.isLikedSong.value){
+                homeViewModel.onUnLikedSong("mnw6BmhcgP0ajRFOZkmq","1234")
+            }
+            else{
+                homeViewModel.onLikedSong("mnw6BmhcgP0ajRFOZkmq","1234")
+            }
+        }
     }
-    private fun setRecyclerView() {
 
+    private fun setRecyclerView() {
         binding.playlistListItems.adapter = adapter
     }
 
     private fun playAllSongs() {
-        if (songs.isNotEmpty()){
-            val intent = Intent(requireContext(), AudioPlaybackService::class.java).apply {
-                action = AudioPlaybackService.ACTION_PLAY
-                Log.e("PlayAll Songs",songs.toString())
-
-               // Send the list to the service
-            }
-            if (Build.VERSION.SDK_INT >= 26) {
-                ContextCompat.startForegroundService(requireContext(), intent)
-            } else {
-                // Pre-O behavior.
-                requireContext().startService(intent)
-            }
-            isPlayingAll = true
+        lifecycleScope.launch {
+            homeViewModel.playSong()
             binding.playlistPlayBtn.setImageResource(R.drawable.ic_play)
+            homeViewModel.updatePlayPauseState(true)
         }
-        else{
-            Toast.makeText(requireContext(),"Sorry List is Empty ", Toast.LENGTH_SHORT).show()
-
-        }
-
     }
-
 
     private fun pauseAllSongs() {
-        val intent = Intent(requireContext(), AudioPlaybackService::class.java).apply {
-            action = AudioPlaybackService.ACTION_PAUSE
+        lifecycleScope.launch {
+            homeViewModel.pausePlayback()
+            homeViewModel.updatePlayPauseState(false)
         }
-//        if (Build.VERSION.SDK_INT >= 26) {
-//            ContextCompat.startForegroundService(requireContext(), intent)
-//        } else {
-//            // Pre-O behavior.
-            requireContext().startService(intent)
-       // }
-       // requireContext().startForegroundService(intent)
-        // Changed from startService to startForegroundService
         binding.playlistPlayBtn.setImageResource(R.drawable.ic_play_button_green)
-        isPlayingAll = false
     }
-
-
 
     private fun displayPlaylistDuration() {
         var totalDuration = 0L
@@ -175,13 +300,11 @@ class PlaylistFragment : Fragment(){
         val durationCallback: (Long) -> Unit = { duration ->
             totalDuration += duration
             remainingSongs--
-            if (remainingSongs == 0) { // All durations have been processed
+            if (remainingSongs == 0) {
                 val formattedDuration = formatDuration(totalDuration)
                 binding.playlistDuration.text = formattedDuration
             }
         }
-        Log.e("SongsForPlay",songs.toString())
-
         songs.forEach { song ->
             getAudioDuration(song.audioFile, durationCallback)
         }
@@ -206,6 +329,7 @@ class PlaylistFragment : Fragment(){
                 permissionsToRequest.add(android.Manifest.permission.POST_NOTIFICATIONS)
             }
         }
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             if (ContextCompat.checkSelfPermission(requireContext(), android.Manifest.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK)
                 != PackageManager.PERMISSION_GRANTED
@@ -220,38 +344,30 @@ class PlaylistFragment : Fragment(){
             != PackageManager.PERMISSION_GRANTED
         ) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-                permissionsToRequest.add( android.Manifest.permission.FOREGROUND_SERVICE)
+                permissionsToRequest.add(android.Manifest.permission.FOREGROUND_SERVICE)
             }
         }
 
         if (permissionsToRequest.isNotEmpty()) {
             requestPermissionsLauncher.launch(permissionsToRequest.toTypedArray())
         } else {
-            foregroundNotification() // Permissions already granted
+            foregroundNotification()
         }
     }
 
-
-
-    private fun foregroundNotification(){
+    private fun foregroundNotification() {
         if (isPlayingAll) {
-                pauseAllSongs()
-            } else {
-                playAllSongs()
-            }
-//        if (Build.VERSION.SDK_INT >= 26) {
-//            ContextCompat.startForegroundService(requireContext(), Intent(requireContext(),ForeGround::class.java))
-//        } else {
-//            // Pre-O behavior.
-//            requireContext().startService(Intent(requireContext(),ForeGround::class.java))
-//        }
+            pauseAllSongs()
+        } else {
+            playAllSongs()
+        }
     }
+
     private fun showPermissionDeniedDialog() {
         AlertDialog.Builder(requireContext())
             .setTitle("Permission Required")
             .setMessage("This app requires notification and foreground service permissions to function properly.")
             .setPositiveButton("Grant") { _, _ ->
-                // Direct user to app settings to manually grant permissions
                 val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
                     data = Uri.fromParts("package", requireContext().packageName, null)
                 }
@@ -260,36 +376,92 @@ class PlaylistFragment : Fragment(){
             .setNegativeButton("Cancel", null)
             .show()
     }
+
     private fun requestPermissionResult() {
         requestPermissionsLauncher = registerForActivityResult(
             ActivityResultContracts.RequestMultiplePermissions()
         ) { permissions ->
-            // Handle the permission results
             val allPermissionsGranted = permissions.all { it.value }
             if (allPermissionsGranted) {
-                // All required permissions are granted, proceed with functionality
                 foregroundNotification()
             } else {
-                // Handle the case where permissions are denied
                 showPermissionDeniedDialog()
             }
         }
-
-  }
-
+    }
 
     private fun playSong(pos: Int) {
-        val intent = Intent(requireContext(), AudioPlaybackService::class.java).apply {
-            action = AudioPlaybackService.ACTION_PLAY
-            //putExtra(AudioPlaybackService.EXTRA_POSITION,pos)
+        lifecycleScope.launch {
+            homeViewModel.updateIndex(pos)
+            homeViewModel.playSong()
+            adapter.updateSelection(pos)
         }
-//        if (Build.VERSION.SDK_INT >= 26) {
-//            ContextCompat.startForegroundService(requireContext(),intent)
-//        } else {
-//
-            // Pre-O behavior.
-            requireContext().startService(intent)
-       // }
-    // Changed from startService to startForegroundService
+    }
+
+
+    private fun updateLikeButtonStateAlbum(isLiked: Boolean) {
+        if (isLiked) {
+            binding.playlistLikedBtn.setImageResource(R.drawable.liked_button)
+        } else {
+            binding.playlistLikedBtn.setImageResource(R.drawable.ic_unlike)
+        }
+    }
+
+    private fun updateLikedButtonStateSong(isLiked: Boolean){
+        if (isLiked){
+            this.bottomBinding.moreBottomSheetLikeText.text = "Remove from liked Song"
+            this.bottomBinding.moreBottomSheetLikeIcn.setImageResource(R.drawable.liked_button)
+
+
+        }
+        else{
+            this.bottomBinding.moreBottomSheetLikeText.text ="Add to Liked Songs"
+            this.bottomBinding.moreBottomSheetLikeIcn.setImageResource(R.drawable.ic_unlike)
+
+
+        }
+
+    }
+    private fun onMoreClick(){}
+
+    @SuppressLint("InflateParams")
+    private fun settingUpBottomSheet(song: Song){
+        val dialog = BottomSheetDialog(requireContext())
+        // Check if the binding is already initialized and remove it from its parent
+        if (::bottomBinding.isInitialized && bottomBinding.root.parent != null) {
+            (bottomBinding.root.parent as? ViewGroup)?.removeView(bottomBinding.root)
+        } else {
+            // Initialize the binding only if it's not already initialized
+            bottomBinding = MoreBottomSheetLayoutBinding.inflate(layoutInflater)
+        }
+
+
+        // on below line we are inflating a layout file which we have created.
+       bottomBinding.moreBottomLinearlayoutDeletePlaylist.visibility = View.GONE
+       bottomBinding.moreBottomLinearlayoutEditPlaylist.visibility = View.GONE
+
+        glide
+            .load(song.imageUrl)
+            .apply(
+                RequestOptions()
+                    .placeholder(R.drawable.default_image) // Replace with your default image resource
+                    .error(R.drawable.default_image) // Shown when there is an error loading the image
+            )
+            .into(bottomBinding.moreBottomSheetImage)
+
+        bottomBinding.moreBottomSheetSongTitle.text = song.title
+
+       bottomBinding.moreBottomSheetSongDescription.text = song.description
+
+
+        dialog.setCancelable(true)
+
+        // on below line we are setting
+        // content view to our view.
+        dialog.setContentView(this.bottomBinding.root)
+
+        // on below line we are calling
+        // a show method to display a dialog.
+        dialog.show()
     }
 }

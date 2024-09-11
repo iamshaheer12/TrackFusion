@@ -4,23 +4,29 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import com.bumptech.glide.RequestManager
 import com.bumptech.glide.request.RequestOptions
 import com.example.testprojectmusicplayer.R
 import com.example.testprojectmusicplayer.databinding.CardWithCorneredImageDescriptionBinding
 import com.example.testprojectmusicplayer.model.Album
+import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
-class HomeGetStartedRecyclerViewAdapter(
-    private val onItemClicked: (Int, Album) -> Unit
+class HomeGetStartedRecyclerViewAdapter @Inject constructor(
+    private val onItemClicked: (Int, Album) -> Unit,
+    private  val glide: RequestManager
+
 ) : RecyclerView.Adapter<HomeGetStartedRecyclerViewAdapter.ViewHolder>() {
 
     private var list: List<Album> = arrayListOf()
+
 
     inner class ViewHolder(
         private val binding: CardWithCorneredImageDescriptionBinding
     ) : RecyclerView.ViewHolder(binding.root) {
 
         fun bind(item: Album) {
-            Glide.with(binding.crCardImage.context)
+            glide
                 .load(item.imageUrl)
                 .apply(
                     RequestOptions()

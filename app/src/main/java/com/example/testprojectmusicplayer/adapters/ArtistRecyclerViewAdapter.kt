@@ -5,6 +5,7 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import com.bumptech.glide.RequestManager
 import com.bumptech.glide.request.RequestOptions
 import com.example.testprojectmusicplayer.R
 import com.example.testprojectmusicplayer.databinding.ArtistCardBinding
@@ -12,11 +13,16 @@ import com.example.testprojectmusicplayer.databinding.CardWithCorneredImageDescr
 import com.example.testprojectmusicplayer.databinding.RecentPlayCardBinding
 import com.example.testprojectmusicplayer.model.Album
 import com.example.testprojectmusicplayer.model.Artist
+import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
-class ArtistRecyclerViewAdapter(
-    private val onItemClick: (Int,Artist)->Unit
+class ArtistRecyclerViewAdapter @Inject constructor(
+    private val onItemClick: (Int,Artist)->Unit,
+    private val glide: RequestManager
 
 ):RecyclerView.Adapter<ArtistRecyclerViewAdapter.ViewHolder>() {
+
+
 
     private var list:List<Artist> = emptyList()
 
@@ -26,7 +32,7 @@ class ArtistRecyclerViewAdapter(
 
         fun bind(item:Artist) {
             binding.artistName.text = item.name
-            Glide.with(binding.artistImage.context)
+            glide
                 .load(item.imageUrl)
                 .apply(
                     RequestOptions()

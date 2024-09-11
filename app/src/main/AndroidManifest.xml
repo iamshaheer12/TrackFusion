@@ -17,11 +17,10 @@
         android:icon="@mipmap/ic_launcher_round"
         android:label="@string/app_name"
         android:roundIcon="@drawable/ic_launcher_background"
-        android:theme="@style/Base.Theme.SpotifyClone"
         tools:targetApi="31">
         <activity
             android:name=".view.MainActivity"
-            android:theme="@style/Base.Theme.SpotifyClone"
+            android:theme="@style/AppTheme"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />

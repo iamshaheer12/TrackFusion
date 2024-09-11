@@ -11,7 +11,7 @@ interface AlbumRepository {
     suspend fun getAlbumByIds(ids:List<String>,result: (UiStates<List<Album>>) -> Unit)
     suspend fun getAlbumById(id:String,result: (UiStates<Album?>) -> Unit)
     suspend fun onLikedAlbum(albumId: String,id:String,result: (UiStates<String>) -> Unit)
-    suspend fun isAlbumLikedByUser(albumId:String,userId:String):Boolean
+    suspend fun isAlbumLikedByUser(albumId:String,userId:String,onLikeStatusChanged: (Boolean) -> Unit)
     suspend fun unLikedAlbum(albumId: String,id:String,result: (UiStates<String>) -> Unit)
     suspend fun getAlbumsLikedByUser(userId: String,result: (UiStates<List<Album>?>)->Unit)
     suspend fun createAlbum(album: Album,result: (UiStates<String>) -> Unit)

@@ -3,15 +3,67 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/bottom_nav_graph"
-    app:startDestination="@id/homeFragment2">
+    app:startDestination="@id/playlistFragment2">
 
-    <fragment
-        android:id="@+id/homeFragment2"
-        android:name="com.example.testprojectmusicplayer.view.HomeFragment"
-        android:label="HomeFragment" />
     <fragment
         android:id="@+id/playlistFragment2"
         android:name="com.example.testprojectmusicplayer.view.PlaylistFragment"
         android:label="fragment_playlist"
         tools:layout="@layout/fragment_playlist" />
+    <fragment
+        android:id="@+id/libSearchFragment2"
+        android:name="com.example.testprojectmusicplayer.view.LibSearchFragment"
+        android:label="fragment_lib_search"
+        tools:layout="@layout/fragment_lib_search" />
+    <fragment
+        android:id="@+id/profileFragment2"
+        android:name="com.example.testprojectmusicplayer.view.ProfileFragment"
+        android:label="fragment_profile"
+        tools:layout="@layout/fragment_profile" />
+    <fragment
+        android:id="@+id/createPlaylistFragment2"
+        android:name="com.example.testprojectmusicplayer.view.CreatePlaylistFragment"
+        android:label="fragment_create_playlist"
+        tools:layout="@layout/fragment_create_playlist" />
+    <fragment
+        android:id="@+id/searchFragment"
+        android:name="com.example.testprojectmusicplayer.view.SearchFragment"
+        android:label="fragment_search"
+        tools:layout="@layout/fragment_search" >
+        <action
+            android:id="@+id/action_searchFragment_to_searchScreen2Fragment"
+            app:destination="@id/searchScreen2Fragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/searchScreen2Fragment"
+        android:name="com.example.testprojectmusicplayer.view.SearchScreen2Fragment"
+        android:label="fragment_search_screen2"
+        tools:layout="@layout/fragment_search_screen2" />
+    <fragment
+        android:id="@+id/homeFragment"
+        android:name="com.example.testprojectmusicplayer.view.HomeFragment"
+        android:label="fragment_home"
+        tools:layout="@layout/fragment_home" >
+        <action
+            android:id="@+id/action_homeFragment_to_playlistFragment2"
+            app:destination="@id/playlistFragment2" />
+        <action
+            android:id="@+id/action_homeFragment_to_profileFragment2"
+            app:destination="@id/profileFragment2" />
+    </fragment>
+    <fragment
+        android:id="@+id/libraryFragment"
+        android:name="com.example.testprojectmusicplayer.view.LibraryFragment"
+        android:label="fragment_library"
+        tools:layout="@layout/fragment_library" >
+        <action
+            android:id="@+id/action_libraryFragment_to_createPlaylistFragment2"
+            app:destination="@id/createPlaylistFragment2" />
+        <action
+            android:id="@+id/action_libraryFragment_to_libSearchFragment2"
+            app:destination="@id/libSearchFragment2" />
+        <action
+            android:id="@+id/action_libraryFragment_to_profileFragment2"
+            app:destination="@id/profileFragment2" />
+    </fragment>
 </navigation>

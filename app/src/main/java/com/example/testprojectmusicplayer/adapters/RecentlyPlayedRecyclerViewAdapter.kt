@@ -5,15 +5,21 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import com.bumptech.glide.RequestManager
 import com.bumptech.glide.request.RequestOptions
 import com.example.testprojectmusicplayer.R
 import com.example.testprojectmusicplayer.databinding.CardWithCorneredImageDescriptionBinding
 import com.example.testprojectmusicplayer.databinding.RecentPlayCardBinding
 import com.example.testprojectmusicplayer.model.Song
+import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
-class RecentlyPlayedRecyclerViewAdapter(
-    private val onItemClicked:(Int, Song) ->Unit
+class RecentlyPlayedRecyclerViewAdapter @Inject constructor(
+    private val onItemClicked:(Int, Song) ->Unit,
+    private val glide : RequestManager
 ):RecyclerView.Adapter<RecentlyPlayedRecyclerViewAdapter.ViewHolder>() {
+
+
 
 
     private var list: List<Song> = arrayListOf()
@@ -23,7 +29,8 @@ class RecentlyPlayedRecyclerViewAdapter(
     ) : RecyclerView.ViewHolder(binding.root) {
 
         fun bind(item: Song) {
-            Glide.with(binding.rpCardImage.context)
+            glide
+                //.with(binding.rpCardImage.context)
                 .load(item.imageUrl)
                 .apply(
                     RequestOptions()

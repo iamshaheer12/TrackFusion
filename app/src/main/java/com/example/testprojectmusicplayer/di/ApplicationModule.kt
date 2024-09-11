@@ -1,8 +1,11 @@
 package com.example.testprojectmusicplayer.di
 
+import android.app.Application
 import android.app.Service
 import android.content.Context
 import android.content.SharedPreferences
+import com.bumptech.glide.Glide
+import com.bumptech.glide.RequestManager
 import com.example.testprojectmusicplayer.utils.AudioPlaybackService
 import com.example.testprojectmusicplayer.utils.SharedPrefCons
 import com.google.gson.Gson
@@ -18,6 +21,11 @@ import javax.inject.Singleton
 object ApplicationModule{
 
 
+    @Provides
+    @Singleton
+    fun provideContext(application: Application): Context = application.applicationContext
+
+
 
     @Provides
     @Singleton
@@ -30,10 +38,17 @@ object ApplicationModule{
         return context.getSharedPreferences(SharedPrefCons.localPref,Context.MODE_PRIVATE)
     }
 
+//    @Provides
+//    @Singleton
+//    fun providesService():Service{
+//        return AudioPlaybackService()
+//    }
+
+
     @Provides
     @Singleton
-    fun providesService():Service{
-        return AudioPlaybackService()
+    fun provideGlideInstance(context: Context): RequestManager {
+        return Glide.with(context)
     }
 
 

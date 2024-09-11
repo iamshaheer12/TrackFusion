@@ -15,16 +15,22 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import com.bumptech.glide.RequestManager
 import com.example.testprojectmusicplayer.adapters.OnItemClickListener
 import com.example.testprojectmusicplayer.databinding.FragmentSearchScreen2Binding
 import com.example.testprojectmusicplayer.utils.UiStates
 import com.example.testprojectmusicplayer.viewModel.SearchViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
+import javax.inject.Inject
+
 @AndroidEntryPoint
 class SearchScreen2Fragment : Fragment(), OnItemClickListener {
     private lateinit var binding: FragmentSearchScreen2Binding
     private lateinit var mediaAdapter: MediaAdapter
+    @Inject
+    lateinit var glide: RequestManager
+
 
     private val viewModel: SearchViewModel by viewModels()
 
@@ -49,7 +55,7 @@ class SearchScreen2Fragment : Fragment(), OnItemClickListener {
 
     private fun setUpAdapter() {
         // Initialize the adapter with the listener and empty list
-        mediaAdapter = MediaAdapter(emptyList(), this)
+        mediaAdapter = MediaAdapter(emptyList(), this, glide = glide)
         binding.recyclerViewSearchBar.adapter = mediaAdapter
     }
 

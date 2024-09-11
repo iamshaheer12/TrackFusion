@@ -6,14 +6,18 @@ import android.view.ViewGroup
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import com.bumptech.glide.RequestManager
 import com.bumptech.glide.request.RequestOptions
 import com.example.testprojectmusicplayer.R
 import com.example.testprojectmusicplayer.databinding.PlaylistSongItemCardBinding
 import com.example.testprojectmusicplayer.model.Song
+import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
-class PlaylistItemsRecyclerView(
+class PlaylistItemsRecyclerView @Inject constructor(
     private val onItemClicked: (Int) -> Unit,
-    private val onMoreClicked: (Song, Int) -> Unit
+    private val onMoreClicked: (Song, Int) -> Unit,
+    private val glide: RequestManager
 ) : RecyclerView.Adapter<PlaylistItemsRecyclerView.AudioViewHolder>() {
 
     private var selectedPosition = -1
@@ -27,7 +31,8 @@ class PlaylistItemsRecyclerView(
             val context = binding.root.context
 
 
-            Glide.with(binding.psiImage)
+            glide
+                //.with(binding.psiImage)
                 .load(item.imageUrl)
                 .apply(
                     RequestOptions()
@@ -68,7 +73,7 @@ class PlaylistItemsRecyclerView(
     override fun getItemCount() = audioFiles.size
 
     // Function to update the selection
-    private fun updateSelection(newPosition: Int) {
+     fun updateSelection(newPosition: Int) {
         val previousPosition = selectedPosition
         selectedPosition = newPosition
         notifyItemChanged(previousPosition) // Update the previous item to default color

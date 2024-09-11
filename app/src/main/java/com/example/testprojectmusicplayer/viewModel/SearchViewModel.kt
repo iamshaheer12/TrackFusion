@@ -102,7 +102,7 @@ class SearchViewModel @Inject constructor(
                         is MediaItem.ArtistItem -> item.artist.name.contains(query, ignoreCase = true)
                         is MediaItem.AlbumItem -> item.album.title.contains(query, ignoreCase = true)
                         is MediaItem.SongItem -> item.song.title.contains(query, ignoreCase = true)
-                        else -> false
+
                     }
                 }
             }

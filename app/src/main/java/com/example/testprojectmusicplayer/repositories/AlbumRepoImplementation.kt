@@ -1,10 +1,12 @@
 package com.example.testprojectmusicplayer.repositories
 
 import android.annotation.SuppressLint
+import android.util.Log
 import com.example.testprojectmusicplayer.model.Album
 import com.example.testprojectmusicplayer.model.Song
 import com.example.testprojectmusicplayer.utils.FireStoreCons
 import com.example.testprojectmusicplayer.utils.UiStates
+import com.google.android.gms.tasks.Tasks
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.toObject
@@ -82,11 +84,23 @@ class AlbumRepoImplementation(
 
     }
 
-    override suspend fun isAlbumLikedByUser(albumId: String, userId: String): Boolean {
-        val document = firestore.collection(FireStoreCons.albumCollection).document(albumId).get().await()
-        val likedBy = document.get("likedBy") as? List<String> ?: emptyList()
-        return likedBy.contains(userId)
+    override suspend fun isAlbumLikedByUser(albumId: String, userId: String, onLikeStatusChanged: (Boolean) -> Unit) {
+        val albumDocumentRef = firestore.collection(FireStoreCons.albumCollection).document(albumId)
 
+        albumDocumentRef.addSnapshotListener { snapshot, e ->
+            if (e != null) {
+                Log.w("FirestoreListener", "Listen failed.", e)
+                return@addSnapshotListener
+            }
+
+            if (snapshot != null && snapshot.exists()) {
+                val likedBy = snapshot.get("likedBy") as? List<String> ?: emptyList()
+                val isLikedByUser = likedBy.contains(userId)
+                onLikeStatusChanged(isLikedByUser)
+            } else {
+                Log.d("FirestoreListener", "Current data: null")
+            }
+        }
     }
 
     override suspend fun onLikedAlbum(
@@ -159,27 +173,48 @@ class AlbumRepoImplementation(
     }
 
 
-
-
     override suspend fun getAlbumsLikedByUser(
         userId: String,
         result: (UiStates<List<Album>?>) -> Unit
     ) {
-        firestore.collection(FireStoreCons.albumCollection)
-            .whereArrayContains("likedBy", userId)
-            .get()
-            .addOnSuccessListener { querySnapshot ->
-                val albums = querySnapshot?.documents?.mapNotNull { document ->
-                    document.toObject(Album::class.java)
+        val albumsCollection = firestore.collection(FireStoreCons.albumCollection)
+
+        try {
+            // List to store all album results
+            val albums = mutableSetOf<Album>() // Using a Set to avoid duplicates
+
+            // First query: Get albums where 'likedBy' array contains 'userId'
+            val likedByQuery = albumsCollection.whereArrayContains("likedBy", userId).get()
+
+            // Second query: Get albums where 'createdBy' is equal to 'userId'
+            val createdByQuery = albumsCollection.whereEqualTo("createdBy", userId).get()
+
+            // Run both queries concurrently
+            Tasks.whenAllComplete(likedByQuery, createdByQuery)
+                .addOnSuccessListener {
+                    val likedByResult = likedByQuery.result
+                    val createdByResult = createdByQuery.result
+
+                    // Combine results from both queries
+                    likedByResult?.documents?.forEach { document ->
+                        albums.add(document.toObject(Album::class.java)!!)
+                    }
+                    createdByResult?.documents?.forEach { document ->
+                        albums.add(document.toObject(Album::class.java)!!)
+                    }
+
+                    // Return combined result
+                    result(UiStates.Success(albums.toList()))
                 }
-                result.invoke(UiStates.Success(albums))
-            }
-            .addOnFailureListener { exception ->
-                // Handle any errors
-                // exception.printStackTrace()
-                result.invoke(UiStates.Failure(exception.localizedMessage))
-            }
+                .addOnFailureListener { e ->
+                    result(UiStates.Failure("Error fetching albums"))
+                }
+        } catch (e: Exception) {
+            result(UiStates.Failure("An unexpected error occurred", ))
+        }
+
     }
+
 
     @SuppressLint("SuspiciousIndentation")
     override suspend fun createAlbum(

@@ -36,10 +36,10 @@
             android:layout_marginTop="16dp"
             android:layout_marginStart="8dp"
             android:orientation="vertical"
+
             android:layout_height="wrap_content"
             app:layout_constraintStart_toEndOf="@+id/more_bottom_sheet_image"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/more_bottom_sheet_image"
             app:layout_constraintBottom_toBottomOf="@+id/more_bottom_sheet_image"
             >
             <TextView
@@ -79,6 +79,8 @@
         <LinearLayout
             android:id="@+id/more_bottom_linearlayout_like"
             android:layout_width="match_parent"
+            android:clickable="true"
+            android:focusable="true"
             android:layout_marginTop="16dp"
             android:orientation="horizontal"
             app:layout_constraintTop_toBottomOf="@+id/more_bottom_sheet_divider"
@@ -87,8 +89,8 @@
             android:layout_height="wrap_content">
             <ImageView
                 android:id="@+id/more_bottom_sheet_like_icn"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_width="25dp"
+                android:layout_height="25dp"
                 android:src="@drawable/ic_unlike"/>
             <TextView
                 android:id="@+id/more_bottom_sheet_like_text"
@@ -107,6 +109,8 @@
             android:layout_width="match_parent"
             android:layout_marginTop="16dp"
             android:orientation="horizontal"
+            android:clickable="true"
+            android:focusable="true"
             app:layout_constraintTop_toBottomOf="@+id/more_bottom_linearlayout_like"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"

@@ -12,6 +12,7 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import com.bumptech.glide.RequestManager
 import com.example.testprojectmusicplayer.adapters.LibraryRecyclerViewAdapter
 import com.example.testprojectmusicplayer.adapters.OnItemClickListener1
 import com.example.testprojectmusicplayer.databinding.FragmentLibSearchBinding
@@ -20,11 +21,15 @@ import com.example.testprojectmusicplayer.utils.UiStates
 import com.example.testprojectmusicplayer.viewModel.LibraryViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class LibSearchFragment : Fragment(),OnItemClickListener1 {
     private lateinit var binding: FragmentLibSearchBinding
     private val viewModel: LibraryViewModel by viewModels()
+    @Inject
+    lateinit var glide: RequestManager
+
     private lateinit var adapter: LibraryRecyclerViewAdapter
 
 
@@ -52,7 +57,7 @@ class LibSearchFragment : Fragment(),OnItemClickListener1 {
 
 
     private fun settingAdapter(){
-        adapter = LibraryRecyclerViewAdapter(emptyList(),this)
+        adapter = LibraryRecyclerViewAdapter(emptyList(),this, glide = glide)
         binding.recyclerViewLibSearchBar.adapter = adapter
 
     }

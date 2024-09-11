@@ -12,6 +12,7 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import com.bumptech.glide.RequestManager
 import com.example.testprojectmusicplayer.R
 import com.example.testprojectmusicplayer.adapters.ArtistRecyclerViewAdapter
 import com.example.testprojectmusicplayer.adapters.HomeGetStartedRecyclerViewAdapter
@@ -27,14 +28,18 @@ import com.example.testprojectmusicplayer.utils.UiStates
 import com.example.testprojectmusicplayer.viewModel.HomeViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class HomeFragment : Fragment() {
     private lateinit var recentPlayGrid: GridView
+    @Inject
+    lateinit var glide: RequestManager
+
     private lateinit var binding: FragmentHomeBinding
     private val homeViewModel: HomeViewModel by viewModels()
     private val getStartedAdapter by lazy {
-        HomeGetStartedRecyclerViewAdapter(
+        HomeGetStartedRecyclerViewAdapter(glide = glide,
             onItemClicked = { _,_ ->
 
             }
@@ -42,13 +47,13 @@ class HomeFragment : Fragment() {
 
     }
     private val recentPlayAdapter by lazy {
-        RecentlyPlayedRecyclerViewAdapter(onItemClicked = {_,_ ->
+        RecentlyPlayedRecyclerViewAdapter(glide = glide,onItemClicked = {_,_ ->
 
         })
 
     }
     private val recommendedAdapter by lazy {
-        MusicRecyclerViewAdapter(onItemClicked =  {
+        MusicRecyclerViewAdapter(glide = glide,onItemClicked =  {
 
         })
 
@@ -56,7 +61,8 @@ class HomeFragment : Fragment() {
     }
 
     private val artistAdapter by lazy {
-        ArtistRecyclerViewAdapter(onItemClick = {_,_ ->
+        ArtistRecyclerViewAdapter(glide = glide,
+            onItemClick = {_,_ ->
 
         })
 

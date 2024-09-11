@@ -3,13 +3,8 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/nav_graph"
-    app:startDestination="@id/createPlaylistFragment">
+    app:startDestination="@id/mainFragment">
 
-    <activity
-        android:id="@+id/mainActivity"
-        android:name="com.example.testprojectmusicplayer.view.MainActivity"
-        android:label="activity_main"
-        tools:layout="@layout/activity_main" />
     <fragment
         android:id="@+id/splashScreenFragment"
         android:name="com.example.testprojectmusicplayer.view.SplashScreenFragment"
@@ -51,48 +46,27 @@
         android:label="fragment_email_login"
         tools:layout="@layout/fragment_email_login" />
     <fragment
-        android:id="@+id/homeFragment"
-        android:name="com.example.testprojectmusicplayer.HomeFragment"
-        android:label="fragment_home"
-        tools:layout="@layout/fragment_home" />
-    <fragment
-        android:id="@+id/playlistFragment"
-        android:name="com.example.testprojectmusicplayer.view.PlaylistFragment"
-        android:label="fragment_playlist"
-        tools:layout="@layout/fragment_playlist" />
-    <fragment
         android:id="@+id/searchFragment"
         android:name="com.example.testprojectmusicplayer.view.SearchFragment"
         android:label="fragment_search"
         tools:layout="@layout/fragment_search" />
-    <fragment
-        android:id="@+id/libraryFragment"
-        android:name="com.example.testprojectmusicplayer.view.LibraryFragment"
-        android:label="fragment_library"
-        tools:layout="@layout/fragment_library" />
+
     <fragment
         android:id="@+id/mainFragment"
         android:name="com.example.testprojectmusicplayer.view.MainFragment"
         android:label="fragment_main"
-        tools:layout="@layout/fragment_main" />
-    <fragment
-        android:id="@+id/profileFragment"
-        android:name="com.example.testprojectmusicplayer.view.ProfileFragment"
-        android:label="fragment_profile"
-        tools:layout="@layout/fragment_profile" />
+        tools:layout="@layout/fragment_main">
+        <argument
+            android:name="graph"
+            app:navGraph="@navigation/bottom_nav_graph" />
+
+    </fragment>
+
+
     <fragment
         android:id="@+id/searchScreen2Fragment"
         android:name="com.example.testprojectmusicplayer.view.SearchScreen2Fragment"
         android:label="fragment_search_screen2"
         tools:layout="@layout/fragment_search_screen2" />
-    <fragment
-        android:id="@+id/libSearchFragment"
-        android:name="com.example.testprojectmusicplayer.view.LibSearchFragment"
-        android:label="fragment_lib_search"
-        tools:layout="@layout/fragment_lib_search" />
-    <fragment
-        android:id="@+id/createPlaylistFragment"
-        android:name="com.example.testprojectmusicplayer.view.CreatePlaylistFragment"
-        android:label="fragment_create_playlist"
-        tools:layout="@layout/fragment_create_playlist" />
+  \
 </navigation>

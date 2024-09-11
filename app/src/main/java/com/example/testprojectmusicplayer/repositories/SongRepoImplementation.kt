@@ -1,6 +1,7 @@
 package com.example.testprojectmusicplayer.repositories
 
 import android.annotation.SuppressLint
+import android.util.Log
 import com.example.testprojectmusicplayer.model.Song
 import com.example.testprojectmusicplayer.utils.FireStoreCons
 import com.example.testprojectmusicplayer.utils.UiStates
@@ -83,10 +84,23 @@ class SongRepoImplementation(
 
 
 
-    override suspend fun isSongLikedByUser(songId: String, userId: String): Boolean {
-        val document = firestore.collection(FireStoreCons.songsCollection).document(songId).get().await()
-        val likedBy = document.get("likedBy") as? List<String> ?: emptyList()
-        return likedBy.contains(userId)
+    override suspend fun isSongLikedByUser(songId: String, userId: String,onLikeStatusChanged: (Boolean) -> Unit){
+        val albumDocumentRef = firestore.collection(FireStoreCons.songsCollection).document(songId)
+
+        albumDocumentRef.addSnapshotListener { snapshot, e ->
+            if (e != null) {
+                Log.w("FirestoreListener", "Listen failed.", e)
+                return@addSnapshotListener
+            }
+
+            if (snapshot != null && snapshot.exists()) {
+                val likedBy = snapshot.get("likedBy") as? List<String> ?: emptyList()
+                val isLikedByUser = likedBy.contains(userId)
+                onLikeStatusChanged(isLikedByUser)
+            } else {
+                Log.d("Firestore Listener", "Current data: null")
+            }
+        }
 
     }
 
@@ -96,34 +110,71 @@ class SongRepoImplementation(
         result: (UiStates<String>) -> Unit
     ) {
         try {
-
             val document = firestore.collection(FireStoreCons.songsCollection).document(songId)
-            val runTransaction = firestore.runTransaction { transaction ->
+
+            // Run the transaction to update the song document
+            firestore.runTransaction { transaction ->
                 val snapshot = transaction.get(document)
                 val likes = snapshot.getLong("like") ?: 0
                 val likedBy = snapshot.get("likedBy") as? List<String> ?: emptyList()
-                if (!likedBy.contains(id)){
+
+                if (!likedBy.contains(id)) {
                     val newLikes = likes + 1
-                    val newLikedBy = likedBy+id
-                    transaction.update(document,"like",newLikes)
-                    transaction.update(document,"likedBy",newLikedBy)
+                    val newLikedBy = likedBy + id
+                    transaction.update(document, "like", newLikes)
+                    transaction.update(document, "likedBy", newLikedBy)
                 }
-
-
             }.addOnSuccessListener {
-                result.invoke(UiStates.Success("Liked Successfully"))
-            }
-                .addOnFailureListener {
-                    result.invoke(UiStates.Failure("Sorry !"))
+                // On successful transaction, proceed to update the album
+                addSongInRepositoryOnLike(id = id, songId = songId) { albumResult ->
+                    when (albumResult) {
+                        is UiStates.Success -> result.invoke(UiStates.Success("Successfully Liked and Added to Album"))
+                        is UiStates.Failure -> result.invoke(UiStates.Failure("Liked Successfully but Failed to Update Album"))
+                        else -> {}
+                    }
                 }
-
-
-        }
-        catch (e:Exception){
+            }.addOnFailureListener {
+                // Handle failure in liking the song
+                result.invoke(UiStates.Failure("Failed to Like Song"))
+            }
+        } catch (e: Exception) {
             result.invoke(UiStates.Failure("An unknown error occurred"))
         }
+    }
 
+    fun addSongInRepositoryOnLike(id: String, songId: String, result: (UiStates<String>) -> Unit) {
+        val document = firestore.collection(FireStoreCons.albumCollection).document(id)
 
+        firestore.runTransaction { transaction ->
+            val snapshot = transaction.get(document)
+            val songs = snapshot.get("songs") as? List<String> ?: emptyList()
+
+            if (!songs.contains(songId)) {
+                val newSongs = songs + songId
+                transaction.update(document, "songs", newSongs)
+            }
+        }.addOnSuccessListener {
+            // Successfully updated the album
+            result.invoke(UiStates.Success("Successfully Added Song to Album"))
+        }.addOnFailureListener {
+            // Handle failure in updating the album
+            result.invoke(UiStates.Failure("Failed to Add Song to Album"))
+        }
+    }
+
+    fun removeSongInRepositoryOnUnLike(id: String,songId: String,result: (UiStates<String>) -> Unit){
+        val document = firestore.collection(FireStoreCons.albumCollection).document(id)
+        val transaction = firestore.runTransaction {
+                transaction ->
+            val snapshot = transaction.get(document)
+            val songs = snapshot.get("songs")as? List<String>?: emptyList()
+            if (songs.contains(songId)){
+                val newSong = songs - songId
+                transaction.update(document,"songs",newSong)
+
+            }
+
+        }
     }
 
     override suspend fun unLikedSong(
@@ -147,7 +198,14 @@ class SongRepoImplementation(
 
                 }
             }.addOnSuccessListener {
-                result.invoke(UiStates.Success("Successfully Unliked"))
+                removeSongInRepositoryOnUnLike(id,songId){
+                        albumResult ->
+                    when (albumResult) {
+                        is UiStates.Success -> result.invoke(UiStates.Success("Successfully UnLiked and remove from Album"))
+                        is UiStates.Failure -> result.invoke(UiStates.Failure("Unliked Successfully but Failed to Update Album"))
+                        else -> {}
+                    }
+                }
 
             }
                 .addOnFailureListener {

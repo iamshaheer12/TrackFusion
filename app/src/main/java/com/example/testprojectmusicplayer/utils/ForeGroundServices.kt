@@ -20,55 +20,57 @@ import android.support.v4.media.session.MediaSessionCompat
 import android.support.v4.media.session.PlaybackStateCompat
 import android.util.Log
 import android.widget.RemoteViews
-import android.widget.Toast
 import androidx.core.app.NotificationCompat
-import androidx.core.content.ContentProviderCompat.requireContext
-import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.ViewModelStoreOwner
-import com.bumptech.glide.Glide
 import com.example.testprojectmusicplayer.R
-//import com.example.testprojectmusicplayer.di.ViewModelFactory
 import com.example.testprojectmusicplayer.model.Song
-import com.example.testprojectmusicplayer.viewModel.HomeViewModel
-import com.example.testprojectmusicplayer.viewModel.SharedViewModel
-import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
-@AndroidEntryPoint
 class AudioPlaybackService : Service() {
+
     private val notificationChannelId = "MEDIA_PLAYBACK_CHANNEL"
     private val serviceId = 1
     private lateinit var notificationManager: NotificationManager
-   private lateinit var notification: Notification
+    private lateinit var notification: Notification
     private lateinit var mediaSession: MediaSessionCompat
     private var mediaPlayer: MediaPlayer? = null
     private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
 
+    private var playbackCallback: PlaybackCallback? = null
+
+    private var audioFiles: List<Song> = emptyList()
+    private var currentSongIndex = 0
+
     private val binder = LocalBinder()
 
-    // Binder class
     inner class LocalBinder : Binder() {
         fun getService(): AudioPlaybackService = this@AudioPlaybackService
     }
 
 
-   lateinit  var viewModel: HomeViewModel
-    private var audioFiles: List<Song> = emptyList()
-//        arrayListOf(
-//            Song(
-//                audioFile = "https://firebasestorage.googleapis.com/v0/b/fir-d60af.appspot.com/o/_Tum%20Hi%20Ho_%20Aashiqui%202%20Full%20Song%20With%20Lyrics%20_%20Aditya%20Roy%20Kapur%2C%20Shraddha%20Kapoor.mp3?alt=media&token=f3fb7bd6-f910-425b-ae5f-7185ce40b430"
-//            ),
-//            Song(audioFile = "https://firebasestorage.googleapis.com/v0/b/fir-d60af.appspot.com/o/Aadat%20(Juda%20Hoke%20Bhi)%20_%20Atif%20Aslam%20_%20Kunal%20Khemu%20_%20Kalyug%20_%20Sayeed%20Q%20_%20Emraan%20Hashmi.mp3?alt=media&token=65a3142d-dd3c-42f5-a4fc-aeb9af8e5e30")
-//        )
-    private var currentSongIndex = 0
+
+    fun updateSongList(songs:List<Song>){
+        audioFiles = songs
+
+
+    }
+
+    interface PlaybackCallback {
+        fun onPlaybackPositionChanged(position: Int)
+        fun onPlaybackCompleted()
+        fun onPlaybackStopped()
+        fun onPlaybackError(error: String)
+        fun onSongChanged(song: Song)
+        fun onIndexChanged(index: Int)
+
+        fun onPlaybackStateChanged(isPlaying: Boolean)
+    }
 
     override fun onCreate() {
         super.onCreate()
+        setupMediaPlayer()
         createNotificationChannel()
 
         mediaSession = MediaSessionCompat(this, "AudioPlaybackService").apply {
@@ -76,121 +78,101 @@ class AudioPlaybackService : Service() {
             isActive = true
         }
 
-
-        //notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-
-
-
-//        viewModel =
-//            ViewModelProvider(this.applicationContext as ViewModelStoreOwner, viewModelFactory)[HomeViewModel::class.java]//
-//           serviceScope.launch {
-//           viewModel.allSongsState.collect{ state ->
-//               when (state) {
-//                   is UiStates.Loading -> {
-//                       // Show loading indicator
-//                     //  Toast.makeText(requireContext(), "Loading", Toast.LENGTH_SHORT).show()
-//
-//                   }
-//                   is UiStates.Success -> {
-//                       audioFiles = state.data.toMutableList()
-//                      // Toast.makeText(requireContext(), "Success"+songs, Toast.LENGTH_SHORT).show()
-//
-//                       Log.e("SongsData",state.data.toMutableList().toString())
-//                       updateNotification()
-//                      // adapter.updateList(state.data.toMutableList())
-//
-//                       // Navigate to the next screen or show success message
-//                   }
-//                   is UiStates.Failure -> {
-//                       // Show error message
-//                       //Toast.makeText(requireContext(), state.error, Toast.LENGTH_SHORT).show()
-//                   }
-//               }
-//
-//
-//
-//
-//           }
-//       }
-
-
-
-
-       // audioFiles = sharedViewModel.getSongsList()
-
-
-
         registerReceiver(becomingNoisyReceiver, IntentFilter(AudioManager.ACTION_AUDIO_BECOMING_NOISY))
         updateNotification()
-
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         startForeground(serviceId, notification)
 
         when (intent?.action) {
-            ACTION_PLAY -> playSong(currentSongIndex)
-            ACTION_PAUSE -> pauseSong()
+            ACTION_PLAY -> {
+                if (mediaPlayer?.isPlaying == true) {
+                    resumePlayback()
+                } else {
+                    playSong(currentSongIndex)
+                }
+            }
+            ACTION_PAUSE -> pausePlayback()
             ACTION_NEXT -> nextSong()
             ACTION_PREVIOUS -> previousSong()
         }
 
-        updateNotification()
         return START_STICKY
     }
 
-    private fun playSong(index: Int) {
-        Log.d("service", "playing")
-        Log.d("service", audioFiles.isNotEmpty().toString())
 
+    override fun onBind(intent: Intent): IBinder {
+        return binder
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        releaseMediaPlayer()
+        mediaSession.release()
+        unregisterReceiver(becomingNoisyReceiver)
+    }
+
+    fun setPlaybackCallback(callback: PlaybackCallback) {
+        this.playbackCallback = callback
+    }
+
+    fun playSong(index: Int) {
         if (audioFiles.isNotEmpty()) {
             serviceScope.launch {
                 try {
-                    // If the song is already playing or is paused, just resume it
-                    if (mediaPlayer != null) {
-                        if (mediaPlayer!!.isPlaying) {
-                            Log.d("service", "Song is already playing")
-                            // Song is already playing, do nothing
-                            return@launch
-                        } else {
-                            // Resume the song if it was paused
-                            Log.d("service", "Resuming the current song from paused position")
-                            mediaPlayer?.start()
-                            updatePlaybackState(PlaybackStateCompat.STATE_PLAYING)
-                            updateNotification()
-                            return@launch
-                        }
+                    // Release and reset MediaPlayer if already playing or exists
+                    mediaPlayer?.reset()  // Reset instead of release
+                    mediaPlayer?.setDataSource(audioFiles[index].audioFile)
+                    mediaPlayer?.prepareAsync()  // Prepare asynchronously
+
+                    mediaPlayer?.setOnPreparedListener {
+                        it.start()
+                        notifyPlaybackStateChanged(true)
+                        notifyPositionChange()
+                        updateNotification()
                     }
 
-                    // If mediaPlayer is null or hasn't been initialized, start a new song
-                    this@AudioPlaybackService.mediaPlayer?.release() // Release existing player if it exists
-                    mediaPlayer = MediaPlayer().apply {
-                        setDataSource(audioFiles[index].audioFile)
-                        setOnPreparedListener {
-                            start()
-                            updatePlaybackState(PlaybackStateCompat.STATE_PLAYING)
-                            updateNotification()
-                        }
-                        setOnCompletionListener {
-                            nextSong()
-                        }
-                        prepareAsync()
+                    mediaPlayer?.setOnCompletionListener {
+                        nextSong()
+                        notifyPlaybackCompleted()
                     }
+
+                    mediaPlayer?.setOnErrorListener { _, what, extra ->
+                        handlePlaybackError("Error code: $what Extra code: $extra")
+                        true
+                    }
+
+                    notifySongChanged(audioFiles[index])
                 } catch (e: Exception) {
-                    Log.d("service manager test", e.message.toString())
+                    Log.e("AudioPlaybackService", "Error playing song: ${e.message}")
+                    handlePlaybackError(e.message.toString())
                 }
             }
         }
     }
 
-    private fun pauseSong() {
-        mediaPlayer?.let {
-            if (it.isPlaying) {
-                it.pause()
-                updatePlaybackState(PlaybackStateCompat.STATE_PAUSED)
-                //updateNotification()
-            }
-        }
+
+    fun pausePlayback() {
+        mediaPlayer?.takeIf { it.isPlaying }?.pause()
+        notifyPlaybackStateChanged(false)
+        updateNotification()
+    }
+
+    fun resumePlayback() {
+        mediaPlayer?.takeIf { !it.isPlaying }?.start()  // Resume playback if not already playing
+        notifyPlaybackStateChanged(true)
+        updateNotification()
+    }
+
+    fun stopPlayback() {
+        mediaPlayer?.takeIf { it.isPlaying }?.stop()
+        notifyPlaybackStopped()
+        updateNotification()
+    }
+
+    fun seekTo(position: Int) {
+        mediaPlayer?.takeIf { it.isPlaying }?.seekTo(position)
     }
 
     private fun nextSong() {
@@ -198,8 +180,6 @@ class AudioPlaybackService : Service() {
             currentSongIndex++
             playSong(currentSongIndex)
 
-            Log.e("Current Indes of song ",currentSongIndex.toString())
-          //  sharedViewModel.setCurrentSongIndex(currentSongIndex)
         }
     }
 
@@ -207,8 +187,6 @@ class AudioPlaybackService : Service() {
         if (currentSongIndex > 0) {
             currentSongIndex--
             playSong(currentSongIndex)
-            //sharedViewModel.setCurrentSongIndex(currentSongIndex)
-
         }
     }
 
@@ -216,60 +194,112 @@ class AudioPlaybackService : Service() {
         mediaSession.setPlaybackState(
             PlaybackStateCompat.Builder()
                 .setState(state, mediaPlayer?.currentPosition?.toLong() ?: 0L, 1.0f)
-                .setActions(PlaybackStateCompat.ACTION_PLAY or PlaybackStateCompat.ACTION_PAUSE or PlaybackStateCompat.ACTION_SKIP_TO_NEXT or PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS)
+                .setActions(
+                    PlaybackStateCompat.ACTION_PLAY or
+                            PlaybackStateCompat.ACTION_PAUSE or
+                            PlaybackStateCompat.ACTION_SKIP_TO_NEXT or
+                            PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS
+                )
                 .build()
         )
     }
 
+    private fun setupMediaPlayer() {
+        mediaPlayer = MediaPlayer().apply {
+            setOnCompletionListener {
+                nextSong()
+                notifyPlaybackCompleted()
+            }
+            setOnSeekCompleteListener {
+                notifyPositionChange()
+            }
+        }
+    }
+
+    private fun releaseMediaPlayer() {
+        mediaPlayer?.release()
+        mediaPlayer = null
+    }
+
+    private fun notifySongChanged(song: Song) {
+        playbackCallback?.onSongChanged(song)
+    }
+
+    private fun notifyPlaybackStateChanged(isPlaying: Boolean) {
+        playbackCallback?.onPlaybackStateChanged(isPlaying)
+    }
+
+    private fun notifyPlaybackCompleted() {
+        playbackCallback?.onPlaybackCompleted()
+    }
+
+    private fun notifyPlaybackStopped() {
+        playbackCallback?.onPlaybackStopped()
+    }
+
+    private fun handlePlaybackError(error: String) {
+        playbackCallback?.onPlaybackError(error)
+    }
+
+    private fun notifyPositionChange() {
+        val position = mediaPlayer?.currentPosition ?: 0
+        playbackCallback?.onPlaybackPositionChanged(position)
+    }
+
+    private fun notifyIndexChanged(){
+        playbackCallback?.onIndexChanged(currentSongIndex)
+    }
+
     @SuppressLint("RemoteViewLayout")
     private fun updateNotification() {
-        // Create RemoteViews object for custom notification layout
         val customView = RemoteViews(packageName, R.layout.notification_layout)
-        customView.setTextViewText(R.id.notification_title, audioFiles[currentSongIndex].title)
-        customView.setTextViewText(R.id.notification_description, audioFiles[currentSongIndex].description)
+        val currentSong = audioFiles.getOrNull(currentSongIndex)
+        customView.setTextViewText(R.id.notification_title, currentSong?.title ?: "Unknown Title")
+        customView.setTextViewText(R.id.notification_description, currentSong?.description ?: "Unknown Description")
 
+        currentSong?.imageUrl?.let { imageUrl ->
+            customView.setImageViewUri(R.id.notification_image, Uri.parse(imageUrl))
+        }
 
-        customView.setImageViewUri(R.id.notification_image, Uri.parse( audioFiles[currentSongIndex].imageUrl)
-            )
-
-        // Update the play/pause button state based on media playback status
         if (mediaPlayer?.isPlaying == true) {
-            customView.setImageViewResource(R.id.notification_play, R.drawable.ic_play_button_green)
+            customView.setImageViewResource(R.id.notification_play, R.drawable.ic_play_button_green)  // Corrected pause icon
             customView.setOnClickPendingIntent(R.id.notification_play, getPendingIntent(ACTION_PAUSE))
         } else {
-            customView.setImageViewResource(R.id.notification_play, R.drawable.ic_play)
+            customView.setImageViewResource(R.id.notification_play, R.drawable.ic_play)  // Corrected play icon
             customView.setOnClickPendingIntent(R.id.notification_play, getPendingIntent(ACTION_PLAY))
         }
-        customView.setOnClickPendingIntent(R.id.notification_next,getPendingIntent(ACTION_NEXT))
-        customView.setOnClickPendingIntent(R.id.notification_previous,getPendingIntent(
-            ACTION_PREVIOUS))
 
+        customView.setOnClickPendingIntent(R.id.notification_next, getPendingIntent(ACTION_NEXT))
+        customView.setOnClickPendingIntent(R.id.notification_previous, getPendingIntent(ACTION_PREVIOUS))
 
-        // Create a NotificationCompat.Action for Previous and Next actions
-
-
-        val notification = NotificationCompat.Builder(this, notificationChannelId)
-            .setSmallIcon(R.drawable.default_image) // Replace with your actual icon
-            .setCustomContentView(customView) // Use the custom content view
-            .setCustomBigContentView(customView) // Use the custom content view for expanded notification // Add Next action
+        notification = NotificationCompat.Builder(this, notificationChannelId)
+            .setSmallIcon(R.drawable.default_image)
+            .setCustomContentView(customView)
+            .setCustomBigContentView(customView)
             .setStyle(
                 androidx.media.app.NotificationCompat.MediaStyle()
                     .setMediaSession(mediaSession.sessionToken)
+                    .setShowActionsInCompactView(0, 1, 2)  // Ensuring controls are shown in the compact view
             )
+            .setPriority(NotificationCompat.PRIORITY_LOW)  // Priority set to Low to prevent sound or heads-up notifications
+            .setOngoing(true)  // Ensures the notification is ongoing
             .build()
 
-        this.notification = notification
+        notificationManager.notify(serviceId, notification)
     }
 
 
     private fun createNotificationChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val channel = NotificationChannel(notificationChannelId, "Media Playback", NotificationManager.IMPORTANCE_HIGH)
-            channel.description = "Media Playback Notifications"
+            val channel = NotificationChannel(notificationChannelId, "Media Playback", NotificationManager.IMPORTANCE_LOW).apply {
+                description = "Media Playback Notifications"
+                setShowBadge(false)
+            }
             notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
             notificationManager.createNotificationChannel(channel)
         }
     }
+
 
     @SuppressLint("ObsoleteSdkInt")
     private fun getPendingIntent(action: String): PendingIntent {
@@ -282,20 +312,9 @@ class AudioPlaybackService : Service() {
         return PendingIntent.getService(this, 0, intent, pendingFlags)
     }
 
-
-    override fun onDestroy() {
-        mediaPlayer?.release()
-        mediaPlayer = null
-        mediaSession.release()
-        unregisterReceiver(becomingNoisyReceiver)
-        super.onDestroy()
-    }
-
-    override fun onBind(intent: Intent?): IBinder? = binder
-
     private val becomingNoisyReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
-            pauseSong()
+            pausePlayback()
         }
     }
 
@@ -305,7 +324,7 @@ class AudioPlaybackService : Service() {
         }
 
         override fun onPause() {
-            pauseSong()
+            pausePlayback()
         }
 
         override fun onSkipToNext() {
@@ -318,9 +337,9 @@ class AudioPlaybackService : Service() {
     }
 
     companion object {
-        const val ACTION_PLAY = "com.example.testprojectmusicplayer.ACTION_PLAY"
-        const val ACTION_PAUSE = "com.example.testprojectmusicplayer.ACTION_PAUSE"
-        const val ACTION_NEXT = "com.example.testprojectmusicplayer.ACTION_NEXT"
-        const val ACTION_PREVIOUS = "com.example.testprojectmusicplayer.ACTION_PREVIOUS"
+        const val ACTION_PLAY = "ACTION_PLAY"
+        const val ACTION_PAUSE = "ACTION_PAUSE"
+        const val ACTION_NEXT = "ACTION_NEXT"
+        const val ACTION_PREVIOUS = "ACTION_PREVIOUS"
     }
 }

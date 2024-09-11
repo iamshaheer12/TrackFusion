@@ -5,6 +5,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import com.bumptech.glide.RequestManager
 import com.bumptech.glide.request.RequestOptions
 import com.example.testprojectmusicplayer.R
 import com.example.testprojectmusicplayer.databinding.PlaylistSongItemCardBinding
@@ -14,11 +15,15 @@ import com.example.testprojectmusicplayer.model.Album
 import com.example.testprojectmusicplayer.model.Artist
 import com.example.testprojectmusicplayer.model.Song
 import com.example.testprojectmusicplayer.utils.MediaItem
-
-class MediaAdapter(
+import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
+class MediaAdapter @Inject constructor(
     private var items: List<MediaItem>,
-    private val itemClickListener: OnItemClickListener
+    private val itemClickListener: OnItemClickListener,
+    private val glide : RequestManager
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+
+
 
     companion object {
         private const val VIEW_TYPE_ALBUM = 0
@@ -98,7 +103,8 @@ class MediaAdapter(
             binding.psiMore.visibility = View.GONE
             binding.psiTitle.text = album.title
             binding.psiDescription.text = album.descriptions
-            Glide.with(binding.psiImage.context)
+            glide
+                //.with(binding.psiImage.context)
                 .load(album.imageUrl)
                 .apply(
                     RequestOptions()
@@ -126,7 +132,8 @@ class MediaAdapter(
 
         fun bind(artist: Artist) {
             binding.searchArtistName.text = artist.name
-            Glide.with(binding.searchArtistImage.context)
+            glide
+                //.with(binding.searchArtistImage.context)
                 .load(artist.imageUrl)
                 .apply(
                     RequestOptions()
@@ -157,7 +164,8 @@ class MediaAdapter(
         fun bind(song: Song) {
             binding.searchSongTitle.text = song.title
             binding.searchSongDescription.text = song.description
-            Glide.with(binding.searchSongImage.context)
+            glide
+                //.with(binding.searchSongImage.context)
                 .load(song.imageUrl)
                 .apply(
                     RequestOptions()

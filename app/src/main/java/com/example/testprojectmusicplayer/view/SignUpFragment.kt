@@ -73,9 +73,7 @@ class SignUpFragment : Fragment() {
                         is UiStates.Loading -> {
                             // Handle loading state
                         }
-                        else -> {
-                            // Handle any other state
-                        }
+
                     }
                 }
             }
