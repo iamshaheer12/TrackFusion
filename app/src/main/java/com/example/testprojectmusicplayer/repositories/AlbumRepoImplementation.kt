@@ -3,15 +3,12 @@ package com.example.testprojectmusicplayer.repositories
 import android.annotation.SuppressLint
 import android.util.Log
 import com.example.testprojectmusicplayer.model.Album
-import com.example.testprojectmusicplayer.model.Song
 import com.example.testprojectmusicplayer.utils.FireStoreCons
 import com.example.testprojectmusicplayer.utils.UiStates
 import com.google.android.gms.tasks.Tasks
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.toObject
-import kotlinx.coroutines.tasks.await
-import javax.inject.Inject
 
 class AlbumRepoImplementation(
     private val firestore: FirebaseFirestore
@@ -19,7 +16,8 @@ class AlbumRepoImplementation(
 
     override suspend fun getAlbums(result: (UiStates<List<Album>>) -> Unit) {
         try {
-            firestore.collection(FireStoreCons.albumCollection)
+            firestore.collection(FireStoreCons.ALBUM_COLLECTION)
+                .whereEqualTo("visibility",true)
                 .get()
                 .addOnSuccessListener { querySnapshot ->
                     val albums = ArrayList<Album>()
@@ -42,14 +40,14 @@ class AlbumRepoImplementation(
 
     override suspend fun getAlbumById(id: String, result: (UiStates<Album?>) -> Unit) {
         try {
-            firestore.collection(FireStoreCons.albumCollection).document(id)
+            firestore.collection(FireStoreCons.ALBUM_COLLECTION).document(id)
                 .get()
                 .addOnSuccessListener {
                     val album =  it.toObject<Album>()
                     result.invoke(UiStates.Success(album))
                 }
                 .addOnFailureListener {
-                    result.invoke( UiStates.Failure(it.localizedMessage))
+                    result.invoke( UiStates.Failure(it.localizedMessage.orEmpty()))
                 }
 
         }
@@ -62,7 +60,7 @@ class AlbumRepoImplementation(
     override suspend fun getAlbumByIds(ids: List<String>, result: (UiStates<List<Album>>) -> Unit) {
         try {
 
-            firestore.collection(FireStoreCons.albumCollection)
+            firestore.collection(FireStoreCons.ALBUM_COLLECTION)
                 .whereIn("id",ids)
                 .get()
                 .addOnSuccessListener {
@@ -85,7 +83,7 @@ class AlbumRepoImplementation(
     }
 
     override suspend fun isAlbumLikedByUser(albumId: String, userId: String, onLikeStatusChanged: (Boolean) -> Unit) {
-        val albumDocumentRef = firestore.collection(FireStoreCons.albumCollection).document(albumId)
+        val albumDocumentRef = firestore.collection(FireStoreCons.ALBUM_COLLECTION).document(albumId)
 
         albumDocumentRef.addSnapshotListener { snapshot, e ->
             if (e != null) {
@@ -109,7 +107,7 @@ class AlbumRepoImplementation(
         result: (UiStates<String>) -> Unit
     ) {
         try {
-            val document = firestore.collection(FireStoreCons.albumCollection).document(albumId)
+            val document = firestore.collection(FireStoreCons.ALBUM_COLLECTION).document(albumId)
             val runTransaction = firestore.runTransaction{
                     transaction ->
                 val snapshot = transaction.get(document)
@@ -144,7 +142,7 @@ class AlbumRepoImplementation(
         result: (UiStates<String>) -> Unit
     ) {
         try {
-            val document = firestore.collection(FireStoreCons.albumCollection).document(albumId)
+            val document = firestore.collection(FireStoreCons.ALBUM_COLLECTION).document(albumId)
             val runTransaction = firestore.runTransaction{
                     transaction ->
                 val snapshot = transaction.get(document)
@@ -175,9 +173,9 @@ class AlbumRepoImplementation(
 
     override suspend fun getAlbumsLikedByUser(
         userId: String,
-        result: (UiStates<List<Album>?>) -> Unit
+        result: (UiStates<List<Album>>) -> Unit
     ) {
-        val albumsCollection = firestore.collection(FireStoreCons.albumCollection)
+        val albumsCollection = firestore.collection(FireStoreCons.ALBUM_COLLECTION)
 
         try {
             // List to store all album results
@@ -221,7 +219,7 @@ class AlbumRepoImplementation(
         album: Album,
         result: (UiStates<String>) -> Unit
     ) {
-        val document = firestore.collection(FireStoreCons.albumCollection).document()
+        val document = firestore.collection(FireStoreCons.ALBUM_COLLECTION).document()
         album.id = document.id
           document.set(album)
               .addOnSuccessListener {
@@ -234,7 +232,7 @@ class AlbumRepoImplementation(
     }
 
     override suspend fun deleteAlbum(id: String,result: (UiStates<String>) -> Unit) {
-        firestore.collection(FireStoreCons.albumCollection).document(id)
+        firestore.collection(FireStoreCons.ALBUM_COLLECTION).document(id)
             .delete()
             .addOnSuccessListener {
                 result.invoke(UiStates.Success("Deleted Successfully"))
@@ -247,8 +245,8 @@ class AlbumRepoImplementation(
     }
 
     override suspend fun updateAlbum(album: Album, result: (UiStates<String>) -> Unit) {
-        val document = firestore.collection(FireStoreCons.albumCollection).document()
-        album.id = document.id
+        val document = firestore.collection(FireStoreCons.ALBUM_COLLECTION).document()
+
         document.set(album)
             .addOnSuccessListener {
                 result.invoke(UiStates.Success("Album Updated  Successfully"))
@@ -265,7 +263,7 @@ class AlbumRepoImplementation(
         result: (UiStates<String>) -> Unit
     ) {
 
-        val albumsCollection = firestore.collection(FireStoreCons.albumCollection) // Collection name for albums
+        val albumsCollection = firestore.collection(FireStoreCons.ALBUM_COLLECTION) // Collection name for albums
 
         try {
             // Iterate through each album ID
@@ -303,7 +301,7 @@ class AlbumRepoImplementation(
     override suspend fun removeSongFromAlbum(songId: String,albumId: String, result: (UiStates<String>) -> Unit) {
 
         try {
-            val document = firestore.collection(FireStoreCons.albumCollection).document(albumId)
+            val document = firestore.collection(FireStoreCons.ALBUM_COLLECTION).document(albumId)
         val transaction =     firestore.runTransaction {transaction->
 
             val snapshot = transaction.get(document)
@@ -332,6 +330,33 @@ class AlbumRepoImplementation(
 
 
 
+    }
+
+    override suspend fun getAlbumCreatedByUser(
+        userId: String,
+        result: (UiStates<List<Album>>) -> Unit
+    ) {
+        try {
+            val albumCollection = firestore.collection(FireStoreCons.ALBUM_COLLECTION)
+                .whereEqualTo("createdBy",userId)
+                .get()
+                .addOnSuccessListener {
+                        querySnapshot ->
+                    val albums = ArrayList<Album>()
+                    for (document in querySnapshot) {
+                        val album = document.toObject(Album::class.java)
+                        albums.add(album)
+                    }
+                    result.invoke(UiStates.Success(albums))                }
+                .addOnFailureListener {
+                    result.invoke(UiStates.Failure(error = it.localizedMessage!!))
+                }
+
+        }
+        catch (e:Exception){
+            result.invoke(UiStates.Failure(error = e.localizedMessage!!))
+
+        }
     }
 
 }

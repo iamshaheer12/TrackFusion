@@ -33,6 +33,7 @@
             android:layout_weight="1"
             android:textSize="21sp"
             android:textStyle="bold"
+            android:textColor="@color/spotify_light_gray"
             android:text="@string/log_in_without_password"
             android:gravity="center" />
     </LinearLayout>
@@ -44,6 +45,7 @@
         android:layout_marginStart="16dp"
         android:layout_marginTop="40dp"
         android:layout_marginEnd="16dp"
+        app:hintEnabled="false"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/el_linear_layout">
@@ -66,6 +68,8 @@
         android:gravity="start"
         android:layout_marginLeft="16dp"
         android:layout_marginRight="16dp"
+        android:textColor="@color/spotify_light_gray"
+
         android:text="@string/email_login_text"
         android:textSize="18sp"
         app:layout_constraintTop_toBottomOf="@+id/el_user_email_layout"/>

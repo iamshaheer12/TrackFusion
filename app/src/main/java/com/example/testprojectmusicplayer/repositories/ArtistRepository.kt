@@ -12,5 +12,5 @@ interface ArtistRepository {
     suspend fun onLikedArtist(artistId: String,id:String,result: (UiStates<String>) -> Unit)
     suspend fun isArtistLikedByUser(artistId:String,userId:String):Boolean
     suspend fun unLikedArtist(artistId: String,id:String,result: (UiStates<String>) -> Unit)
-    suspend fun getArtistsLikedByUser(userId: String,result: (UiStates<List<Artist>?>)->Unit)
+    suspend fun getArtistsLikedByUser(userId: String,result: (UiStates<List<Artist>>)->Unit)
 }

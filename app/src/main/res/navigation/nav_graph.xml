@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/nav_graph"
-    app:startDestination="@id/mainFragment">
+    app:startDestination="@id/splashScreenFragment">
 
     <fragment
         android:id="@+id/splashScreenFragment"
@@ -13,6 +13,9 @@
         <action
             android:id="@+id/action_splashScreenFragment_to_startingFragment"
             app:destination="@id/startingFragment" />
+        <action
+            android:id="@+id/action_splashScreenFragment_to_mainFragment"
+            app:destination="@id/mainFragment" />
     </fragment>
     <fragment
         android:id="@+id/startingFragment"
@@ -25,6 +28,9 @@
         <action
             android:id="@+id/action_startingFragment_to_loginFragment"
             app:destination="@id/loginFragment" />
+        <action
+            android:id="@+id/action_startingFragment_to_mainFragment"
+            app:destination="@id/mainFragment" />
     </fragment>
     <fragment
         android:id="@+id/loginFragment"
@@ -39,17 +45,16 @@
         android:id="@+id/signUpFragment"
         android:name="com.example.testprojectmusicplayer.view.SignUpFragment"
         android:label="fragment_sign_up"
-        tools:layout="@layout/fragment_sign_up" />
+        tools:layout="@layout/fragment_sign_up" >
+        <action
+            android:id="@+id/action_signUpFragment_to_mainFragment"
+            app:destination="@id/mainFragment" />
+    </fragment>
     <fragment
         android:id="@+id/emailLoginFragment"
         android:name="com.example.testprojectmusicplayer.view.EmailLoginFragment"
         android:label="fragment_email_login"
         tools:layout="@layout/fragment_email_login" />
-    <fragment
-        android:id="@+id/searchFragment"
-        android:name="com.example.testprojectmusicplayer.view.SearchFragment"
-        android:label="fragment_search"
-        tools:layout="@layout/fragment_search" />
 
     <fragment
         android:id="@+id/mainFragment"
@@ -62,11 +67,4 @@
 
     </fragment>
 
-
-    <fragment
-        android:id="@+id/searchScreen2Fragment"
-        android:name="com.example.testprojectmusicplayer.view.SearchScreen2Fragment"
-        android:label="fragment_search_screen2"
-        tools:layout="@layout/fragment_search_screen2" />
-  \
 </navigation>

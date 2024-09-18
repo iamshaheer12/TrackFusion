@@ -1,16 +1,11 @@
 package com.example.testprojectmusicplayer.repositories
 
-import com.example.testprojectmusicplayer.model.Album
 import com.example.testprojectmusicplayer.model.Artist
-import com.example.testprojectmusicplayer.model.Song
 import com.example.testprojectmusicplayer.utils.FireStoreCons
 import com.example.testprojectmusicplayer.utils.UiStates
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.toObject
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.tasks.await
-import kotlinx.coroutines.withContext
-import javax.inject.Inject
 
 class ArtistRepoImplementation(
     private val firestore: FirebaseFirestore
@@ -18,7 +13,7 @@ class ArtistRepoImplementation(
 
     override suspend fun getArtists(result: (UiStates<List<Artist>>) -> Unit) {
             try {
-                firestore.collection(FireStoreCons.artistCollection)
+                firestore.collection(FireStoreCons.ARTIST_COLLECTION)
                     .get()
                     .addOnSuccessListener { querySnapshot ->
                         val artists = ArrayList<Artist>()
@@ -44,7 +39,7 @@ class ArtistRepoImplementation(
 
     override suspend fun getArtistById(id: String, result: (UiStates<Artist?>) -> Unit) {
         try {
-            firestore.collection(FireStoreCons.artistCollection).document(id)
+            firestore.collection(FireStoreCons.ARTIST_COLLECTION).document(id)
                 .get()
                 .addOnSuccessListener {
                     val artist =  it.toObject<Artist>()
@@ -64,7 +59,7 @@ class ArtistRepoImplementation(
     override suspend fun getArtistByIds(ids: List<String>, result: (UiStates<List<Artist>>) -> Unit) {
         try {
 
-            firestore.collection(FireStoreCons.artistCollection)
+            firestore.collection(FireStoreCons.ARTIST_COLLECTION)
                 .whereIn("id",ids)
                 .get()
                 .addOnSuccessListener {
@@ -87,7 +82,7 @@ class ArtistRepoImplementation(
     }
 
     override suspend fun isArtistLikedByUser(artistId: String, userId: String): Boolean {
-        val document = firestore.collection(FireStoreCons.artistCollection).document(artistId).get().await()
+        val document = firestore.collection(FireStoreCons.ARTIST_COLLECTION).document(artistId).get().await()
         val likedBy = document.get("likedBy") as? List<String> ?: emptyList()
         return likedBy.contains(userId)
     }
@@ -98,7 +93,7 @@ class ArtistRepoImplementation(
         result: (UiStates<String>) -> Unit
     ) {
         try {
-            val document = firestore.collection(FireStoreCons.artistCollection).document(artistId)
+            val document = firestore.collection(FireStoreCons.ARTIST_COLLECTION).document(artistId)
             firestore.runTransaction {transaction ->
                 val snapshot = transaction.get(document)
                 val like = snapshot.getLong("like")?:0
@@ -132,7 +127,7 @@ class ArtistRepoImplementation(
         result: (UiStates<String>) -> Unit
     ) {
         try {
-            val document = firestore.collection(FireStoreCons.artistCollection).document(artistId)
+            val document = firestore.collection(FireStoreCons.ARTIST_COLLECTION).document(artistId)
             firestore.runTransaction {transaction ->
                 val snapshot = transaction.get(document)
                 val like = snapshot.getLong("like")?:0
@@ -161,16 +156,16 @@ class ArtistRepoImplementation(
 
     override suspend fun getArtistsLikedByUser(
         userId: String,
-        result: (UiStates<List<Artist>?>) -> Unit
+        result: (UiStates<List<Artist>>) -> Unit
     ) {
-        firestore.collection(FireStoreCons.albumCollection)
+        firestore.collection(FireStoreCons.ALBUM_COLLECTION)
             .whereArrayContains("likedBy", userId)
             .get()
             .addOnSuccessListener { querySnapshot ->
-                val artist = querySnapshot?.documents?.mapNotNull { document ->
+                val artists = querySnapshot?.documents?.mapNotNull { document ->
                     document.toObject(Artist::class.java)
-                }
-                result.invoke(UiStates.Success(artist))
+                } ?: emptyList()
+                result.invoke(UiStates.Success(artists))
             }
             .addOnFailureListener { exception ->
                 // Handle any errors

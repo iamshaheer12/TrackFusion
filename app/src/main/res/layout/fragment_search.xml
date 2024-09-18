@@ -67,22 +67,24 @@
             android:textColor="@color/spotify_white"
             android:textSize="@dimen/default_text_size"
             android:text="@string/browse_all"/>
+
         <GridView
 
             android:id="@+id/search_category_items"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="370dp"
             android:layout_marginTop="16dp"
-            android:horizontalSpacing="8dp"
-            android:verticalSpacing="8dp"
-            android:stretchMode="columnWidth"
             android:gravity="center"
+            android:horizontalSpacing="8dp"
             android:numColumns="2"
-            tools:listitem="@layout/category_grid_item_card"
+            android:stretchMode="columnWidth"
+            android:verticalSpacing="8dp"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/search_brows_txt"
-            tools:ignore="NestedScrolling">
+            tools:ignore="NestedScrolling"
+            tools:listitem="@layout/category_grid_item_card">
 
         </GridView>
 

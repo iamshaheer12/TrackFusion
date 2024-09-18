@@ -26,8 +26,8 @@ class PlaylistItemsRecyclerView @Inject constructor(
     inner class AudioViewHolder(private val binding: PlaylistSongItemCardBinding) :
         RecyclerView.ViewHolder(binding.root) {
         fun bind(item: Song) {
-            binding.psiTitle.text = item.title
-            binding.psiDescription.text = item.description
+            binding.adsTitle.text = item.title
+            binding.adsDescription.text = item.description
             val context = binding.root.context
 
 
@@ -39,7 +39,7 @@ class PlaylistItemsRecyclerView @Inject constructor(
                         .placeholder(R.drawable.default_image) // Replace with your default image resource
                         .error(R.drawable.default_image) // Shown when there is an error loading the image
                 )
-                .into(binding.psiImage)
+                .into(binding.adsImage)
             val color = if (adapterPosition == selectedPosition) {
                 ContextCompat.getColor(context, R.color.spotify_green) // Replace 'green' with your actual color resource name
             } else {
@@ -48,7 +48,7 @@ class PlaylistItemsRecyclerView @Inject constructor(
 
             // Change the color of the title based on whether this item is selected
 
-                binding.psiTitle.setTextColor(color)
+                binding.adsTitle.setTextColor(color)
 
 
             binding.root.setOnClickListener {

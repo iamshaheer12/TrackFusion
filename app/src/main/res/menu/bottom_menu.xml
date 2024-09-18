@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
-        android:id="@+id/home"
+        android:id="@+id/homeFragment"
         android:title="@string/home"
         android:icon="@drawable/ic_home_unselected"
         />
     <item
-        android:id="@+id/search"
+        android:id="@+id/searchFragment"
         android:title="@string/search"
         android:icon="@drawable/ic_search_unselected"
         />
     <item
-        android:id="@+id/library"
+        android:id="@+id/libraryFragment"
         android:title="Your Library"
         android:icon="@drawable/ic_library_unselected"
         />

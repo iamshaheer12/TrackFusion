@@ -15,6 +15,7 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.RequestManager
 import com.example.testprojectmusicplayer.adapters.OnItemClickListener
 import com.example.testprojectmusicplayer.databinding.FragmentSearchScreen2Binding
@@ -50,6 +51,7 @@ class SearchScreen2Fragment : Fragment(), OnItemClickListener {
         setUpAdapter()
         observers()
         setupLiveSearch()
+        onclick()
 
     }
 
@@ -99,6 +101,11 @@ class SearchScreen2Fragment : Fragment(), OnItemClickListener {
         })
     }
 
+    private fun onclick(){
+        binding.searchArrowBack.setOnClickListener {
+            findNavController().popBackStack()
+        }
+    }
     override fun onItemClick(item: MediaItem) {
         when (item) {
             is MediaItem.AlbumItem -> {

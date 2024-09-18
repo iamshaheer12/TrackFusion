@@ -48,8 +48,8 @@ class LibSearchFragment : Fragment(),OnItemClickListener1 {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         settingAdapter()
-        viewModel.getArtist()
-        viewModel.getStartedAlbums()
+        viewModel.getLikedAlbums("")
+        viewModel.getFollowedArtist("")
         observers()
         setupLiveSearch()
 

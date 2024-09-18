@@ -15,11 +15,7 @@ object ShareIntent {
         }
         return Intent.createChooser(shareIntent, "Share Playlist") // Optional: Add a chooser for selecting sharing method
     }
-//    fun sharePlaylist(context: Context) {
-//        val playlistUrl = "https://yourapp.com/playlist/12345" // Replace with your actual playlist URL
-//        val shareIntent = createSharePlaylistIntent(playlistUrl)
-//        startActivity(context,shareIntent)
-//    }
+
 
 
 }

@@ -1,14 +1,11 @@
 package com.example.testprojectmusicplayer.repositories
 
-import android.annotation.SuppressLint
 import android.util.Log
 import com.example.testprojectmusicplayer.model.Song
 import com.example.testprojectmusicplayer.utils.FireStoreCons
 import com.example.testprojectmusicplayer.utils.UiStates
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.toObject
-import kotlinx.coroutines.tasks.await
-import javax.inject.Inject
 
 class SongRepoImplementation(
     private val firestore: FirebaseFirestore,
@@ -17,7 +14,7 @@ class SongRepoImplementation(
 
     override suspend fun getSongById(id: String, result: (UiStates<Song?>) -> Unit) {
         try {
-            firestore.collection(FireStoreCons.songsCollection).document(id)
+            firestore.collection(FireStoreCons.SONG_COLLECTION).document(id)
                 .get()
                 .addOnSuccessListener {
                     val song =  it.toObject<Song>()
@@ -35,7 +32,7 @@ class SongRepoImplementation(
 
     override suspend fun getAllSongs(result: (UiStates<List<Song>>) -> Unit) {
         try {
-            firestore.collection(FireStoreCons.songsCollection)
+            firestore.collection(FireStoreCons.SONG_COLLECTION)
                 .get()
                 .addOnSuccessListener { querySnapshot ->
                     val songs = ArrayList<Song>()
@@ -58,7 +55,7 @@ class SongRepoImplementation(
     override suspend fun getSongsByIds(ids: List<String>, result: (UiStates<List<Song>>) -> Unit) {
      try {
 
-        firestore.collection(FireStoreCons.songsCollection)
+        firestore.collection(FireStoreCons.SONG_COLLECTION)
             .whereIn("id",ids)
             .get()
             .addOnSuccessListener {
@@ -85,7 +82,7 @@ class SongRepoImplementation(
 
 
     override suspend fun isSongLikedByUser(songId: String, userId: String,onLikeStatusChanged: (Boolean) -> Unit){
-        val albumDocumentRef = firestore.collection(FireStoreCons.songsCollection).document(songId)
+        val albumDocumentRef = firestore.collection(FireStoreCons.SONG_COLLECTION).document(songId)
 
         albumDocumentRef.addSnapshotListener { snapshot, e ->
             if (e != null) {
@@ -110,7 +107,7 @@ class SongRepoImplementation(
         result: (UiStates<String>) -> Unit
     ) {
         try {
-            val document = firestore.collection(FireStoreCons.songsCollection).document(songId)
+            val document = firestore.collection(FireStoreCons.SONG_COLLECTION).document(songId)
 
             // Run the transaction to update the song document
             firestore.runTransaction { transaction ->
@@ -143,7 +140,7 @@ class SongRepoImplementation(
     }
 
     fun addSongInRepositoryOnLike(id: String, songId: String, result: (UiStates<String>) -> Unit) {
-        val document = firestore.collection(FireStoreCons.albumCollection).document(id)
+        val document = firestore.collection(FireStoreCons.ALBUM_COLLECTION).document(id)
 
         firestore.runTransaction { transaction ->
             val snapshot = transaction.get(document)
@@ -163,7 +160,7 @@ class SongRepoImplementation(
     }
 
     fun removeSongInRepositoryOnUnLike(id: String,songId: String,result: (UiStates<String>) -> Unit){
-        val document = firestore.collection(FireStoreCons.albumCollection).document(id)
+        val document = firestore.collection(FireStoreCons.ALBUM_COLLECTION).document(id)
         val transaction = firestore.runTransaction {
                 transaction ->
             val snapshot = transaction.get(document)
@@ -183,7 +180,7 @@ class SongRepoImplementation(
         result: (UiStates<String>) -> Unit
     ) {
         try {
-            val document = firestore.collection(FireStoreCons.songsCollection).document(songId)
+            val document = firestore.collection(FireStoreCons.SONG_COLLECTION).document(songId)
             val runTransaction = firestore.runTransaction{transaction ->
                 val snapshot = transaction.get(document)
                 val like = snapshot.getLong("like")?:0
@@ -227,7 +224,7 @@ class SongRepoImplementation(
         result: (UiStates<List<Song>?>) -> Unit
     ) {try {
 
-        firestore.collection(FireStoreCons.songsCollection)
+        firestore.collection(FireStoreCons.SONG_COLLECTION)
             .whereArrayContains("likedBy", userId)
             .get()
             .addOnSuccessListener { querySnapshot ->
@@ -252,7 +249,7 @@ class SongRepoImplementation(
 
     override suspend fun getSongByGenres(genres: String, result: (UiStates<List<Song>>) -> Unit) {
         try {
-            val document = firestore.collection(FireStoreCons.songsCollection).whereEqualTo("genres",genres)
+            val document = firestore.collection(FireStoreCons.SONG_COLLECTION).whereEqualTo("genres",genres)
                 .get()
                 .addOnSuccessListener {
                         querySnapshot ->

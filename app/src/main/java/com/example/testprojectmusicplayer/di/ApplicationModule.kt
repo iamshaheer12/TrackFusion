@@ -1,13 +1,12 @@
 package com.example.testprojectmusicplayer.di
 
+import com.example.testprojectmusicplayer.utils.UserObject
 import android.app.Application
-import android.app.Service
 import android.content.Context
 import android.content.SharedPreferences
 import com.bumptech.glide.Glide
 import com.bumptech.glide.RequestManager
-import com.example.testprojectmusicplayer.utils.AudioPlaybackService
-import com.example.testprojectmusicplayer.utils.SharedPrefCons
+import com.example.testprojectmusicplayer.utils.SharedPrefConstants
 import com.google.gson.Gson
 import dagger.Module
 import dagger.Provides
@@ -35,7 +34,7 @@ object ApplicationModule{
     @Provides
     @Singleton
     fun provideSharedPreference(@ApplicationContext context: Context): SharedPreferences {
-        return context.getSharedPreferences(SharedPrefCons.localPref,Context.MODE_PRIVATE)
+        return context.getSharedPreferences(SharedPrefConstants.LOCAL_PREF,Context.MODE_PRIVATE)
     }
 
 //    @Provides
@@ -50,6 +49,13 @@ object ApplicationModule{
     fun provideGlideInstance(context: Context): RequestManager {
         return Glide.with(context)
     }
-
+    @Provides
+    @Singleton
+    fun provideUserObject(
+        sharedPreferences: SharedPreferences,
+        gson: Gson
+    ): UserObject {
+        return UserObject(sharedPreferences, gson)
+    }
 
 }

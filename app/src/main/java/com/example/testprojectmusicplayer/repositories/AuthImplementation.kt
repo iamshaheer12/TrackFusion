@@ -2,9 +2,10 @@ package com.example.testprojectmusicplayer.repositories
 
 import android.content.Intent
 import android.content.SharedPreferences
+import com.example.testprojectmusicplayer.model.Album
 import com.example.testprojectmusicplayer.model.User
 import com.example.testprojectmusicplayer.utils.FireStoreCons
-import com.example.testprojectmusicplayer.utils.SharedPrefCons
+import com.example.testprojectmusicplayer.utils.SharedPrefConstants
 import com.example.testprojectmusicplayer.utils.UiStates
 import com.google.firebase.auth.ActionCodeSettings
 import com.google.firebase.auth.FirebaseAuth
@@ -15,13 +16,16 @@ import com.google.firebase.auth.FirebaseAuthWeakPasswordException
 import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.gson.Gson
-import javax.inject.Inject
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 class AuthRepoImplementation(
     private val firestore: FirebaseFirestore,
     private val firebaseAuth: FirebaseAuth,
     private val sharedPref:SharedPreferences,
-    private val gson: Gson
+    private val gson: Gson,
+    private val albumRepository: AlbumRepository
 
     ):AuthRepository {
 
@@ -29,7 +33,7 @@ class AuthRepoImplementation(
    override suspend fun sendLoginEmail(email: String, result: (UiStates<String>) -> Unit) {
         // Configure the ActionCodeSettings
         val actionCodeSettings = ActionCodeSettings.newBuilder()
-            .setUrl(FireStoreCons.loggingEmail) // The link the user clicks
+            .setUrl(FireStoreCons.LOGGING_EMAIL) // The link the user clicks
             .setHandleCodeInApp(true) // Handle the link in your app
             .setAndroidPackageName(
                 "com.example.testprojectmusicplayer",
@@ -42,7 +46,7 @@ class AuthRepoImplementation(
         firebaseAuth.sendSignInLinkToEmail(email, actionCodeSettings)
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
-                    sharedPref.edit().putString(SharedPrefCons.loggingEmail,email).apply()
+                    sharedPref.edit().putString(SharedPrefConstants.LOGGING_EMAIL,email).apply()
                     result.invoke(UiStates.Success("Sign-in link sent to $email. Please check your inbox."))
                 } else {
                     result.invoke(UiStates.Failure(task.exception?.localizedMessage ?: "Failed to send sign-in link."))
@@ -54,7 +58,7 @@ class AuthRepoImplementation(
     }
     private fun handleSignInLink(intent: Intent?,result: (UiStates<String>) -> Unit) {
         val emailLink = intent?.data.toString()
-        val pendingEmail = sharedPref.getString(SharedPrefCons.loggingEmail,null)
+        val pendingEmail = sharedPref.getString(SharedPrefConstants.LOGGING_EMAIL,null)
 
         if (emailLink.isNotEmpty() && firebaseAuth.isSignInWithEmailLink(emailLink)) {
             val email = pendingEmail ?: return
@@ -65,10 +69,10 @@ class AuthRepoImplementation(
                         val user = task.result?.user
                         if (user != null) {
                             // Store additional user data if needed
-                            sharedPref.edit().putString(SharedPrefCons.storeSession,gson.toJson(user)).apply()
+                            sharedPref.edit().putString(SharedPrefConstants.STORE_SESSION,gson.toJson(user)).apply()
                         }
                         // Clear the pending email
-                        sharedPref.edit().putString(SharedPrefCons.loggingEmail,null).apply()
+                        sharedPref.edit().putString(SharedPrefConstants.LOGGING_EMAIL,null).apply()
                         result.invoke(UiStates.Success("Logged In Successfully"))
                         // Navigate to the desired screen
                     } else {
@@ -148,7 +152,24 @@ class AuthRepoImplementation(
                         updateUser(user) { uiStates ->
                             when (uiStates) {
                                 is UiStates.Success -> {
-                                    result.invoke(UiStates.Success("User Created Successfully"))
+                                    // Switch to the IO dispatcher for the repository operations
+                                    CoroutineScope(Dispatchers.IO).launch {
+                                        try {
+                                            // Create an album after user creation
+                                            albumRepository.createAlbum(
+                                                album = Album(
+                                                    createdBy = user.userId,
+                                                    title = "Liked Songs",
+                                                    descriptions = "",
+                                                    visibility = false
+                                                )
+                                            ) {
+                                                result.invoke(UiStates.Success("User created successfully."))
+                                            }
+                                        } catch (e: Exception) {
+                                            result.invoke(UiStates.Failure("Failed to create album: ${e.message}"))
+                                        }
+                                    }
                                 }
                                 is UiStates.Failure -> {
                                     result.invoke(UiStates.Failure(uiStates.error))
@@ -220,13 +241,13 @@ class AuthRepoImplementation(
 
 
     override fun storeSession(idToken: String, result: (User?) -> Unit) {
-        firestore.collection(FireStoreCons.user).document(idToken)
+        firestore.collection(FireStoreCons.USER).document(idToken)
             .get()
             .addOnCompleteListener {
                 if (it.isSuccessful){
                     val user = it.result.toObject(User::class.java)
                     result.invoke(user)
-                    sharedPref.edit().putString(SharedPrefCons.storeSession,gson.toJson(user)).apply()
+                    sharedPref.edit().putString(SharedPrefConstants.STORE_SESSION,gson.toJson(user)).apply()
 
                 }
                 else{
@@ -243,10 +264,10 @@ class AuthRepoImplementation(
 
     override fun updateUser(user: User, result: (UiStates<String>) -> Unit) {
         try {
-            val document = firestore.collection(FireStoreCons.user).document(user.userId)
+            val document = firestore.collection(FireStoreCons.USER).document(user.userId)
             document.set(user) // Assuming you meant to set the `user` object, not `document`
                 .addOnCompleteListener {
-                    sharedPref.edit().putString(SharedPrefCons.storeSession, gson.toJson(user)).apply()
+                    sharedPref.edit().putString(SharedPrefConstants.STORE_SESSION, gson.toJson(user)).apply()
                     result.invoke(UiStates.Success("User Updated Successfully"))
                 }
                 .addOnFailureListener {

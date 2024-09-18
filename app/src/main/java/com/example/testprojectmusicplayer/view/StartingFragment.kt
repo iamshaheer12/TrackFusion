@@ -32,6 +32,8 @@ class StartingFragment : Fragment() {
     }
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        onClick()
+        observer()
     }
 
     private fun onClick(){
@@ -42,7 +44,13 @@ class StartingFragment : Fragment() {
             findNavController().navigate(R.id.action_startingFragment_to_loginFragment)
         }
 
+        binding.stGoogleSignBtn.setOnClickListener {
+            authViewModel.signWithGoogle(R.string.default_web_client_id.toString())
+        }
+
     }
+
+
     private fun observer(){
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED){
@@ -52,6 +60,7 @@ class StartingFragment : Fragment() {
                         is UiStates.Success -> {
                             // Handle success
                             Toast.makeText(context, uiState.data, Toast.LENGTH_SHORT).show()
+                            findNavController().navigate(R.id.action_startingFragment_to_mainFragment)
                         }
                         is UiStates.Failure -> {
                             // Handle failure
@@ -60,9 +69,7 @@ class StartingFragment : Fragment() {
                         is UiStates.Loading -> {
                             // Handle loading state
                         }
-                        else -> {
-                            // Handle any other state
-                        }
+
                     }
                 }
 

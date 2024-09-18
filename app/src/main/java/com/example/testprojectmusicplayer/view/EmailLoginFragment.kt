@@ -13,10 +13,12 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import com.example.testprojectmusicplayer.databinding.FragmentEmailLoginBinding
 import com.example.testprojectmusicplayer.utils.UiStates
+import com.example.testprojectmusicplayer.utils.Validator
 import com.example.testprojectmusicplayer.viewModel.AuthViewModel
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
-
+@AndroidEntryPoint
 class EmailLoginFragment : Fragment() {
     private lateinit var binding: FragmentEmailLoginBinding
     private val authViewModel: AuthViewModel by viewModels()
@@ -40,6 +42,21 @@ class EmailLoginFragment : Fragment() {
 
     private fun onClick(){
         binding.elButton.setOnClickListener {
+            val email = binding.elEmail.text.toString()
+
+            val emailValidation = Validator.emailValidator(email)
+            if (!emailValidation.first) {
+                binding.elUserEmailLayout.error = emailValidation.second
+                return@setOnClickListener
+            } else {
+                binding.elUserEmailLayout.error = null
+            }
+
+
+            authViewModel.sendEmailLinkForLogging(email)
+
+
+
 
         }
 

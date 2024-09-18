@@ -15,10 +15,12 @@ import javax.inject.Inject
 
 @HiltViewModel
 class CreatePlaylistViewModel @Inject constructor(
-    val albumRepository: AlbumRepository
+    private val albumRepository: AlbumRepository
 
 ) :ViewModel(){
 
+    private val _createAlbum = MutableStateFlow<UiStates<String>>(UiStates.Loading)
+    val createAlbum: StateFlow<UiStates<String>> = _createAlbum
     private val _updateAlbum = MutableStateFlow<UiStates<String>>(UiStates.Loading)
     val updateAlbum: StateFlow<UiStates<String>> = _updateAlbum
 
@@ -37,6 +39,17 @@ class CreatePlaylistViewModel @Inject constructor(
         }
     }
 
+
+    fun createAlbum(album: Album){
+        viewModelScope.launch {
+            albumRepository.createAlbum(album){
+                    uiStates ->
+                _createAlbum.update {
+                    uiStates
+                }
+            }
+        }
+    }
 
     fun updateAlbum(album: Album){
         viewModelScope.launch {

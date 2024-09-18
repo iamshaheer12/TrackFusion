@@ -3,21 +3,21 @@ package com.example.testprojectmusicplayer.utils
 import android.annotation.SuppressLint
 import java.util.concurrent.TimeUnit
 
-object SharedPrefCons {
-    val storeSession = "user_session"
-    const val localPref = "Local Storage"
-    val loggingEmail = "email"
+object SharedPrefConstants {
+    const val STORE_SESSION = "user_session"
+    const val LOCAL_PREF = "local_storage"
+    const val LOGGING_EMAIL = "email"
 
 }
 object FireStoreCons{
-    const val user = "user"
-    val loggingEmail = "https://Fusion.track/finishLogIn?screen=home"
-    const val artistCollection = "Artist"
-    const val albumCollection = "Albums"
-    const val songsCollection = "Songs"
+    const val USER = "user"
+    const val LOGGING_EMAIL = "https://Fusion.track/finishLogIn?screen=home"
+    const val ARTIST_COLLECTION = "Artist"
+    const val ALBUM_COLLECTION = "Albums"
+    const val SONG_COLLECTION = "Songs"
 
 }
-object formatDuration{
+object FormatDuration{
      @SuppressLint("DefaultLocale")
      fun formatDuration(durationInMillis: Long): String {
         val minutes = TimeUnit.MILLISECONDS.toMinutes(durationInMillis)

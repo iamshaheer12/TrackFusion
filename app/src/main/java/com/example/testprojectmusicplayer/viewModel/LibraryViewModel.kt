@@ -28,7 +28,6 @@ class LibraryViewModel @Inject constructor(
     private val _allArtistsState = MutableStateFlow<UiStates<List<Artist>>>(UiStates.Loading)
     val allArtistsState: StateFlow<UiStates<List<Artist>>> = _allArtistsState
 
-
     private val _updateAlbum = MutableStateFlow<UiStates<String>>(UiStates.Loading)
     val updateAlbum: StateFlow<UiStates<String>> = _updateAlbum
 
@@ -73,9 +72,9 @@ class LibraryViewModel @Inject constructor(
     }
 
 
-    fun getStartedAlbums() {
+    fun getLikedAlbums(userId:String) {
         viewModelScope.launch {
-            albumRepository.getAlbums { states ->
+            albumRepository.getAlbumsLikedByUser(userId) { states ->
                 _allAlbumsState.update { states }
             }
         }
@@ -83,11 +82,11 @@ class LibraryViewModel @Inject constructor(
     }
 
 
-    fun getArtist(){
+    fun getFollowedArtist(userId: String){
         viewModelScope.launch {
-            artistRepository.getArtists {
+            artistRepository.getArtistsLikedByUser(userId) {
                 state -> _allArtistsState.update {
-                    state
+                state
             }
             }
         }

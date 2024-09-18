@@ -1,5 +1,5 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <style name="AppTheme" parent="Theme.AppCompat.DayNight.NoActionBar">
+    <style name="AppTheme" parent="Theme.MaterialComponents.DayNight.NoActionBar">
         <item name="colorPrimary">@color/spotify_green</item>
         <item name="colorPrimaryVariant">@color/spotify_dark_green</item>
         <item name="colorSecondary">@color/spotify_black</item>

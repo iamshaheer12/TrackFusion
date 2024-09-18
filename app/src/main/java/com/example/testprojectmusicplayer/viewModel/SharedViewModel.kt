@@ -7,8 +7,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import javax.inject.Inject
 
-@HiltViewModel
-class SharedViewModel @Inject constructor () : ViewModel() {
+class SharedViewModel : ViewModel() {
 
     // StateFlow for the list of songs
     private val _songList = MutableStateFlow<List<Song>>(emptyList())

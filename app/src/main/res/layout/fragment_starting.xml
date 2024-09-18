@@ -40,34 +40,33 @@
 
         android:id="@+id/st_sign_up_btn"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="50dp"
         android:layout_marginTop="24dp"
-        android:layout_marginStart="12dp"
-        android:layout_marginEnd="12dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
         android:text="Sign up free"
         android:textSize="@dimen/default_text_size"
-        android:textStyle="bold"
+        android:textStyle="normal"
         android:backgroundTint="@color/spotify_green"
         app:layout_constraintTop_toBottomOf="@+id/st_title_txt"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 
-    <com.google.android.material.button.MaterialButton
+    <com.google.android.gms.common.SignInButton
         android:id="@+id/st_google_sign_btn"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="50dp"
         android:layout_marginTop="4dp"
         android:layout_marginStart="12dp"
         android:layout_marginEnd="12dp"
-        android:background="@drawable/custom_circular_border"
-        android:text="Continue with Gooogle "
-        app:icon="@drawable/google"
+
+
         app:iconGravity="start"
         android:textSize="@dimen/default_text_size"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/st_sign_up_btn"
-        tools:layout_editor_absoluteY="237dp" />
+        />
 <!--    <com.google.android.material.button.MaterialButton-->
 <!--        android:layout_marginTop="4dp"-->
 <!--        android:id="@+id/st_facebook_sign_btn"-->
@@ -91,6 +90,7 @@
         android:id="@+id/st_sign_in"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:focusable="true"
         android:text="Log in"
         android:textSize="@dimen/default_text_size"
         android:textStyle="bold"

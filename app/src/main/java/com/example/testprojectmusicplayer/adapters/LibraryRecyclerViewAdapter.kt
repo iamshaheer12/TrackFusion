@@ -89,8 +89,8 @@ class LibraryRecyclerViewAdapter @Inject constructor(
 
         fun bind(album: Album) {
             binding.psiMore.visibility = View.GONE
-            binding.psiTitle.text = album.title
-            binding.psiDescription.text = album.descriptions
+            binding.adsTitle.text = album.title
+            binding.adsDescription.text= album.descriptions
             glide
                 .load(album.imageUrl)
                 .apply(
@@ -98,7 +98,7 @@ class LibraryRecyclerViewAdapter @Inject constructor(
                         .placeholder(R.drawable.default_image) // Replace with your default image resource
                         .error(R.drawable.default_image) // Shown when there is an error loading the image
                 )
-                .into(binding.psiImage)
+                .into(binding.adsImage)
 
 
             // Set other UI elements as needed

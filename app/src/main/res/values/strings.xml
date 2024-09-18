@@ -34,4 +34,10 @@
     <string name="description">Description</string>
     <string name="share">Share</string>
     <string name="like"> Add to Liked Song</string>
+    <string name="add_song_to_albums">Add song to Albums</string>
+    <string-array name="gender">
+        <item>Male</item>
+        <item>Female</item>
+        <item>Undefined</item>
+    </string-array>
 </resources>

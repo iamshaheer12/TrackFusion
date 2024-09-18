@@ -10,6 +10,7 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.RequestManager
 import com.example.testprojectmusicplayer.R
 import com.example.testprojectmusicplayer.adapters.LibraryRecyclerViewAdapter
@@ -18,6 +19,7 @@ import com.example.testprojectmusicplayer.databinding.FragmentLibraryBinding
 import com.example.testprojectmusicplayer.utils.AlbumArtist
 import com.example.testprojectmusicplayer.utils.MediaItem
 import com.example.testprojectmusicplayer.utils.UiStates
+import com.example.testprojectmusicplayer.utils.UserObject
 import com.example.testprojectmusicplayer.viewModel.FilterType
 import com.example.testprojectmusicplayer.viewModel.LibraryViewModel
 import dagger.hilt.android.AndroidEntryPoint
@@ -31,6 +33,8 @@ class LibraryFragment : Fragment(),OnItemClickListener1 {
    private val viewModel: LibraryViewModel by viewModels()
     @Inject
     lateinit var glide: RequestManager
+    @Inject
+    lateinit var userObject: UserObject
 
     private lateinit var adapter: LibraryRecyclerViewAdapter
 
@@ -44,12 +48,16 @@ class LibraryFragment : Fragment(),OnItemClickListener1 {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+       val user =  userObject.getUser()
 
-        viewModel.getArtist()
-        viewModel.getStartedAlbums()
+
+
+        viewModel.getLikedAlbums(user?.userId?:"")
+        viewModel.getFollowedArtist("")
         observers()
         settingAdapter()
         setFilter()
+        onClick()
 
     }
 
@@ -59,6 +67,17 @@ class LibraryFragment : Fragment(),OnItemClickListener1 {
         adapter = LibraryRecyclerViewAdapter(emptyList(),this, glide = glide)
        binding.libRecyclerView.adapter  = adapter
 
+    }
+
+
+    private fun onClick(){
+        binding.libPlusIcon.setOnClickListener {
+            val action = LibraryFragmentDirections.actionLibraryFragmentToCreatePlaylistFragment2(
+               // null
+            )
+
+            findNavController().navigate(action)
+        }
     }
 
 

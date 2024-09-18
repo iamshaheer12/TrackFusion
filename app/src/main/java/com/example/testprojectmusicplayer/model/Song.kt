@@ -5,6 +5,7 @@ import android.os.Parcelable
 import kotlinx.parcelize.Parcelize
 @Parcelize
 data class Song(
+    val songId: String = "",
     val title: String = "",
     val description: String = "",
     val genres: String = "",

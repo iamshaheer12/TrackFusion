@@ -52,14 +52,17 @@ object RepositoryModule {
         firestore: FirebaseFirestore,
         sharedPreferences: SharedPreferences,
         gson: Gson,
-        firebaseAuth: FirebaseAuth
+        firebaseAuth: FirebaseAuth,
+        albumRepository: AlbumRepository
 
     ):AuthRepoImplementation{
         return  AuthRepoImplementation(
             firestore = firestore,
             firebaseAuth = firebaseAuth,
             sharedPref = sharedPreferences,
-            gson = gson
+            gson = gson,
+            albumRepository = albumRepository
+
         )
     }
 }

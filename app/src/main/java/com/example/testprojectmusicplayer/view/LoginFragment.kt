@@ -47,25 +47,28 @@ class LoginFragment : Fragment() {
             val password = binding.lgPassword.text.toString()
 
             // Validate email and password
-            val (isEmailValid, emailMessage) = Validator.emailValidator(email)
-            val (isPasswordValid, passwordMessage) = Validator.passwordValidator(password)
-
-            // Check if both email and password are valid
-            if (isEmailValid && isPasswordValid) {
-                // Call the ViewModel function to perform login
-                authViewModel.loginWithEmailPassword(email = email, password = password)
+            // Validate email
+            val emailValidation = Validator.emailValidator(email)
+            if (!emailValidation.first) {
+                binding.userEmailLayout.error = emailValidation.second
+                return@setOnClickListener
             } else {
-                // Handle invalid email or password scenarios
-                val errorMessage = when {
-                    !isEmailValid -> emailMessage
-                    !isPasswordValid -> passwordMessage
-                    else -> "Unknown error occurred."
-                }
-
-                // Show the error message to the user
-                Toast.makeText(binding.root.context, errorMessage, Toast.LENGTH_SHORT).show()
+                binding.userEmailLayout.error = null
             }
-        }
+
+            // Validate password
+            val passwordValidation = Validator.passwordValidator(password)
+            if (!passwordValidation.first) {
+                binding.passwordLayout.error = passwordValidation.second
+                return@setOnClickListener
+            } else {
+                binding.passwordLayout.error = null
+            }
+
+            authViewModel.loginWithEmailPassword(email,password)
+                // Show the error message to the user
+            }
+
 
         binding.logWithoutPassword.setOnClickListener {
             findNavController().navigate(R.id.action_loginFragment_to_emailLoginFragment)
@@ -103,5 +106,7 @@ class LoginFragment : Fragment() {
         }
 
     }
+
+
 
 }
