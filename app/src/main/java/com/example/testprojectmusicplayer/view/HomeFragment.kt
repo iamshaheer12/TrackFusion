@@ -8,10 +8,12 @@ import android.view.ViewGroup
 import android.widget.GridView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.RequestManager
 import com.example.testprojectmusicplayer.R
 import com.example.testprojectmusicplayer.adapters.ArtistRecyclerViewAdapter
@@ -37,18 +39,28 @@ class HomeFragment : Fragment() {
     lateinit var glide: RequestManager
 
     private lateinit var binding: FragmentHomeBinding
-    private val homeViewModel: HomeViewModel by viewModels()
+    private val homeViewModel: HomeViewModel by activityViewModels()
     private val getStartedAdapter by lazy {
         HomeGetStartedRecyclerViewAdapter(glide = glide,
-            onItemClicked = { _,_ ->
+            onItemClicked = { pos,album->
+
+                val action =HomeFragmentDirections.actionHomeFragmentToPlaylistFragment2(
+
+                    album.id,null
+                )
+                findNavController().navigate(action)
 
             }
         )
 
     }
     private val recentPlayAdapter by lazy {
-        RecentlyPlayedRecyclerViewAdapter(glide = glide,onItemClicked = {_,_ ->
+        RecentlyPlayedRecyclerViewAdapter(glide = glide,onItemClicked = {pos,album ->
+            val action =HomeFragmentDirections.actionHomeFragmentToPlaylistFragment2(
 
+                album.id,null
+            )
+            findNavController().navigate(action)
         })
 
     }
@@ -62,12 +74,15 @@ class HomeFragment : Fragment() {
 
     private val artistAdapter by lazy {
         ArtistRecyclerViewAdapter(glide = glide,
-            onItemClick = {_,_ ->
+            onItemClick = {_,artist ->
+                val action =HomeFragmentDirections.actionHomeFragmentToPlaylistFragment2(
+                    null,artist.id
+                )
+                findNavController().navigate(action)
 
         })
 
     }
-   private var songList:List<Song>  = emptyList()
     private var albumList: List<Album> = emptyList()
 
 
@@ -91,6 +106,7 @@ class HomeFragment : Fragment() {
         homeViewModel.getStartedAlbums()
         homeViewModel.getRecentPlayedSongs()
         homeViewModel.getArtists()
+        homeViewModel.getRecentPlayedSongs()
 
 
 
@@ -115,55 +131,58 @@ class HomeFragment : Fragment() {
     private fun observers(){
         lifecycleScope.launch {
            repeatOnLifecycle(Lifecycle.State.STARTED){
-                homeViewModel.allSongsState.collect { state ->
-                    when (state) {
-                        is UiStates.Loading -> {
-                            // Show loading indicator
-                        }
-                        is UiStates.Success -> {
-                            songList = state.data.toMutableList()
-                            Log.e("SongsData",state.data.toMutableList().toString())
-
-                            recentPlayAdapter.updateList(state.data.toMutableList())
-                            // Navigate to the next screen or show success message
-                        }
-                        is UiStates.Failure -> {
-                            // Show error message
-                            Toast.makeText(requireContext(), state.error, Toast.LENGTH_SHORT).show()
-                        }
-                    }
-                }
-
-            }
-
-        }
-
-
-        lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.STARTED){
                 homeViewModel.allAlbumsState.collect { state ->
                     when (state) {
                         is UiStates.Loading -> {
                             // Show loading indicator
                         }
                         is UiStates.Success -> {
-                            albumList = state.data.toMutableList()
-                            Log.e("AlbumData",state.data.toMutableList().toString())
-
+                            Log.e("SongsData",state.data.toMutableList().toString())
+                            binding.loadingScreen.loading.visibility = View.GONE
                             getStartedAdapter.updateList(state.data.toMutableList())
+
+                            recentPlayAdapter.updateList(state.data.toMutableList())
+
                             // Navigate to the next screen or show success message
                         }
                         is UiStates.Failure -> {
                             // Show error message
                             Toast.makeText(requireContext(), state.error, Toast.LENGTH_SHORT).show()
                         }
-
                     }
                 }
 
             }
 
         }
+
+
+//        lifecycleScope.launch {
+//            repeatOnLifecycle(Lifecycle.State.STARTED){
+//                homeViewModel.allAlbumsState.collect { state ->
+//                    when (state) {
+//                        is UiStates.Loading -> {
+//                            // Show loading indicator
+//                        }
+//                        is UiStates.Success -> {
+//                            albumList = state.data.toMutableList()
+//                            Log.e("AlbumData",state.data.toMutableList().toString())
+//                            binding.loadingScreen.loading.visibility = View.GONE
+//
+//
+//                            // Navigate to the next screen or show success message
+//                        }
+//                        is UiStates.Failure -> {
+//                            // Show error message
+//                            Toast.makeText(requireContext(), state.error, Toast.LENGTH_SHORT).show()
+//                        }
+//
+//                    }
+//                }
+//
+//            }
+//
+//        }
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED){
                 homeViewModel.allArtistsState.collect { state ->
@@ -177,6 +196,7 @@ class HomeFragment : Fragment() {
                             Log.e("ArtistData",state.data.toMutableList().toString())
                             Toast.makeText(requireContext(), "Successfully"+state.data.toMutableList().toString(), Toast.LENGTH_SHORT).show()
 
+                            binding.loadingScreen.loading.visibility = View.GONE
 
                             artistAdapter.updateList(state.data.toMutableList())
                             // Navigate to the next screen or show success message

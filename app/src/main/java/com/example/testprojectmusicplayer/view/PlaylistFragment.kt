@@ -13,9 +13,6 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
-import android.widget.LinearLayout
-import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
@@ -25,15 +22,19 @@ import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.navigation.fragment.findNavController
+import androidx.navigation.fragment.navArgs
 import com.bumptech.glide.RequestManager
 import com.bumptech.glide.request.RequestOptions
 import com.example.testprojectmusicplayer.R
 import com.example.testprojectmusicplayer.adapters.PlaylistItemsRecyclerView
 import com.example.testprojectmusicplayer.databinding.FragmentPlaylistBinding
 import com.example.testprojectmusicplayer.databinding.MoreBottomSheetLayoutBinding
+import com.example.testprojectmusicplayer.model.Album
 import com.example.testprojectmusicplayer.model.Song
 import com.example.testprojectmusicplayer.utils.UiStates
-import com.example.testprojectmusicplayer.utils.formatDuration.formatDuration
+import com.example.testprojectmusicplayer.utils.FormatDuration.formatDuration
+import com.example.testprojectmusicplayer.utils.UserObject
 import com.example.testprojectmusicplayer.viewModel.HomeViewModel
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import dagger.hilt.android.AndroidEntryPoint
@@ -45,16 +46,24 @@ class PlaylistFragment : Fragment() {
 
     @Inject
     lateinit var glide: RequestManager
+    @Inject
+    lateinit var userObject: UserObject
+    private val args: PlaylistFragmentArgs by navArgs()
+
     private val permissionCode = 100
     private lateinit var requestPermissionsLauncher: ActivityResultLauncher<Array<String>>
     private lateinit var binding: FragmentPlaylistBinding
     private lateinit var bottomBinding: MoreBottomSheetLayoutBinding
 
     private var isLikedAlbum = false
+
+    private var userId : String? = null
+    private var currentSongId = ""
     private val adapter by lazy {
         PlaylistItemsRecyclerView(glide = glide,
             onMoreClicked = { song, pos ->
                 settingUpBottomSheet(song)
+                currentSongId = song.songId
 
             },
             onItemClicked = { song ->
@@ -78,6 +87,31 @@ class PlaylistFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        val user = userObject.getUser()
+        userId = user?.userId
+
+
+
+
+
+
+        val artist = args.artistId
+        val albumId = args.albumId
+
+            if (albumId != null ){
+
+            homeViewModel.getCurrentAlbum(albumId = albumId)
+            homeViewModel.isLikedAlbum(albumId =albumId,user?.userId?:"1234")
+                handleClickOnLikedAlbum(albumId= albumId, userId = user?.userId?:"1234")
+
+                Log.d("AlbumIdArg",albumId.toString())
+
+
+                 }
+        else {
+            homeViewModel.getCurrentArtist(artistId = artist?:"")
+        }
+
 
         bottomBinding = MoreBottomSheetLayoutBinding.inflate(layoutInflater)
 
@@ -85,165 +119,209 @@ class PlaylistFragment : Fragment() {
         setRecyclerView()
         displayPlaylistDuration()
 
+
         onClick()
         observers()
-        homeViewModel.getRecentPlayedSongs()
-        homeViewModel.isLikedSong("mnw6BmhcgP0ajRFOZkmq","1234")
-        homeViewModel.isLikedAlbum("Lw6vYw6iz72gmU4CyF49","1234")
+
     }
 
     private fun observers() {
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
-                launch {
-                    homeViewModel.allSongsState.collect { state ->
-                        when (state) {
-                            is UiStates.Loading -> {
-                                Toast.makeText(requireContext(), "Loading", Toast.LENGTH_SHORT).show()
-                            }
-                            is UiStates.Success -> {
-                                songs = state.data.toMutableList()
-                                Toast.makeText(requireContext(), "Success: ${songs.size} songs loaded", Toast.LENGTH_SHORT).show()
-                                Log.e("SongsData", songs.toString())
-                                adapter.updateList(songs)
-                            }
-                            is UiStates.Failure -> {
-                                Toast.makeText(requireContext(), state.error, Toast.LENGTH_SHORT).show()
-                            }
-                        }
-                    }
-                }
 
-                launch {
-                    homeViewModel.isPlaying.collect { isPlaying ->
-                        isPlayingAll = isPlaying
-                        val playButtonIcon = if (isPlaying) R.drawable.ic_play else R.drawable.ic_play_button_green
-                        binding.playlistPlayBtn.setImageResource(playButtonIcon)
-                    }
-                }
-
-                launch {
-                    homeViewModel.currentSongIndex.collect { currentIndex ->
-                        Log.d("CurrentIndes",currentIndex.toString())
-                        adapter.updateSelection(currentIndex)
-                    }
-                }
-
-                launch {
-                    homeViewModel.isLikedAlbum.collect{
+                    homeViewModel.currentAlbum.collect{
                         state ->
-                        updateLikeButtonStateAlbum(state)
-
-                        isLikedAlbum = state
-                    }
-
-                }
-
-                launch {
-                    homeViewModel.likedAlbum.collect{
-                            state ->
                         when(state){
                             is UiStates.Loading -> {
                                 Toast.makeText(requireContext(), "Loading", Toast.LENGTH_SHORT).show()
 
-
                             }
                             is UiStates.Success -> {
-                                Toast.makeText(requireContext(), state.data, Toast.LENGTH_SHORT).show()
+//                                album = state.data
+                                Log.d("AlbumData",state.data.toString())
+                             //   homeViewModel.songListFunc(state.data.songs)
+                                initUi(album = state.data)
+
 
 
                             }
                             is UiStates.Failure -> {
                                 Toast.makeText(requireContext(), state.error, Toast.LENGTH_SHORT).show()
 
-
                             }
                         }
+
                     }
 
-                }
-                launch {
-                    homeViewModel.unLikedAlbum.collect{
-                            state ->
-                        when(state){
-                            is UiStates.Loading -> {
-                                Toast.makeText(requireContext(), "Loading", Toast.LENGTH_SHORT).show()
+            }}
 
-
-                            }
-                            is UiStates.Success -> {
-                                Toast.makeText(requireContext(), state.data, Toast.LENGTH_SHORT).show()
-
-
-                            }
-                            is UiStates.Failure -> {
-                                Toast.makeText(requireContext(), state.error, Toast.LENGTH_SHORT).show()
-
-
-                            }
+        lifecycleScope.launch {
+                repeatOnLifecycle(Lifecycle.State.STARTED) {
+                homeViewModel.songListState.collect { state ->
+                    Log.d("SongListState", state.toString()) // Log state changes
+                    when (state) {
+                        is UiStates.Loading -> {
+                            Toast.makeText(requireContext(), "Loading", Toast.LENGTH_SHORT).show()
+                        }
+                        is UiStates.Success -> {
+                            Log.d("SongListSuccess", state.data.toString()) // Debug the data
+                            songs = state.data.toMutableList()
+                            adapter.updateList(state.data.toMutableList())
+                        }
+                        is UiStates.Failure -> {
+                            Toast.makeText(requireContext(), state.error, Toast.LENGTH_SHORT).show()
                         }
                     }
-
-                }
-                launch {
-                    homeViewModel.isLikedSong.collect{
-                            state ->
-                        updateLikedButtonStateSong(state)
-
-
-                    }
-
                 }
 
-                launch {
-                    homeViewModel.likedSong.collect{
-                            state ->
-                        when(state){
-                            is UiStates.Loading -> {
-                                Toast.makeText(requireContext(), "Loading", Toast.LENGTH_SHORT).show()
+            }}
+
+        lifecycleScope.launch {
+                homeViewModel.isPlaying.collect { isPlaying ->
+                    isPlayingAll = isPlaying
+                    val playButtonIcon = if (isPlaying) R.drawable.ic_play else R.drawable.ic_play_button_green
+                    binding.playlistPlayBtn.setImageResource(playButtonIcon)
+                }
+            }
+
+        lifecycleScope.launch {
+                homeViewModel.currentSongIndex.collect { currentIndex ->
+                    Log.d("CurrentIndex",currentIndex.toString())
+                    adapter.updateSelection(currentIndex)
+                }
+            }
+
+        lifecycleScope.launch {
+                homeViewModel.isLikedAlbum.collect{
+                        state ->
+                    updateLikeButtonStateAlbum(state)
+
+                    isLikedAlbum = state
+                }
+
+            }
+
+        lifecycleScope.launch {
+                homeViewModel.likedAlbum.collect{
+                        state ->
+                    when(state){
+                        is UiStates.Loading -> {
+                            Toast.makeText(requireContext(), "Loading", Toast.LENGTH_SHORT).show()
 
 
-                            }
-                            is UiStates.Success -> {
-                                Toast.makeText(requireContext(), state.data, Toast.LENGTH_SHORT).show()
+                        }
+                        is UiStates.Success -> {
+                            Toast.makeText(requireContext(), state.data, Toast.LENGTH_SHORT).show()
 
 
-                            }
-                            is UiStates.Failure -> {
-                                Toast.makeText(requireContext(), state.error, Toast.LENGTH_SHORT).show()
+                        }
+                        is UiStates.Failure -> {
+                            Toast.makeText(requireContext(), state.error, Toast.LENGTH_SHORT).show()
 
 
-                            }
                         }
                     }
-
                 }
-                launch {
-                    homeViewModel.unLikedSong.collect{
-                            state ->
-                        when(state){
-                            is UiStates.Loading -> {
-                                Toast.makeText(requireContext(), "Loading", Toast.LENGTH_SHORT).show()
+
+            }
+        lifecycleScope.launch {
+                homeViewModel.unLikedAlbum.collect{
+                        state ->
+                    when(state){
+                        is UiStates.Loading -> {
+                            Toast.makeText(requireContext(), "Loading", Toast.LENGTH_SHORT).show()
 
 
-                            }
-                            is UiStates.Success -> {
-                                Toast.makeText(requireContext(), state.data, Toast.LENGTH_SHORT).show()
+                        }
+                        is UiStates.Success -> {
+                            Toast.makeText(requireContext(), state.data, Toast.LENGTH_SHORT).show()
 
 
-                            }
-                            is UiStates.Failure -> {
-                                Toast.makeText(requireContext(), state.error, Toast.LENGTH_SHORT).show()
+                        }
+                        is UiStates.Failure -> {
+                            Toast.makeText(requireContext(), state.error, Toast.LENGTH_SHORT).show()
 
 
-                            }
                         }
                     }
+                }
+
+            }
+        lifecycleScope.launch {
+                homeViewModel.isLikedSong.collect{
+                        state ->
+                    updateLikedButtonStateSong(state)
+
 
                 }
+
+            }
+
+        lifecycleScope.launch {
+                homeViewModel.likedSong.collect{
+                        state ->
+                    when(state){
+                        is UiStates.Loading -> {
+                            Toast.makeText(requireContext(), "Loading", Toast.LENGTH_SHORT).show()
+
+
+                        }
+                        is UiStates.Success -> {
+                            Toast.makeText(requireContext(), state.data, Toast.LENGTH_SHORT).show()
+
+
+                        }
+                        is UiStates.Failure -> {
+                            Toast.makeText(requireContext(), state.error, Toast.LENGTH_SHORT).show()
+
+
+                        }
+                    }
+                }
+
+            }
+        lifecycleScope.launch {
+                homeViewModel.unLikedSong.collect{
+                        state ->
+                    when(state){
+                        is UiStates.Loading -> {
+                            Toast.makeText(requireContext(), "Loading", Toast.LENGTH_SHORT).show()
+
+
+                        }
+                        is UiStates.Success -> {
+                            Toast.makeText(requireContext(), state.data, Toast.LENGTH_SHORT).show()
+
+
+                        }
+                        is UiStates.Failure -> {
+                            Toast.makeText(requireContext(), state.error, Toast.LENGTH_SHORT).show()
+
+
+                        }
+                    }
+                }
+
             }
         }
 
+
+
+
+    private fun initUi(album: Album){
+
+        glide
+            //.with(binding.psiImage)
+            .load(album.imageUrl)
+            .apply(
+                RequestOptions()
+                    .placeholder(R.drawable.default_image) // Replace with your default image resource
+                    .error(R.drawable.default_image) // Shown when there is an error loading the image
+            )
+            .into(binding.playlistImage)
+
+        binding.playlistDescription.text = album.descriptions
+        binding.playlistDuration.text = "3h 12m"
 
     }
 
@@ -251,32 +329,43 @@ class PlaylistFragment : Fragment() {
         binding.playlistPlayBtn.setOnClickListener {
             checkAndRequestPermissions()
         }
-        binding.playlistLikedBtn.setOnClickListener {
-            Log.d("LikedSong343", isLikedAlbum.toString())
-            if (homeViewModel.isLikedAlbum.value){
-                homeViewModel.onUnLikedAlbum("Lw6vYw6iz72gmU4CyF49","1234")
-            }
-            else{
-                homeViewModel.onLikedAlbum("Lw6vYw6iz72gmU4CyF49","1234")
-            }
-
+        binding.playlistArrowBack.setOnClickListener {
+            findNavController().popBackStack()
         }
 
-        this.bottomBinding.moreBottomLinearlayoutLike
-            .setOnClickListener {
-            if (homeViewModel.isLikedSong.value){
-                homeViewModel.onUnLikedSong("mnw6BmhcgP0ajRFOZkmq","1234")
-            }
-            else{
-                homeViewModel.onLikedSong("mnw6BmhcgP0ajRFOZkmq","1234")
-            }
-        }
+
+
     }
 
     private fun setRecyclerView() {
         binding.playlistListItems.adapter = adapter
     }
+  private fun handleClickOnLikedSong(){
+      this.bottomBinding.moreBottomLinearlayoutLike
+          .setOnClickListener {
+              if (homeViewModel.isLikedSong.value){
+                  homeViewModel.onUnLikedSong(currentSongId,userId?:"")
+              }
+              else{
+                  homeViewModel.onLikedSong(currentSongId,userId?:"")
+              }
+          }
 
+  }
+
+    private fun handleClickOnLikedAlbum(albumId: String, userId:String){
+        binding.playlistLikedBtn.setOnClickListener {
+            Log.d("LikedSong343", isLikedAlbum.toString())
+            if (homeViewModel.isLikedAlbum.value){
+                homeViewModel.onUnLikedAlbum(albumId,userId)
+            }
+            else{
+                homeViewModel.onLikedAlbum(albumId,userId)
+            }
+
+        }
+
+    }
     private fun playAllSongs() {
         lifecycleScope.launch {
             homeViewModel.playSong()
@@ -436,6 +525,9 @@ class PlaylistFragment : Fragment() {
         }
 
 
+        homeViewModel.isLikedSong(songId = song.songId,userId = userId?:"1234")
+
+
         // on below line we are inflating a layout file which we have created.
        bottomBinding.moreBottomLinearlayoutDeletePlaylist.visibility = View.GONE
        bottomBinding.moreBottomLinearlayoutEditPlaylist.visibility = View.GONE
@@ -452,6 +544,8 @@ class PlaylistFragment : Fragment() {
         bottomBinding.moreBottomSheetSongTitle.text = song.title
 
        bottomBinding.moreBottomSheetSongDescription.text = song.description
+
+        handleClickOnLikedSong()
 
 
         dialog.setCancelable(true)

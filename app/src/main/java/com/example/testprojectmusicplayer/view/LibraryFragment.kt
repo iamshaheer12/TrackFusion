@@ -52,8 +52,8 @@ class LibraryFragment : Fragment(),OnItemClickListener1 {
 
 
 
-        viewModel.getLikedAlbums(user?.userId?:"")
-        viewModel.getFollowedArtist("")
+        viewModel.getLikedAlbums(user?.userId?:"1234")
+        viewModel.getFollowedArtist(user?.userId?:"1234")
         observers()
         settingAdapter()
         setFilter()
@@ -72,11 +72,16 @@ class LibraryFragment : Fragment(),OnItemClickListener1 {
 
     private fun onClick(){
         binding.libPlusIcon.setOnClickListener {
-            val action = LibraryFragmentDirections.actionLibraryFragmentToCreatePlaylistFragment2(
-               // null
+            val action =
+                LibraryFragmentDirections.actionLibraryFragmentToCreatePlaylistFragment2(
+                null
             )
 
             findNavController().navigate(action)
+        }
+
+        binding.libSearchIcon.setOnClickListener {
+            findNavController().navigate(R.id.action_libraryFragment_to_libSearchFragment2)
         }
     }
 

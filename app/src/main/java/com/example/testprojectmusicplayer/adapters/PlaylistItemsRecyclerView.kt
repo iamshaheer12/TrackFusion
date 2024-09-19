@@ -1,5 +1,6 @@
 package com.example.testprojectmusicplayer.adapters
 
+import android.annotation.SuppressLint
 import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.ViewGroup
@@ -79,6 +80,7 @@ class PlaylistItemsRecyclerView @Inject constructor(
         notifyItemChanged(previousPosition) // Update the previous item to default color
         notifyItemChanged(newPosition) // Update the newly selected item
     }
+     @SuppressLint("NotifyDataSetChanged")
      fun updateList(list: List<Song>){
         audioFiles =  list
         notifyDataSetChanged()

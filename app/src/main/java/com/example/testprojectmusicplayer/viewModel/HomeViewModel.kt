@@ -250,20 +250,20 @@ class HomeViewModel @Inject constructor(
                     if (filteredAlbum.isNotEmpty()) {
                         // Handle the filtered album, update a new state or do something else
                         // Assuming you have another state to hold the current album
-                        _currentAlbum.value = UiStates.Success(filteredAlbum.first())
-                        songList(filteredAlbum.first().songs)
+                        _currentAlbum.update { UiStates.Success(filteredAlbum.first()) }
+                        songListFunc(filteredAlbum.first().songs)
                     } else {
                         // If no album is found, you can update state with an error or empty result
-                        _currentAlbum.value = UiStates.Failure("Album not found")
+                        _currentAlbum.update { UiStates.Failure("Album not found")  }
                     }
                 }
                 is UiStates.Loading -> {
                     // Handle loading state if needed
-                    _currentAlbum.value = UiStates.Loading
+                    _currentAlbum.update {UiStates.Loading  }
 
                 }
                 is UiStates.Failure -> {
-                    _currentAlbum.value = UiStates.Failure("Album not found")
+                    _currentAlbum.update {UiStates.Failure("Album not found")  }
 
                     // Handle error state if needed
                 }
@@ -283,7 +283,7 @@ class HomeViewModel @Inject constructor(
                         // Handle the filtered album, update a new state or do something else
                         // Assuming you have another state to hold the current album
                         _currentArtist.value = UiStates.Success(filteredArtist.first())
-                        songList(filteredArtist.first().songs)
+                        songListFunc(filteredArtist.first().songs)
                     } else {
                         // If no album is found, you can update state with an error or empty result
                         _currentArtist.value = UiStates.Failure("Album not found")
@@ -304,7 +304,7 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    fun songList(songs:List<String>){
+     fun songListFunc(songs:List<String>){
         when (val currentState = _allSongsState.value) {
             is UiStates.Success -> {
                 val songList = currentState.data.filter {
@@ -313,16 +313,16 @@ class HomeViewModel @Inject constructor(
 
                 }
 
-                    _songListState.value = UiStates.Success(songList)
+                    _songListState.update { UiStates.Success(songList) }
 
 
             }
             is UiStates.Loading ->{
-                _songListState.value = UiStates.Loading
+                _songListState.update { UiStates.Loading }
 
             }
             is UiStates.Failure -> {
-                _songListState.value = UiStates.Failure("Unknown Error")
+                _songListState.update { UiStates.Failure("Unknown Error") }
 
             }
         }

@@ -10,25 +10,26 @@ import com.bumptech.glide.request.RequestOptions
 import com.example.testprojectmusicplayer.R
 import com.example.testprojectmusicplayer.databinding.CardWithCorneredImageDescriptionBinding
 import com.example.testprojectmusicplayer.databinding.RecentPlayCardBinding
+import com.example.testprojectmusicplayer.model.Album
 import com.example.testprojectmusicplayer.model.Song
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
 class RecentlyPlayedRecyclerViewAdapter @Inject constructor(
-    private val onItemClicked:(Int, Song) ->Unit,
+    private val onItemClicked:(Int, Album) ->Unit,
     private val glide : RequestManager
 ):RecyclerView.Adapter<RecentlyPlayedRecyclerViewAdapter.ViewHolder>() {
 
 
 
 
-    private var list: List<Song> = arrayListOf()
+    private var list: List<Album> = arrayListOf()
 
     inner class ViewHolder(
         private val binding: RecentPlayCardBinding
     ) : RecyclerView.ViewHolder(binding.root) {
 
-        fun bind(item: Song) {
+        fun bind(item: Album) {
             glide
                 //.with(binding.rpCardImage.context)
                 .load(item.imageUrl)
@@ -38,7 +39,7 @@ class RecentlyPlayedRecyclerViewAdapter @Inject constructor(
                         .error(R.drawable.default_image) // Shown when there is an error loading the image
                 )
                 .into(binding.rpCardImage)
-            binding.rpPlaylistTitle.text = item.description
+            binding.rpPlaylistTitle.text = item.title
 
             binding.rpItem.setOnClickListener {
                 onItemClicked.invoke(adapterPosition, item)
@@ -64,7 +65,7 @@ class RecentlyPlayedRecyclerViewAdapter @Inject constructor(
 
     // Method to update the list and notify the adapter
     @SuppressLint("NotifyDataSetChanged")
-    fun updateList(newList: List<Song>) {
+    fun updateList(newList: List<Album>) {
         list = newList
         notifyDataSetChanged()
     }

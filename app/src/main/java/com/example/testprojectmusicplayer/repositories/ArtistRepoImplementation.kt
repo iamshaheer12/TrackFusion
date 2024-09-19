@@ -158,7 +158,7 @@ class ArtistRepoImplementation(
         userId: String,
         result: (UiStates<List<Artist>>) -> Unit
     ) {
-        firestore.collection(FireStoreCons.ALBUM_COLLECTION)
+        firestore.collection(FireStoreCons.ARTIST_COLLECTION)
             .whereArrayContains("likedBy", userId)
             .get()
             .addOnSuccessListener { querySnapshot ->

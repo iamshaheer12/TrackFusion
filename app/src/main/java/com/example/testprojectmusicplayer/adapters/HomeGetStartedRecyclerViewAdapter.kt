@@ -1,5 +1,6 @@
 package com.example.testprojectmusicplayer.adapters
 
+import android.annotation.SuppressLint
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
@@ -59,8 +60,9 @@ class HomeGetStartedRecyclerViewAdapter @Inject constructor(
     }
 
     // Method to update the list and notify the adapter
+    @SuppressLint("NotifyDataSetChanged")
     fun updateList(newList: List<Album>) {
         list = newList
-        notifyDataSetChanged()
+       notifyDataSetChanged()
     }
 }

@@ -1,19 +1,12 @@
 package com.example.testprojectmusicplayer.adapters
-
-import android.provider.MediaStore.Audio.Artists
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import com.bumptech.glide.Glide
 import com.bumptech.glide.RequestManager
 import com.bumptech.glide.request.RequestOptions
 import com.example.testprojectmusicplayer.R
 import com.example.testprojectmusicplayer.databinding.ArtistCardBinding
-import com.example.testprojectmusicplayer.databinding.CardWithCorneredImageDescriptionBinding
-import com.example.testprojectmusicplayer.databinding.RecentPlayCardBinding
-import com.example.testprojectmusicplayer.model.Album
 import com.example.testprojectmusicplayer.model.Artist
-import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
 class ArtistRecyclerViewAdapter @Inject constructor(
@@ -66,6 +59,6 @@ class ArtistRecyclerViewAdapter @Inject constructor(
     }
     fun updateList(newList: List<Artist>) {
         list = newList
-        notifyDataSetChanged()
+      //  notifyDataSetChanged()
     }
 }

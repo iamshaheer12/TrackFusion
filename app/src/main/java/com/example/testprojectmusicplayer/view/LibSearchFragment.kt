@@ -12,12 +12,14 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.RequestManager
 import com.example.testprojectmusicplayer.adapters.LibraryRecyclerViewAdapter
 import com.example.testprojectmusicplayer.adapters.OnItemClickListener1
 import com.example.testprojectmusicplayer.databinding.FragmentLibSearchBinding
 import com.example.testprojectmusicplayer.utils.AlbumArtist
 import com.example.testprojectmusicplayer.utils.UiStates
+import com.example.testprojectmusicplayer.utils.UserObject
 import com.example.testprojectmusicplayer.viewModel.LibraryViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
@@ -29,6 +31,8 @@ class LibSearchFragment : Fragment(),OnItemClickListener1 {
     private val viewModel: LibraryViewModel by viewModels()
     @Inject
     lateinit var glide: RequestManager
+    @Inject
+    lateinit var userObject: UserObject
 
     private lateinit var adapter: LibraryRecyclerViewAdapter
 
@@ -47,9 +51,15 @@ class LibSearchFragment : Fragment(),OnItemClickListener1 {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        val user = userObject.getUser()
         settingAdapter()
-        viewModel.getLikedAlbums("")
-        viewModel.getFollowedArtist("")
+        if (user != null){
+            viewModel.getLikedAlbums(user.userId)
+            viewModel.getFollowedArtist(userId = user.userId)
+        }
+
+        onClick()
+
         observers()
         setupLiveSearch()
 
@@ -60,6 +70,12 @@ class LibSearchFragment : Fragment(),OnItemClickListener1 {
         adapter = LibraryRecyclerViewAdapter(emptyList(),this, glide = glide)
         binding.recyclerViewLibSearchBar.adapter = adapter
 
+    }
+
+    private fun onClick (){
+        binding.libSearchArrowBack.setOnClickListener {
+            findNavController().popBackStack()
+        }
     }
 
     private fun observers(){

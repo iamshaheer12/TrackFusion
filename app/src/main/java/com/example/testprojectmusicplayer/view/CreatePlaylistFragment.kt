@@ -11,18 +11,29 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
+import androidx.navigation.fragment.navArgs
+import com.example.testprojectmusicplayer.R
 import com.example.testprojectmusicplayer.databinding.FragmentCreatePlaylistBinding
 import com.example.testprojectmusicplayer.model.Album
+import com.example.testprojectmusicplayer.model.User
 import com.example.testprojectmusicplayer.utils.UiStates
+import com.example.testprojectmusicplayer.utils.UserObject
 import com.example.testprojectmusicplayer.viewModel.CreatePlaylistViewModel
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 
 @AndroidEntryPoint
 class CreatePlaylistFragment : Fragment() {
     private lateinit var binding:FragmentCreatePlaylistBinding
     private val viewModel: CreatePlaylistViewModel by viewModels()
+    private val args: CreatePlaylistFragmentArgs by navArgs()
+
+
+    @Inject
+    lateinit var userObject: UserObject
 
 
 
@@ -38,42 +49,68 @@ class CreatePlaylistFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        onClick()
+        val album = args.playlist
+
+        val user =  userObject.getUser()
+        initUi(album)
+
+        if (user != null) {
+            onClick(user, album = album)
+        }
         observers()
+
+
 
 
     }
 
-    private fun onClick() {
+    private fun onClick(user: User, album: Album?) {
         binding.createPlaylistCreateBtn.setOnClickListener {
-            viewModel.updateAlbum(album = Album(
-                createdBy = "1243556",
-                title = binding.playlistTitle.text.toString(),
-                descriptions = binding.playlistDescription.text.toString()
-            ))
+            if (album != null){
+                viewModel.updateAlbum(album = Album(
+                    createdBy = user.userId,
+                    title = binding.playlistTitle.text.toString(),
+                    descriptions = binding.playlistDescription.text.toString(),
+                    visibility = true
+                ))
+
+            }
+            else {
+                viewModel.createAlbum(album = Album(
+                    createdBy = user.userId,
+                    title = binding.playlistTitle.text.toString(),
+                    descriptions = binding.playlistDescription.text.toString(),
+                    visibility = true
+                ))
+            }
+
+
 
         }
         binding.createPlaylistCancelBtn.setOnClickListener {
+            findNavController().popBackStack()
 
         }
+
     }
 
     private fun observers(){
 
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED){
-                viewModel.updateAlbum.collect{
+                viewModel.createAlbum.collect{
                     state->
                     when(state){
                         is UiStates.Loading -> {
                             Toast.makeText(requireContext(),"Loading",Toast.LENGTH_SHORT).show()
-
 
                         }
                         is UiStates.Success -> {
 
 
                             Toast.makeText(requireContext(),"Created Successfully",Toast.LENGTH_SHORT).show()
+
+                            findNavController().popBackStack()
 
 
                         }
@@ -82,11 +119,46 @@ class CreatePlaylistFragment : Fragment() {
 
 
                         }
+
+
                     }
                 }
 
+
+
             }
+            launch {
+                viewModel.updateAlbum.collect{
+                   state ->
+                    when(state){
+                        is UiStates.Loading -> {
+                            Toast.makeText(requireContext(),"Loading",Toast.LENGTH_SHORT).show()
+
+                        }
+                        is UiStates.Success -> {
+                            Toast.makeText(requireContext(),"Successfully Updated",Toast.LENGTH_SHORT).show()
+                            findNavController().popBackStack()
+
+                        }
+                        is UiStates.Failure -> {
+                            Toast.makeText(requireContext(),state.error,Toast.LENGTH_SHORT).show()
+
+                        }
+                    }
+                }
+            }
+
         }
+
+    }
+    private fun initUi(album: Album?){
+        if (album != null){
+            binding.createPlaylistCreateBtn.text = "Update"
+            binding.playlistTitle.setText(album.title)
+            binding.playlistDescription.setText(album.descriptions)
+            binding.createPlaylistTitle.text = "Update Playlist"
+        }
+
 
     }
 
