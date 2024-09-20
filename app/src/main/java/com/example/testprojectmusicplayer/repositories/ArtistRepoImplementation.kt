@@ -1,5 +1,6 @@
 package com.example.testprojectmusicplayer.repositories
 
+import android.util.Log
 import com.example.testprojectmusicplayer.model.Artist
 import com.example.testprojectmusicplayer.utils.FireStoreCons
 import com.example.testprojectmusicplayer.utils.UiStates
@@ -81,11 +82,29 @@ class ArtistRepoImplementation(
 
     }
 
-    override suspend fun isArtistLikedByUser(artistId: String, userId: String): Boolean {
-        val document = firestore.collection(FireStoreCons.ARTIST_COLLECTION).document(artistId).get().await()
-        val likedBy = document.get("likedBy") as? List<String> ?: emptyList()
-        return likedBy.contains(userId)
+    override suspend fun isArtistLikedByUser(artistId: String, userId: String, onLikeStatusChanged: (Boolean) -> Unit) {
+        val artistDocumentRef = firestore.collection(FireStoreCons.ARTIST_COLLECTION).document(artistId)
+
+        // Adding a snapshot listener to listen for real-time changes
+        artistDocumentRef.addSnapshotListener { snapshot, e ->
+            if (e != null) {
+                Log.w("FirestoreListener", "Listen failed.", e)
+                return@addSnapshotListener
+            }
+
+            if (snapshot != null && snapshot.exists()) {
+                // Get the "likedBy" list from the document
+                val likedBy = snapshot.get("likedBy") as? List<String> ?: emptyList()
+                val isLikedByUser = likedBy.contains(userId)
+
+                // Notify the callback of the current like status
+                onLikeStatusChanged(isLikedByUser)
+            } else {
+                Log.d("FirestoreListener", "Current data: null")
+            }
+        }
     }
+
 
     override suspend fun onLikedArtist(
         artistId: String,

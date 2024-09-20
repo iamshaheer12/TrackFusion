@@ -27,6 +27,7 @@ import com.example.testprojectmusicplayer.model.RecentPlayCard
 import com.example.testprojectmusicplayer.model.Song
 import com.example.testprojectmusicplayer.utils.MusicItem
 import com.example.testprojectmusicplayer.utils.UiStates
+import com.example.testprojectmusicplayer.utils.UserObject
 import com.example.testprojectmusicplayer.viewModel.HomeViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
@@ -37,9 +38,13 @@ class HomeFragment : Fragment() {
     private lateinit var recentPlayGrid: GridView
     @Inject
     lateinit var glide: RequestManager
+    @Inject
+    lateinit var userObject: UserObject
 
     private lateinit var binding: FragmentHomeBinding
     private val homeViewModel: HomeViewModel by activityViewModels()
+
+    private lateinit var recentGridAdapter: RecentGridAdapter
     private val getStartedAdapter by lazy {
         HomeGetStartedRecyclerViewAdapter(glide = glide,
             onItemClicked = { pos,album->
@@ -98,15 +103,14 @@ class HomeFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        recentPlayGrid =binding.hmRecentPlayGrid
-        recentPlayGrid.numColumns = 2
 
-        val adapter = RecentGridAdapter(requireContext(), provideGridData())
-        recentPlayGrid.adapter = adapter
+
         homeViewModel.getStartedAlbums()
         homeViewModel.getRecentPlayedSongs()
         homeViewModel.getArtists()
         homeViewModel.getRecentPlayedSongs()
+
+        homeViewModel.getRecentPlayedAlbum(userObject.getUser()?.userId?:"")
 
 
 
@@ -125,6 +129,12 @@ class HomeFragment : Fragment() {
         binding.hmRecommendedRecyclerview.adapter = recommendedAdapter
         binding.hmArtistRecyclerview.adapter = artistAdapter
 
+        recentPlayGrid =binding.hmRecentPlayGrid
+        recentPlayGrid.numColumns = 2
+
+       recentGridAdapter = RecentGridAdapter(glide = glide, context = requireContext(), recentPlayList = emptyList())
+        recentPlayGrid.adapter = recentGridAdapter
+
 
     }
 
@@ -141,7 +151,8 @@ class HomeFragment : Fragment() {
                             binding.loadingScreen.loading.visibility = View.GONE
                             getStartedAdapter.updateList(state.data.toMutableList())
 
-                            recentPlayAdapter.updateList(state.data.toMutableList())
+                            //recentPlayAdapter.updateList(state.data.toMutableList())
+                                // recommendedAdapter.updateList(state.data.toMutableList())
 
                             // Navigate to the next screen or show success message
                         }
@@ -155,6 +166,39 @@ class HomeFragment : Fragment() {
             }
 
         }
+
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED){
+                homeViewModel.getRecentPlayedAlbum.collect { state ->
+                    when (state) {
+                        is UiStates.Loading -> {
+                            // Show loading indicator
+                        }
+                        is UiStates.Success -> {
+                                    Log.d("RecentPlayedSong",state.data.toString())
+                            if (state.data.toMutableList().isEmpty()){
+                                binding.hmRecentlyPlayedTxt.visibility = View.GONE
+                            }
+
+
+                            recentPlayAdapter.updateList(state.data.toMutableList())
+                            recentGridAdapter.updateList(state.data.toMutableList())
+
+                            // Navigate to the next screen or show success message
+                        }
+                        is UiStates.Failure -> {
+                            // Show error message
+                            Toast.makeText(requireContext(), state.error, Toast.LENGTH_SHORT).show()
+                        }
+                    }
+                }
+
+            }
+
+        }
+
+
+
 
 
 //        lifecycleScope.launch {

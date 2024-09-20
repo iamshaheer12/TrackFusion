@@ -8,6 +8,7 @@ import com.example.testprojectmusicplayer.utils.UiStates
 import com.google.android.gms.tasks.Tasks
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.toObject
 
 class AlbumRepoImplementation(
@@ -223,7 +224,7 @@ class AlbumRepoImplementation(
         album.id = document.id
           document.set(album)
               .addOnSuccessListener {
-                  result.invoke(UiStates.Success("Album Created Successfully"))
+                  result.invoke(UiStates.Success(album.id))
               }
               .addOnFailureListener {
                   result.invoke(UiStates.Failure("Sorry Album is not created"))
@@ -358,5 +359,60 @@ class AlbumRepoImplementation(
 
         }
     }
+   override suspend fun addAlbumToRecentlyPlayed(userId: String, album: Album) {
+        val recentlyPlayedRef = firestore.collection(FireStoreCons.USER)
+            .document(userId)
+            .collection(FireStoreCons.RECENT_PLAY_COLLECTION)
+
+        // First, check if this album is already in the list
+        recentlyPlayedRef.whereEqualTo("id", album.id)
+            .get()
+            .addOnSuccessListener { documents ->
+                if (documents.isEmpty) {
+                    // If album is not in the list, add it
+                    recentlyPlayedRef.add(album)
+                        .addOnSuccessListener {
+                           // removeOldAlbumsIfNeeded(userId)
+                        }
+                } else {
+                    // If album exists, update its timestamp (if you have a timestamp field)
+                    documents.forEach { document ->
+                        recentlyPlayedRef.document(document.id).update("timestamp", FieldValue.serverTimestamp())
+                    }
+                }
+            }
+    }
+
+    override suspend fun getRecentlyPlayedAlbums(userId: String, callback: (UiStates<List<Album>>) -> Unit) {
+
+        try {
+            val recentlyPlayedRef = firestore.collection(FireStoreCons.USER)
+                .document(userId)
+                .collection(FireStoreCons.RECENT_PLAY_COLLECTION)
+                .orderBy("timestamp", Query.Direction.DESCENDING)
+                .limit(4)
+            // Get the most recent albums
+
+            recentlyPlayedRef.get()
+                .addOnSuccessListener { documents ->
+                    val albums = documents.map { document ->
+                        document.toObject(Album::class.java)
+                    }
+                    callback.invoke(UiStates.Success(albums))
+                }
+                .addOnFailureListener {
+                    callback.invoke(UiStates.Failure(it.localizedMessage))
+                }
+        }
+       catch (e:Exception){
+           callback.invoke(UiStates.Failure("An Exception Occurred"))
+       }
+    }
+
+    override suspend fun removeOldAlbumsIfNeeded(userId: String) {
+
+    }
+
+
 
 }

@@ -1,14 +1,7 @@
 package com.example.testprojectmusicplayer.view
 
 import android.annotation.SuppressLint
-import android.app.AlertDialog
-import android.content.Intent
-import android.content.pm.PackageManager
-import android.media.MediaPlayer
-import android.net.Uri
-import android.os.Build
 import android.os.Bundle
-import android.provider.Settings
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -16,7 +9,6 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Lifecycle
@@ -26,15 +18,16 @@ import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.bumptech.glide.RequestManager
 import com.bumptech.glide.request.RequestOptions
+
 import com.example.testprojectmusicplayer.R
 import com.example.testprojectmusicplayer.adapters.PlaylistItemsRecyclerView
-import com.example.testprojectmusicplayer.databinding.FragmentPlaylistBinding
+import com.example.testprojectmusicplayer.databinding.FragmentLibPlaylistBinding
 import com.example.testprojectmusicplayer.databinding.MoreBottomSheetLayoutBinding
 import com.example.testprojectmusicplayer.model.Album
 import com.example.testprojectmusicplayer.model.Artist
 import com.example.testprojectmusicplayer.model.Song
-import com.example.testprojectmusicplayer.utils.UiStates
 import com.example.testprojectmusicplayer.utils.FormatDuration.formatDuration
+import com.example.testprojectmusicplayer.utils.UiStates
 import com.example.testprojectmusicplayer.utils.UserObject
 import com.example.testprojectmusicplayer.viewModel.HomeViewModel
 import com.example.yourappname.utils.PlaylistUtils
@@ -43,30 +36,30 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+
 @AndroidEntryPoint
-class PlaylistFragment : Fragment() {
+class LibPlaylistFragment : Fragment() {
+    private lateinit var binding: FragmentLibPlaylistBinding
 
     @Inject
     lateinit var glide: RequestManager
     @Inject
     lateinit var userObject: UserObject
-    private val args: PlaylistFragmentArgs by navArgs()
 
-    private val permissionCode = 100
-    private lateinit var requestPermissionsLauncher: ActivityResultLauncher<Array<String>>
-    private lateinit var binding: FragmentPlaylistBinding
+    private val args : LibPlaylistFragmentArgs by navArgs()
     private lateinit var bottomBinding: MoreBottomSheetLayoutBinding
+    private lateinit var requestPermissionsLauncher: ActivityResultLauncher<Array<String>>
+
 
     private var isLikedAlbum = false
 
     private var userId : String? = null
     private var albumId :String? = null
     private var currentSongId = ""
-
     private var albumDuration = ""
     private val adapter by lazy {
         PlaylistItemsRecyclerView(glide = glide,
-            onMoreClicked = { song, pos ->
+            onMoreClicked = { song, _ ->
                 settingUpBottomSheet(song)
                 currentSongId = song.songId
 
@@ -82,10 +75,13 @@ class PlaylistFragment : Fragment() {
     private var isPlayingAll = false
     private var songs: List<Song> = emptyList()
 
+
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
+
         requestPermissionsLauncher = registerForActivityResult(
             ActivityResultContracts.RequestMultiplePermissions()
         ) { permissions ->
@@ -98,10 +94,10 @@ class PlaylistFragment : Fragment() {
         }
 
 
-
-        binding = FragmentPlaylistBinding.inflate(inflater, container, false)
+        binding = FragmentLibPlaylistBinding.inflate(inflater, container, false)
         return binding.root
     }
+
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -113,37 +109,38 @@ class PlaylistFragment : Fragment() {
 
 
 
-
         val artist = args.artistId
         val albumId = args.albumId
 
-            if (albumId != null ){
+        if (albumId != null ){
 
             homeViewModel.getCurrentAlbum(albumId = albumId)
             homeViewModel.isLikedAlbum(albumId =albumId,user?.userId?:"1234")
-                handleClickOnLikedAlbum(albumId= albumId, userId = user?.userId?:"1234")
-                albumObservers()
+            handleClickOnLikedAlbum(albumId= albumId, userId = user?.userId?:"1234")
+            albumObservers()
 
 
-                Log.d("AlbumIdArg",albumId.toString())
+            Log.d("AlbumIdArg",albumId.toString())
 
 
-                 }
+        }
         else {
             homeViewModel.getCurrentArtist(artistId = artist?:"")
-                homeViewModel.isArtistLiked(artistId = artist?:"", userId = userId?:"")
-                handleClickOnLikedArtist(artistId = artist?:"", userId = userId?:"")
-                artistObserver()
-
-
-            }
+            homeViewModel.isArtistLiked(artistId = artist?:"", userId = userId?:"")
+            handleClickOnLikedArtist(artistId = artist?:"", userId = userId?:"")
+            artistObserver()
+        }
 
 
         bottomBinding = MoreBottomSheetLayoutBinding.inflate(layoutInflater)
 
 
         setRecyclerView()
-
+        PlaylistUtils.checkAndRequestPermissions(
+            context = requireContext(),
+            requestPermissionsLauncher = requestPermissionsLauncher,
+            onPermissionsGranted = { foregroundNotification() }
+        )
 
         // Display playlist duration (if you need this as well)
 
@@ -165,9 +162,11 @@ class PlaylistFragment : Fragment() {
                         }
                         is UiStates.Success -> {
                             Log.d("SongListSuccess", state.data.toString())
+
                             if (state.data.toMutableList().isEmpty()){
                                 binding.playlistPlayBtn.visibility = View.GONE
-                            }// Debug the data
+                            }
+                            // Debug the data
                             songs = state.data.toMutableList()
                             PlaylistUtils.displayPlaylistDuration(
                                 songs = state.data, // Your song list
@@ -439,8 +438,6 @@ class PlaylistFragment : Fragment() {
         }
 
     }
-
-
     private fun initUi(album: Album?,artist: Artist?){
         when {
             album != null -> {
@@ -478,11 +475,7 @@ class PlaylistFragment : Fragment() {
 
     private fun onClick() {
         binding.playlistPlayBtn.setOnClickListener {
-            PlaylistUtils.checkAndRequestPermissions(
-                context = requireContext(),
-                requestPermissionsLauncher = requestPermissionsLauncher,
-                onPermissionsGranted = { foregroundNotification() }
-            )
+            foregroundNotification()
 
         }
         binding.playlistArrowBack.setOnClickListener {
@@ -496,28 +489,17 @@ class PlaylistFragment : Fragment() {
     private fun setRecyclerView() {
         binding.playlistListItems.adapter = adapter
     }
-  private fun handleClickOnLikedSong(){
-      this.bottomBinding.moreBottomLinearlayoutLike
-          .setOnClickListener {
-              if (homeViewModel.isLikedSong.value){
-                  homeViewModel.onUnLikedSong(currentSongId,userId?:"", albumId = albumId?:"")
-              }
-              else{
-                  homeViewModel.onLikedSong(currentSongId,userId?:"", albumId = albumId?:"")
-              }
-          }
-
-  }
-
-    private fun handleClickOnLikedArtist(artistId:String,userId: String){
-        binding.playlistLikedBtn.setOnClickListener {
-            if (homeViewModel.isLikedArtist.value){
-                homeViewModel.onUnlikedLikedArtist(artistId = artistId, userId = userId)
+    private fun handleClickOnLikedSong(){
+        this.bottomBinding.moreBottomLinearlayoutLike
+            .setOnClickListener {
+                if (homeViewModel.isLikedSong.value){
+                    homeViewModel.onUnLikedSong(currentSongId,userId?:"", albumId = albumId?:"")
+                }
+                else{
+                    homeViewModel.onLikedSong(currentSongId,userId?:"", albumId = albumId?:"")
+                }
             }
-            else{
-                homeViewModel.onLikedArtist(artistId = artistId, userId = userId)
-            }
-        }
+
     }
 
     private fun handleClickOnLikedAlbum(albumId: String, userId:String){
@@ -532,6 +514,18 @@ class PlaylistFragment : Fragment() {
 
         }
 
+    }
+
+
+    private fun handleClickOnLikedArtist(artistId:String,userId: String){
+        binding.playlistLikedBtn.setOnClickListener {
+            if (homeViewModel.isLikedArtist.value){
+                homeViewModel.onUnlikedLikedArtist(artistId = artistId, userId = userId)
+            }
+            else{
+                homeViewModel.onLikedArtist(artistId = artistId, userId = userId)
+            }
+        }
     }
     private fun playAllSongs() {
         lifecycleScope.launch {
@@ -613,15 +607,16 @@ class PlaylistFragment : Fragment() {
 
 
         homeViewModel.isLikedSong(songId = song.songId,userId = userId?:"1234")
-        bottomBinding.moreBottomLinearlayoutAddToPlaylist.setOnClickListener {
-            val action = PlaylistFragmentDirections.actionPlaylistFragment2ToAddSongFragment(song.songId)
-            findNavController().navigate(action)
-        }
 
 
         // on below line we are inflating a layout file which we have created.
-       bottomBinding.moreBottomLinearlayoutDeletePlaylist.visibility = View.GONE
-       bottomBinding.moreBottomLinearlayoutEditPlaylist.visibility = View.GONE
+        bottomBinding.moreBottomLinearlayoutDeletePlaylist.visibility = View.GONE
+        bottomBinding.moreBottomLinearlayoutEditPlaylist.visibility = View.GONE
+
+        bottomBinding.moreBottomLinearlayoutAddToPlaylist.setOnClickListener {
+            val action = LibPlaylistFragmentDirections.actionLibPlaylistFragmentToAddSongFragment(song.songId)
+            findNavController().navigate(action)
+        }
 
         glide
             .load(song.imageUrl)
@@ -634,7 +629,7 @@ class PlaylistFragment : Fragment() {
 
         bottomBinding.moreBottomSheetSongTitle.text = song.title
 
-       bottomBinding.moreBottomSheetSongDescription.text = song.description
+        bottomBinding.moreBottomSheetSongDescription.text = song.description
 
         handleClickOnLikedSong()
 
@@ -649,4 +644,6 @@ class PlaylistFragment : Fragment() {
         // a show method to display a dialog.
         dialog.show()
     }
+
+
 }

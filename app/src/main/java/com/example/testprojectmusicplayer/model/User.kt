@@ -13,6 +13,6 @@ data class User(
     var userId: String = "",
     val likedSong: List<String> = emptyList(),
     val likedArtist: List<String> = emptyList(),
-    val likedAlbums: List<String> = emptyList(),
+    var likedAlbums: String = "",
     val recentlyPlayedSongs: List<String> = emptyList()
 ) : Parcelable

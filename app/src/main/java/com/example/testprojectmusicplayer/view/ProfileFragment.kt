@@ -7,10 +7,17 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 
 import com.example.testprojectmusicplayer.R
+import com.example.testprojectmusicplayer.utils.UserObject
 import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class ProfileFragment : Fragment() {
+
+    @Inject
+    lateinit var userObject: UserObject
+
+
 
 
     override fun onCreateView(
@@ -20,6 +27,18 @@ class ProfileFragment : Fragment() {
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_profile, container, false)
     }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+    }
+
+
+    private fun observer(){
+
+
+    }
+
 
 
 }

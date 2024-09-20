@@ -60,6 +60,8 @@ class HomeViewModel @Inject constructor(
     val isLikedAlbum :StateFlow<Boolean> = _isLikedAlbum
 
 
+    private val _getRecentPlayedAlbum = MutableStateFlow<UiStates<List<Album>>>(UiStates.Loading)
+    val  getRecentPlayedAlbum :StateFlow<UiStates<List<Album>>> = _getRecentPlayedAlbum
 
     private val _allAlbumsState  = MutableStateFlow<UiStates<List<Album>>>(UiStates.Loading)
     val allAlbumsState :StateFlow<UiStates<List<Album>>> = _allAlbumsState
@@ -69,6 +71,18 @@ class HomeViewModel @Inject constructor(
     val allArtistsState :StateFlow<UiStates<List<Artist>>> = _allArtistsState
     private val _currentArtist = MutableStateFlow<UiStates<Artist>>(UiStates.Loading)
     val currentArtist : StateFlow<UiStates<Artist>> = _currentArtist
+
+
+    private val _likedArtist  = MutableStateFlow<UiStates<String>>(UiStates.Loading)
+    val likedArtist :StateFlow<UiStates<String>> = _likedArtist
+
+    private val _unLikedArtist  = MutableStateFlow<UiStates<String>>(UiStates.Loading)
+    val unLikedArtist :StateFlow<UiStates<String>> = _unLikedArtist
+
+    private val _isLikedArtist  = MutableStateFlow<Boolean>(false)
+    val isLikedArtist :StateFlow<Boolean> = _isLikedArtist
+
+
 
     private val _combinedMediaItems = MutableStateFlow<UiStates<List<MediaItem>>>(UiStates.Loading)
     val combinedMediaItems: StateFlow<UiStates<List<MediaItem>>> = _combinedMediaItems
@@ -168,18 +182,18 @@ class HomeViewModel @Inject constructor(
     }
 
 
-    fun onLikedSong(songId:String,userId:String){
+    fun onLikedSong(songId:String,userId:String,albumId: String){
         viewModelScope.launch {
-            songRepository.onLikedSong(songId = songId, id = userId){
+            songRepository.onLikedSong(songId = songId, userId = userId, albumId = albumId){
               _likedSong.value = it
 
             }
         }
 
     }
-    fun onUnLikedSong(songId:String,userId:String){
+    fun onUnLikedSong(songId:String,userId:String,albumId: String){
         viewModelScope.launch {
-            songRepository.unLikedSong(songId = songId, id = userId){
+            songRepository.unLikedSong(songId = songId, userId = userId, albumId = albumId){
                 _unLikedSong.update { it }
 
             }
@@ -194,6 +208,13 @@ class HomeViewModel @Inject constructor(
             _isLikedSong.value = state
         }
 
+        }
+    }
+
+
+    fun addIntoRecentPlay(userId: String,album: Album){
+        viewModelScope.launch {
+            albumRepository.addAlbumToRecentlyPlayed(userId= userId, album = album)
         }
     }
 
@@ -226,6 +247,41 @@ class HomeViewModel @Inject constructor(
             }
         }
     }
+
+    fun onLikedArtist(artistId: String,userId: String){
+        viewModelScope.launch {
+            artistRepository.onLikedArtist(artistId = artistId,userId){
+                state ->
+                _likedArtist.update {
+                    state
+                }
+
+            }
+        }
+    }
+    fun onUnlikedLikedArtist(artistId: String,userId: String){
+        viewModelScope.launch {
+            artistRepository.unLikedArtist(artistId = artistId,userId){
+                    state ->
+                _unLikedArtist.update {
+                    state
+                }
+
+            }
+        }
+    }
+
+    fun isArtistLiked(artistId: String,userId: String){
+        viewModelScope.launch {
+            artistRepository.isArtistLikedByUser(artistId = artistId, userId = userId){
+                state ->
+                _isLikedArtist.value = state
+            }
+
+        }
+    }
+
+
 
     fun getStartedAlbums(){
         viewModelScope.launch {
@@ -271,6 +327,18 @@ class HomeViewModel @Inject constructor(
             }
         }
     }
+
+    fun getRecentPlayedAlbum(userId: String){
+        viewModelScope.launch {
+            albumRepository.getRecentlyPlayedAlbums(userId){
+                state ->
+                _getRecentPlayedAlbum.update {
+                    state
+                }
+            }
+        }
+    }
+
     fun getCurrentArtist(artistId: String) {
         viewModelScope.launch {
             when (val currentState = _allArtistsState.value) {
@@ -304,7 +372,7 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-     fun songListFunc(songs:List<String>){
+     private fun songListFunc(songs:List<String>){
         when (val currentState = _allSongsState.value) {
             is UiStates.Success -> {
                 val songList = currentState.data.filter {

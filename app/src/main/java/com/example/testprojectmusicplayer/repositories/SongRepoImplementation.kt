@@ -103,7 +103,8 @@ class SongRepoImplementation(
 
     override suspend fun onLikedSong(
         songId: String,
-        id: String,
+        userId: String,
+        albumId: String,
 
         result: (UiStates<String>) -> Unit
     ) {
@@ -116,15 +117,15 @@ class SongRepoImplementation(
                 val likes = snapshot.getLong("like") ?: 0
                 val likedBy = snapshot.get("likedBy") as? List<String> ?: emptyList()
 
-                if (!likedBy.contains(id)) {
+                if (!likedBy.contains(userId)) {
                     val newLikes = likes + 1
-                    val newLikedBy = likedBy + id
+                    val newLikedBy = likedBy + userId
                     transaction.update(document, "like", newLikes)
                     transaction.update(document, "likedBy", newLikedBy)
                 }
             }.addOnSuccessListener {
                 // On successful transaction, proceed to update the album
-                addSongInRepositoryOnLike(id = id, songId = songId) { albumResult ->
+                addSongInRepositoryOnLike(id = albumId, songId = songId) { albumResult ->
                     when (albumResult) {
                         is UiStates.Success -> result.invoke(UiStates.Success("Successfully Liked and Added to Album"))
                         is UiStates.Failure -> result.invoke(UiStates.Failure("Liked Successfully but Failed to Update Album"))
@@ -140,7 +141,7 @@ class SongRepoImplementation(
         }
     }
 
-    fun addSongInRepositoryOnLike(id: String, songId: String, result: (UiStates<String>) -> Unit) {
+    private fun addSongInRepositoryOnLike(id: String, songId: String, result: (UiStates<String>) -> Unit) {
         val document = firestore.collection(FireStoreCons.ALBUM_COLLECTION).document(id)
 
         firestore.runTransaction { transaction ->
@@ -160,7 +161,7 @@ class SongRepoImplementation(
         }
     }
 
-    fun removeSongInRepositoryOnUnLike(id: String,songId: String,result: (UiStates<String>) -> Unit){
+    private fun removeSongInRepositoryOnUnLike(id: String, songId: String, result: (UiStates<String>) -> Unit){
         val document = firestore.collection(FireStoreCons.ALBUM_COLLECTION).document(id)
         val transaction = firestore.runTransaction {
                 transaction ->
@@ -177,7 +178,8 @@ class SongRepoImplementation(
 
     override suspend fun unLikedSong(
         songId: String,
-        id: String,
+        userId: String,
+        albumId: String,
         result: (UiStates<String>) -> Unit
     ) {
         try {
@@ -186,9 +188,9 @@ class SongRepoImplementation(
                 val snapshot = transaction.get(document)
                 val like = snapshot.getLong("like")?:0
                 val likedBy = snapshot.get("likedBy") as? List<String> ?:emptyList()
-                if (likedBy.contains(id)){
+                if (likedBy.contains(userId)){
                     val newLike = like -1
-                    val newLikedBy = likedBy - id
+                    val newLikedBy = likedBy - userId
                     transaction.update(document,"like",newLike)
                     transaction.update(document,"likedBy",newLikedBy)
 
@@ -196,7 +198,7 @@ class SongRepoImplementation(
 
                 }
             }.addOnSuccessListener {
-                removeSongInRepositoryOnUnLike(id,songId){
+                removeSongInRepositoryOnUnLike(albumId,songId){
                         albumResult ->
                     when (albumResult) {
                         is UiStates.Success -> result.invoke(UiStates.Success("Successfully UnLiked and remove from Album"))

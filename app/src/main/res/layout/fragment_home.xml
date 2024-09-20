@@ -16,7 +16,7 @@
 
             android:id="@+id/hm_recent_play_grid"
             android:layout_width="match_parent"
-            android:layout_height="170dp"
+            android:layout_height="wrap_content"
             android:horizontalSpacing="8dp"
             android:verticalSpacing="8dp"
             android:stretchMode="columnWidth"

@@ -10,7 +10,7 @@ interface ArtistRepository {
     suspend fun getArtistByIds(ids:List<String>,result: (UiStates<List<Artist>>) -> Unit)
     suspend fun getArtistById(id:String,result: (UiStates<Artist?>) -> Unit)
     suspend fun onLikedArtist(artistId: String,id:String,result: (UiStates<String>) -> Unit)
-    suspend fun isArtistLikedByUser(artistId:String,userId:String):Boolean
+    suspend fun isArtistLikedByUser(artistId:String,userId:String,onLikeStatusChanged: (Boolean) -> Unit)
     suspend fun unLikedArtist(artistId: String,id:String,result: (UiStates<String>) -> Unit)
     suspend fun getArtistsLikedByUser(userId: String,result: (UiStates<List<Artist>>)->Unit)
 }

@@ -15,13 +15,23 @@ object FireStoreCons{
     const val ARTIST_COLLECTION = "Artist"
     const val ALBUM_COLLECTION = "Albums"
     const val SONG_COLLECTION = "Songs"
+    const val RECENT_PLAY_COLLECTION = "recent_play"
 
 }
 object FormatDuration{
      @SuppressLint("DefaultLocale")
      fun formatDuration(durationInMillis: Long): String {
-        val minutes = TimeUnit.MILLISECONDS.toMinutes(durationInMillis)
-        val seconds = TimeUnit.MILLISECONDS.toSeconds(durationInMillis) % 60
-        return String.format("%02d:%02d", minutes, seconds)
-    }
+         val seconds = (durationInMillis / 1000) % 60
+         val minutes = (durationInMillis / (1000 * 60)) % 60
+         val hours = (durationInMillis / (1000 * 60 * 60))
+
+         return if (hours > 0) {
+             // If the duration is more than an hour, format it as HH:mm:ss
+             String.format("%02d:%02d:%02d", hours, minutes, seconds)
+         } else {
+             // If the duration is less than an hour, format it as mm:ss
+             String.format("%02d:%02d", minutes, seconds)
+         }
+     }
+
 }

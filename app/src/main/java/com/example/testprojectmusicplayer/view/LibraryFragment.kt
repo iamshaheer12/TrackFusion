@@ -147,10 +147,15 @@ class LibraryFragment : Fragment(),OnItemClickListener1 {
             when (item) {
                 is AlbumArtist.AlbumItem -> {
                     Log.d("SongsData",item.album.toString())
+                    val action = LibraryFragmentDirections.actionLibraryFragmentToLibPlaylistFragment(item.album.id,null)
+                    findNavController().navigate(action)
                     // Handle album item click
                 }
                 is AlbumArtist.ArtistItem -> {
                     Log.d("SongsData",item.artist.toString())
+                    val action = LibraryFragmentDirections.actionLibraryFragmentToLibPlaylistFragment(null,item.artist.id)
+                    findNavController().navigate(action)
+
 
                     // Handle artist item click
                 }

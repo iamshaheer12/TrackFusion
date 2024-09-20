@@ -20,6 +20,9 @@
             app:argType="string"
             app:nullable="true"
         />
+        <action
+            android:id="@+id/action_playlistFragment2_to_addSongFragment"
+            app:destination="@id/addSongFragment" />
 
     </fragment>
     <fragment
@@ -83,6 +86,9 @@
         <action
             android:id="@+id/action_libraryFragment_to_profileFragment2"
             app:destination="@id/profileFragment2" />
+        <action
+            android:id="@+id/action_libraryFragment_to_libPlaylistFragment"
+            app:destination="@id/libPlaylistFragment" />
     </fragment>
     <fragment
         android:id="@+id/addSongFragment"
@@ -92,5 +98,24 @@
         <argument
             android:name="song"
             app:argType="string"/>
+    </fragment>
+    <fragment
+        android:id="@+id/libPlaylistFragment"
+        android:name="com.example.testprojectmusicplayer.view.LibPlaylistFragment"
+        android:label="fragment_lib_playlist"
+        tools:layout="@layout/fragment_lib_playlist" >
+        <argument
+            android:name="albumId"
+            app:argType="string"
+            app:nullable="true"
+            />
+        <argument
+            android:name="artistId"
+            app:argType="string"
+            app:nullable="true"
+            />
+        <action
+            android:id="@+id/action_libPlaylistFragment_to_addSongFragment"
+            app:destination="@id/addSongFragment" />
     </fragment>
 </navigation>

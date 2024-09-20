@@ -1,6 +1,7 @@
 package com.example.testprojectmusicplayer.view
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -80,10 +81,14 @@ class AddSongFragment : Fragment() {
             findNavController().popBackStack()
         }
         binding.createPlaylistCreateBtn.setOnClickListener {
+
             if (adapter.getSelectedAlbumsId().toMutableList().isEmpty()){
+                Log.d("EmtpyList", "12345")
                 Toast.makeText(requireContext(),"Pleas Select Album",Toast.LENGTH_SHORT).show()
             }
             else{
+                Log.d("addSongCalled", "12345")
+
                 viewModel.addSongs(songId = songId, albumIds = adapter.getSelectedAlbumsId().toMutableList())
 
             }
@@ -93,48 +98,52 @@ class AddSongFragment : Fragment() {
     private fun observers(){
         lifecycleScope.launch {
 
-            launch {  viewModel.addSongState.collect{
-                    state ->
-                when(state){
+            viewModel.addSongState.collect { state ->
+                when (state) {
                     is UiStates.Loading -> {
-                        Toast.makeText(requireContext(),"Loading",Toast.LENGTH_SHORT).show()
+                        Toast.makeText(requireContext(), "Loading", Toast.LENGTH_SHORT).show()
 
                     }
+
                     is UiStates.Success -> {
-                        Toast.makeText(requireContext(),state.data,Toast.LENGTH_SHORT).show()
+                        Toast.makeText(requireContext(), state.data, Toast.LENGTH_SHORT).show()
+                        findNavController().popBackStack()
 
                     }
+
                     is UiStates.Failure -> {
-                        Toast.makeText(requireContext(),state.error,Toast.LENGTH_SHORT).show()
+                        Toast.makeText(requireContext(), state.error, Toast.LENGTH_SHORT).show()
 
                     }
                 }
-            } }
+            }
+        }
 
-            launch {
-                viewModel.allAlbums.collect{
-                        state ->
-                    when(state){
+            lifecycleScope.launch {
+                viewModel.allAlbums.collect { state ->
+                    when (state) {
                         is UiStates.Loading -> {
-                            Toast.makeText(requireContext(),"Loading",Toast.LENGTH_SHORT).show()
+                            Toast.makeText(requireContext(), "Loading", Toast.LENGTH_SHORT).show()
 
                         }
+
                         is UiStates.Success -> {
                             val albumList = state.data.toMutableList()
-                            Toast.makeText(requireContext(),state.data.toString(),Toast.LENGTH_SHORT).show()
+                            Toast.makeText(
+                                requireContext(),
+                                state.data.toString(),
+                                Toast.LENGTH_SHORT
+                            ).show()
                             adapter.updateList(albumList)
 
 
                         }
+
                         is UiStates.Failure -> {
-                            Toast.makeText(requireContext(),state.error,Toast.LENGTH_SHORT).show()
+                            Toast.makeText(requireContext(), state.error, Toast.LENGTH_SHORT).show()
 
                         }
                     }
                 }
             }
-
-
-        }
-    }
-}
+}   }

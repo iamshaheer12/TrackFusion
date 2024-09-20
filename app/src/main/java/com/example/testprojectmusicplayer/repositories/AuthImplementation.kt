@@ -149,48 +149,59 @@ class AuthRepoImplementation(
                 .addOnCompleteListener { task ->
                     if (task.isSuccessful) {
                         user.userId = task.result?.user?.uid ?: ""
-                        updateUser(user) { uiStates ->
-                            when (uiStates) {
-                                is UiStates.Success -> {
-                                    // Switch to the IO dispatcher for the repository operations
-                                    CoroutineScope(Dispatchers.IO).launch {
-                                        try {
-                                            // Create an album after user creation
-                                            albumRepository.createAlbum(
-                                                album = Album(
-                                                    createdBy = user.userId,
-                                                    title = "Liked Songs",
-                                                    descriptions = "",
-                                                    visibility = false
-                                                )
-                                            ) {
-                                                result.invoke(UiStates.Success("User created successfully."))
+                        // Switch to the IO dispatcher for the repository operations
+                        CoroutineScope(Dispatchers.IO).launch {
+                            try {
+                                // Create an album after user creation
+                                albumRepository.createAlbum(
+                                    album = Album(
+                                        createdBy = user.userId,
+                                        title = "Liked Songs",
+                                        descriptions = "",
+                                        visibility = false
+                                    )
+                                ) { albumResult ->
+                                    when (albumResult) {
+                                        is UiStates.Success -> {
+                                            // Store the album ID in the user
+                                            user.likedAlbums = albumResult.data
+                                            // Update user with the album ID
+                                            updateUser(user) { uiStates ->
+                                                when (uiStates) {
+                                                    is UiStates.Success -> {
+                                                        result.invoke(UiStates.Success("User and album created successfully."))
+                                                    }
+                                                    is UiStates.Failure -> {
+                                                        // Rollback user creation if update fails
+                                                        result.invoke(UiStates.Failure("Failed to update user with album ID: ${uiStates.error}"))
+                                                        firebaseAuth.currentUser?.delete()
+                                                    }
+                                                    else -> {
+                                                        result.invoke(UiStates.Failure("Failed to update user data."))
+                                                        firebaseAuth.currentUser?.delete()
+                                                    }
+                                                }
                                             }
-                                        } catch (e: Exception) {
-                                            result.invoke(UiStates.Failure("Failed to create album: ${e.message}"))
+                                        }
+                                        is UiStates.Failure -> {
+                                            // Rollback user creation if album creation fails
+                                            result.invoke(UiStates.Failure("Failed to create album: ${albumResult.error}"))
+                                            firebaseAuth.currentUser?.delete()
+                                        }
+                                        else -> {
+                                            result.invoke(UiStates.Failure("Unexpected state during album creation."))
+                                            firebaseAuth.currentUser?.delete()
                                         }
                                     }
                                 }
-                                is UiStates.Failure -> {
-                                    result.invoke(UiStates.Failure(uiStates.error))
-                                }
-                                else -> {
-                                    result.invoke(UiStates.Failure("Failed to update user data."))
-                                }
+                            } catch (e: Exception) {
+                                result.invoke(UiStates.Failure("Failed to create album: ${e.message}"))
+                                firebaseAuth.currentUser?.delete()
                             }
                         }
                     } else {
-                        try {
-                            throw task.exception ?: Exception("Invalid authentication")
-                        } catch (e: FirebaseAuthWeakPasswordException) {
-                            result.invoke(UiStates.Failure("Authentication failed: Password should be at least 6 characters."))
-                        } catch (e: FirebaseAuthInvalidCredentialsException) {
-                            result.invoke(UiStates.Failure("Authentication failed: Invalid email entered."))
-                        } catch (e: FirebaseAuthUserCollisionException) {
-                            result.invoke(UiStates.Failure("Authentication failed: Email already registered."))
-                        } catch (e: Exception) {
-                            result.invoke(UiStates.Failure(e.message.toString()))
-                        }
+                        // Handle Firebase Auth failures
+                        handleAuthException(task.exception, result)
                     }
                 }
                 .addOnFailureListener { exception ->
@@ -200,6 +211,23 @@ class AuthRepoImplementation(
             result.invoke(UiStates.Failure(e.localizedMessage ?: "An unexpected error occurred."))
         }
     }
+
+    // Helper function to handle Firebase Auth specific exceptions
+    private fun handleAuthException(exception: Exception?, result: (UiStates<String>) -> Unit) {
+        try {
+            throw exception ?: Exception("Invalid authentication")
+        } catch (e: FirebaseAuthWeakPasswordException) {
+            result.invoke(UiStates.Failure("Authentication failed: Password should be at least 6 characters."))
+        } catch (e: FirebaseAuthInvalidCredentialsException) {
+            result.invoke(UiStates.Failure("Authentication failed: Invalid email entered."))
+        } catch (e: FirebaseAuthUserCollisionException) {
+            result.invoke(UiStates.Failure("Authentication failed: Email already registered."))
+        } catch (e: Exception) {
+            result.invoke(UiStates.Failure(e.message.toString()))
+        }
+    }
+
+
 
 
     override suspend fun loginWithEmailPassword(

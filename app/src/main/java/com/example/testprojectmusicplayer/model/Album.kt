@@ -15,4 +15,5 @@ data class Album(
     val createdBy : String = "",
     val likedBy : List<String> = emptyList(),
     var songs:List<String> = emptyList(),
+    val timestamp: Long = System.currentTimeMillis()
 ) : Parcelable

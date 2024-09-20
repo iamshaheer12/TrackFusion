@@ -20,5 +20,8 @@ interface AlbumRepository {
     suspend fun deleteAlbum(id: String,result: (UiStates<String>) -> Unit)
     suspend fun addSongToAlbums(songId:String,list: List<String>,result: (UiStates<String>) -> Unit)
     suspend fun removeSongFromAlbum(songId: String,albumId: String,result: (UiStates<String>) -> Unit)
+    suspend fun addAlbumToRecentlyPlayed(userId: String, album: Album)
+    suspend fun removeOldAlbumsIfNeeded(userId: String)
+    suspend fun getRecentlyPlayedAlbums(userId: String, callback: (UiStates<List<Album>>) -> Unit)
 
 }
