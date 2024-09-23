@@ -28,8 +28,8 @@
                 <!-- Your custom view, like a logo or custom text -->
                 <TextView
                     android:id="@+id/lib_custom_icon"
-                    android:layout_width="40dp"
-                    android:layout_height="43dp"
+                    android:layout_width="55dp"
+                    android:layout_height="55dp"
                     android:background="@drawable/circle_filled"
                     android:clickable="true"
                     android:contentDescription="Custom Icon"
@@ -38,6 +38,21 @@
                     android:gravity="center"
                     android:text="SH"
                     android:textStyle="bold"
+                    app:layout_constraintStart_toStartOf="parent"
+
+                    app:layout_constraintTop_toTopOf="parent" />
+                <de.hdodenhof.circleimageview.CircleImageView
+                    android:id="@+id/lib_profileImage"
+                    android:layout_width="55dp"
+                    android:layout_height="55dp"
+                    android:background="@drawable/circle_filled"
+                    android:clickable="true"
+                    android:scaleType="centerCrop"
+
+                    android:focusable="true"
+                    android:gravity="center"
+
+
                     app:layout_constraintStart_toStartOf="parent"
 
                     app:layout_constraintTop_toTopOf="parent" />

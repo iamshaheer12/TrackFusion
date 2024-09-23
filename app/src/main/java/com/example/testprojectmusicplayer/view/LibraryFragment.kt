@@ -12,10 +12,12 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.RequestManager
+import com.bumptech.glide.request.RequestOptions
 import com.example.testprojectmusicplayer.R
 import com.example.testprojectmusicplayer.adapters.LibraryRecyclerViewAdapter
 import com.example.testprojectmusicplayer.adapters.OnItemClickListener1
 import com.example.testprojectmusicplayer.databinding.FragmentLibraryBinding
+import com.example.testprojectmusicplayer.model.User
 import com.example.testprojectmusicplayer.utils.AlbumArtist
 import com.example.testprojectmusicplayer.utils.MediaItem
 import com.example.testprojectmusicplayer.utils.UiStates
@@ -49,6 +51,10 @@ class LibraryFragment : Fragment(),OnItemClickListener1 {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
        val user =  userObject.getUser()
+        if (user != null){
+            handleImageOrIcon(user)
+        }
+
 
 
 
@@ -70,6 +76,38 @@ class LibraryFragment : Fragment(),OnItemClickListener1 {
     }
 
 
+
+
+    private fun handleImageOrIcon(user: User){
+        if (user.imageUrl.isNotEmpty()){
+            glide
+                .load(user.imageUrl)
+                .apply(
+                    RequestOptions()
+                        .placeholder(R.drawable.default_image) // Replace with your default image resource
+                        .error(R.drawable.default_image) // Shown when there is an error loading the image
+                )
+                .into(binding.libProfileImage)
+            binding.libCustomIcon.visibility = View.GONE
+            binding.libProfileImage.setOnClickListener {
+                findNavController().navigate(R.id.action_libraryFragment_to_profileFragment2)
+            }
+        }
+        else{
+            val name = user.name
+
+            binding.libCustomIcon.text = if (name.length >= 2) name.substring(0, 2).uppercase() else name.uppercase()
+            binding.libProfileImage.visibility = View.GONE
+            binding.libCustomIcon.setOnClickListener {
+                findNavController().navigate(R.id.action_libraryFragment_to_profileFragment2)
+            }
+        }
+
+
+
+
+    }
+
     private fun onClick(){
         binding.libPlusIcon.setOnClickListener {
             val action =
@@ -83,6 +121,9 @@ class LibraryFragment : Fragment(),OnItemClickListener1 {
         binding.libSearchIcon.setOnClickListener {
             findNavController().navigate(R.id.action_libraryFragment_to_libSearchFragment2)
         }
+
+
+
     }
 
 

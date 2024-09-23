@@ -80,7 +80,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"/>
         <ImageView
-                android:id="@+id/mp_album_art"
+                android:id="@+id/mp_current_song_poster"
                 android:layout_width="0dp"
             android:layout_marginTop="32dp"
 
@@ -99,7 +99,7 @@
                 android:textColor="@android:color/white"
                 android:textSize="20sp"
                 android:textStyle="bold"
-                app:layout_constraintTop_toBottomOf="@id/mp_album_art"
+                app:layout_constraintTop_toBottomOf="@id/mp_current_song_poster"
                 app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/mp_liked_btn"
                 android:layout_marginTop="32dp"/>
@@ -229,6 +229,7 @@ android:focusable="true"
             app:layout_constraintEnd_toEndOf="parent"
             />
         <include
+            android:id="@+id/mp_artist_card"
             layout="@layout/about_artist_card"
             app:layout_constraintTop_toBottomOf="@+id/mp_lyrics_preview"
             app:layout_constraintStart_toStartOf="parent"

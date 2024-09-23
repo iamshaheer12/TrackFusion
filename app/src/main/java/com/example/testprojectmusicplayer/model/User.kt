@@ -11,6 +11,7 @@ data class User(
     val gender: String = "",
     val email: String = "",
     var userId: String = "",
+    var imageUrl : String = "",
     val likedSong: List<String> = emptyList(),
     val likedArtist: List<String> = emptyList(),
     var likedAlbums: String = "",

@@ -72,6 +72,9 @@ class HomeViewModel @Inject constructor(
     private val _currentArtist = MutableStateFlow<UiStates<Artist>>(UiStates.Loading)
     val currentArtist : StateFlow<UiStates<Artist>> = _currentArtist
 
+    private val _currentSongArtist = MutableStateFlow<Artist?>(null)
+    val currentSongArtist :StateFlow<Artist?> = _currentSongArtist
+
 
     private val _likedArtist  = MutableStateFlow<UiStates<String>>(UiStates.Loading)
     val likedArtist :StateFlow<UiStates<String>> = _likedArtist
@@ -104,8 +107,12 @@ class HomeViewModel @Inject constructor(
     private val _playbackPosition = MutableStateFlow(0)
     val playbackPosition: StateFlow<Int> get() = _playbackPosition
 
+
+
 //    private val audioPlaybackService: AudioPlaybackService
 //        get() = audioPlaybackServiceProvider.getService()
+
+
 
 
 
@@ -424,6 +431,33 @@ class HomeViewModel @Inject constructor(
         }
     }
 
+
+    fun setCurrentSongArtist(){
+        viewModelScope.launch {
+          val artistId =   _currentSong.value?.artistId
+            if (artistId != null) {
+                val currentState = _allArtistsState.value
+                if (currentState is UiStates.Success){
+                    val allArtist = currentState.data
+
+                    val currentSongArtist = allArtist.filter{ artist ->
+                     artist.id == artistId
+                    }
+
+                    _currentSongArtist.value = currentSongArtist.first()
+
+                }
+                else {
+                    // Handle the case where artist data is not yet available or still loading
+                    Log.e("HomeViewModel", "Artist data is not available yet.")
+                }
+
+
+            }
+
+        }
+    }
+
 //
 
     fun playSong() {
@@ -452,6 +486,7 @@ class HomeViewModel @Inject constructor(
 
         }
     }
+
 
     fun stopPlayback() {
         viewModelScope.launch {
@@ -484,6 +519,9 @@ class HomeViewModel @Inject constructor(
             try {
                 val service = audioPlaybackServiceProvider.getService{service ->
                 service.seekTo(position)}
+                _playbackPosition.update {
+                    position
+                }
             } catch (e: IllegalStateException) {
                 Log.e("HomeViewModel", "Service not available: ${e.message}")
                 // Handle the error or notify the user

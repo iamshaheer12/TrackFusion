@@ -5,8 +5,13 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.navigation.fragment.findNavController
+import com.bumptech.glide.RequestManager
+import com.bumptech.glide.request.RequestOptions
 
 import com.example.testprojectmusicplayer.R
+import com.example.testprojectmusicplayer.databinding.FragmentProfileBinding
+import com.example.testprojectmusicplayer.model.User
 import com.example.testprojectmusicplayer.utils.UserObject
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
@@ -17,27 +22,75 @@ class ProfileFragment : Fragment() {
     @Inject
     lateinit var userObject: UserObject
 
+    @Inject
+    lateinit var glide : RequestManager
+    private lateinit var binding: FragmentProfileBinding
+
+
 
 
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_profile, container, false)
+    ): View {
+
+        binding = FragmentProfileBinding.inflate(layoutInflater)
+
+
+        return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        val user = userObject.getUser()
+        if (user != null){
+            initUi(user)
+        }
+
+
+        onClick()
+
+
 
     }
 
+    private fun onClick(){
+        binding.profileArrowBack.setOnClickListener {
+            findNavController().popBackStack()
+        }
 
-    private fun observer(){
+        binding.profileLogout.setOnClickListener {
 
-
+        }
     }
+
+
+   private fun initUi(user: User){
+
+
+       binding.profileName.text = user.name
+       binding.prName.text = user.name
+       binding.prEmail.text = user.email
+
+       if (user.imageUrl.isNotEmpty()){
+           glide
+               .load(user.imageUrl)
+               .apply(
+                   RequestOptions()
+                       .placeholder(R.drawable.default_image) // Replace with your default image resource
+                       .error(R.drawable.default_image) // Shown when there is an error loading the image
+               )
+               .into(binding.circleImageView)
+       }
+       else
+       {
+           binding.circleImageView.setImageResource(R.drawable.edit_profile_image)
+       }
+
+
+
+   }
 
 
 
