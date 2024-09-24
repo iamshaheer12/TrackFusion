@@ -53,7 +53,7 @@ class EmailLoginFragment : Fragment() {
             }
 
 
-            authViewModel.sendEmailLinkForLogging(email)
+            authViewModel.forgotPasswordLink(email)
 
 
 
@@ -68,22 +68,21 @@ class EmailLoginFragment : Fragment() {
     private fun observers(){
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED){
-                authViewModel.loginEmailSentState.collect { state ->
+                authViewModel.forgotPassword.collect { state ->
                     when (state) {
                         is UiStates.Loading -> {
                             // Show loading indicator
                         }
                         is UiStates.Success -> {
                             // Navigate to the next screen or show success message
+                            findNavController().popBackStack()
                             Toast.makeText(requireContext(), state.data, Toast.LENGTH_SHORT).show()
                         }
                         is UiStates.Failure -> {
                             // Show error message
                             Toast.makeText(requireContext(), state.error, Toast.LENGTH_SHORT).show()
                         }
-                        else -> {
-                            // Handle idle state if needed
-                        }
+
                     }
                 }
 

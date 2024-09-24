@@ -11,7 +11,7 @@
     <string name="date_of_birth">Date Of Birth</string>
     <string name="select_gender">Select Gender</string>
     <string name="create">Create</string>
-    <string name="email_login_text">We\'ll send you an email with link that will log you in</string>
+    <string name="email_login_text">We\'ll send you an email with link where you update password</string>
     <string name="get_link">Get link</string>
     <string name="to_get_you_started">To get You started</string>
     <string name="recently_played">Recently Played</string>
@@ -35,6 +35,7 @@
     <string name="share">Share</string>
     <string name="like"> Add to Liked Song</string>
     <string name="add_song_to_albums">Add song to Albums</string>
+    <string name="update">Update</string>
     <string-array name="gender">
         <item>Male</item>
         <item>Female</item>

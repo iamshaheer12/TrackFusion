@@ -34,7 +34,7 @@
             android:textSize="21sp"
             android:textStyle="bold"
             android:textColor="@color/spotify_light_gray"
-            android:text="@string/log_in_without_password"
+            android:text="Forgot Password "
             android:gravity="center" />
     </LinearLayout>
     <com.google.android.material.textfield.TextInputLayout

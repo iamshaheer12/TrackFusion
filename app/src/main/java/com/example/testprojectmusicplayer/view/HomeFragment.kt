@@ -47,7 +47,7 @@ class HomeFragment : Fragment() {
     private lateinit var recentGridAdapter: RecentGridAdapter
     private val getStartedAdapter by lazy {
         HomeGetStartedRecyclerViewAdapter(glide = glide,
-            onItemClicked = { pos,album->
+            onItemClicked = { _, album->
 
                 val action =HomeFragmentDirections.actionHomeFragmentToPlaylistFragment2(
 
@@ -151,10 +151,6 @@ class HomeFragment : Fragment() {
                             binding.loadingScreen.loading.visibility = View.GONE
                             getStartedAdapter.updateList(state.data.toMutableList())
 
-                            //recentPlayAdapter.updateList(state.data.toMutableList())
-                                // recommendedAdapter.updateList(state.data.toMutableList())
-
-                            // Navigate to the next screen or show success message
                         }
                         is UiStates.Failure -> {
                             // Show error message
@@ -263,14 +259,6 @@ class HomeFragment : Fragment() {
 
 
 
-    private fun provideGridData(): ArrayList<RecentPlayCard>{
-        return arrayListOf(
-            RecentPlayCard(title = "Atif Aslam is the best singer", image = R.drawable.atif),
-            RecentPlayCard(title = "Another title", image = R.drawable.atif),
-            RecentPlayCard(title = "Yet another title", image = R.drawable.atif),
-            RecentPlayCard(title = "Yet another title", image = R.drawable.atif)
 
-        )
-    }
 
 }

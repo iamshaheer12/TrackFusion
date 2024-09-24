@@ -5,6 +5,9 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.RequestManager
 import com.bumptech.glide.request.RequestOptions
@@ -12,8 +15,12 @@ import com.bumptech.glide.request.RequestOptions
 import com.example.testprojectmusicplayer.R
 import com.example.testprojectmusicplayer.databinding.FragmentProfileBinding
 import com.example.testprojectmusicplayer.model.User
+import com.example.testprojectmusicplayer.utils.UiStates
 import com.example.testprojectmusicplayer.utils.UserObject
+import com.example.testprojectmusicplayer.viewModel.UserViewModel
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -27,6 +34,9 @@ class ProfileFragment : Fragment() {
     private lateinit var binding: FragmentProfileBinding
 
 
+    private val viewModel : UserViewModel by viewModels()
+
+
 
 
 
@@ -37,7 +47,6 @@ class ProfileFragment : Fragment() {
 
         binding = FragmentProfileBinding.inflate(layoutInflater)
 
-
         return binding.root
     }
 
@@ -47,13 +56,39 @@ class ProfileFragment : Fragment() {
         if (user != null){
             initUi(user)
         }
-
-
+        observer()
         onClick()
 
-
-
     }
+    private fun observer(){
+        lifecycleScope.launch {
+            viewModel.signOutState.collect{
+                state ->
+                when(state){
+                    is UiStates.Success -> {
+                        // Get the NavController for the startingFragment's NavHostFragment
+                        val startingNavController = (requireActivity().supportFragmentManager.findFragmentById(R.id.nav_host) as NavHostFragment).navController
+
+                        // Pop the back stack and navigate to startingFragment
+                        startingNavController.popBackStack(R.id.startingFragment, true)
+                        startingNavController.navigate(R.id.startingFragment)
+
+
+                    }
+                    is UiStates.Loading -> {
+
+
+
+                    }
+                    is UiStates.Failure ->{
+
+                    }
+                }
+            }
+        }
+    }
+
+
 
     private fun onClick(){
         binding.profileArrowBack.setOnClickListener {
@@ -62,7 +97,14 @@ class ProfileFragment : Fragment() {
 
         binding.profileLogout.setOnClickListener {
 
+            viewModel.singOut()
+
         }
+
+        binding.prEditBtn.setOnClickListener {
+            findNavController().navigate(R.id.action_profileFragment2_to_editProfileFragment)
+        }
+
     }
 
 

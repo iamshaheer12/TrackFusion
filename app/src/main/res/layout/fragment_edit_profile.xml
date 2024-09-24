@@ -3,10 +3,9 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:background="@color/spotify_black"
-    tools:context=".view.ProfileFragment">
+    tools:context=".view.EditProfileFragment">
+
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/profile_app_bar"
         app:layout_constraintStart_toStartOf="parent"
@@ -26,38 +25,27 @@
             android:minHeight="?attr/actionBarSize"
             >
             <ImageView
-                android:id="@+id/profile_arrow_back"
+                android:id="@+id/edit_profile_arrow_back"
                 android:layout_width="wrap_content"
+
                 android:layout_height="wrap_content"
                 android:src="@drawable/arrow_back"
                 android:clickable="true"
-                android:focusable="true"/>
+                android:focusable="true"
+                />
             <TextView
                 android:id="@+id/profile_name"
-
                 android:layout_width="200dp"
                 android:layout_height="wrap_content"
                 android:text="Muhammad Shaheer"
                 android:textSize="@dimen/default_text_size"
                 android:maxLines="1"
+                android:ellipsize="end"
                 android:layout_gravity="center"
                 android:textStyle="bold"
-                android:ellipsize="end"
                 android:gravity="center_vertical"
                 android:textColor="@color/spotify_white"
                 />
-
-            <Button
-                android:id="@+id/pr_edit_btn"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:text="Edit"
-                android:clickable="true"
-                android:focusable="true"
-                android:layout_marginEnd="8dp"
-
-                android:layout_gravity="end"/>
-
 
 
         </androidx.appcompat.widget.Toolbar>
@@ -127,10 +115,14 @@
 
                 />
 
-            <TextView
+            <EditText
                 android:id="@+id/pr_name"
+                android:background="@null"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:maxLines="1"
+
+                android:textColor="@color/spotify_dark_gray"
                 android:layout_gravity="center_vertical"
                 android:layout_marginStart="8dp"
                 android:text="Muhammad Shaheer" />
@@ -139,73 +131,72 @@
 
     </androidx.cardview.widget.CardView>
 
-    <androidx.cardview.widget.CardView
+<!--    <androidx.cardview.widget.CardView-->
 
-        android:id="@+id/profile_line2_card"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:padding="8dp"
-        app:cardCornerRadius="4dp"
-        app:cardElevation="8dp"
-        android:layout_marginStart="20dp"
-        android:layout_marginEnd="20dp"
-        android:layout_marginTop="20dp"
-        app:layout_constraintEnd_toEndOf="parent"
+<!--        android:id="@+id/profile_line2_card"-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="0dp"-->
+<!--        android:padding="8dp"-->
+<!--        app:cardCornerRadius="4dp"-->
+<!--        app:cardElevation="8dp"-->
+<!--        android:layout_marginStart="20dp"-->
+<!--        android:layout_marginEnd="20dp"-->
+<!--        android:layout_marginTop="20dp"-->
+<!--        app:layout_constraintEnd_toEndOf="parent"-->
 
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/profile_line1_card">
+<!--        app:layout_constraintStart_toStartOf="parent"-->
+<!--        app:layout_constraintTop_toBottomOf="@+id/profile_line1_card">-->
 
-        <LinearLayout
+<!--&lt;!&ndash;        <LinearLayout&ndash;&gt;-->
 
-            android:id="@+id/line2"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="4dp"
-            android:layout_marginTop="8dp"
-            android:orientation="horizontal"
-            android:padding="8dp"
-            app:layout_constraintEnd_toEndOf="parent"
+<!--&lt;!&ndash;            android:id="@+id/line2"&ndash;&gt;-->
+<!--&lt;!&ndash;            android:layout_width="match_parent"&ndash;&gt;-->
+<!--&lt;!&ndash;            android:layout_height="wrap_content"&ndash;&gt;-->
+<!--&lt;!&ndash;            android:layout_marginStart="4dp"&ndash;&gt;-->
+<!--&lt;!&ndash;            android:layout_marginTop="8dp"&ndash;&gt;-->
+<!--&lt;!&ndash;            android:orientation="horizontal"&ndash;&gt;-->
+<!--&lt;!&ndash;            android:padding="8dp"&ndash;&gt;-->
+<!--&lt;!&ndash;            app:layout_constraintEnd_toEndOf="parent"&ndash;&gt;-->
 
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/circle_imageView">
+<!--&lt;!&ndash;            app:layout_constraintStart_toStartOf="parent"&ndash;&gt;-->
+<!--&lt;!&ndash;            app:layout_constraintTop_toBottomOf="@+id/circle_imageView">&ndash;&gt;-->
 
-            <ImageView
-                android:layout_width="30dp"
-                android:layout_height="30dp"
+<!--&lt;!&ndash;            <ImageView&ndash;&gt;-->
+<!--&lt;!&ndash;                android:layout_width="30dp"&ndash;&gt;-->
+<!--&lt;!&ndash;                android:layout_height="30dp"&ndash;&gt;-->
 
-                android:src="@drawable/email_24"
+<!--&lt;!&ndash;                android:src="@drawable/email_24"&ndash;&gt;-->
 
-                />
+<!--&lt;!&ndash;                />&ndash;&gt;-->
 
-            <TextView
-                android:id="@+id/pr_email"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical"
-                android:layout_marginStart="8dp"
-                android:text="muhammad.shaheer@diary.com" />
-        </LinearLayout>
+<!--&lt;!&ndash;            <EditText&ndash;&gt;-->
+<!--&lt;!&ndash;                android:id="@+id/pr_email"&ndash;&gt;-->
+<!--&lt;!&ndash;                android:layout_width="wrap_content"&ndash;&gt;-->
+<!--&lt;!&ndash;                android:layout_height="wrap_content"&ndash;&gt;-->
+<!--&lt;!&ndash;                android:layout_gravity="center"&ndash;&gt;-->
+<!--&lt;!&ndash;                &ndash;&gt;-->
+<!--&lt;!&ndash;                android:layout_marginStart="8dp"&ndash;&gt;-->
+<!--&lt;!&ndash;                android:text="muhammad.shaheer@diary.com" />&ndash;&gt;-->
+<!--&lt;!&ndash;        </LinearLayout>&ndash;&gt;-->
 
 
-    </androidx.cardview.widget.CardView>
+<!--    </androidx.cardview.widget.CardView>-->
 
 
 
 
     <Button
         android:layout_marginTop="20dp"
-        android:id="@+id/profile_logout"
+        android:id="@+id/ed_profile_update"
         android:layout_width="wrap_content"
         android:layout_height="55dp"
 
         android:backgroundTint="@color/spotify_green"
-        android:drawableEnd="@drawable/logout_24"
-        android:text="Logout"
+        android:text="@string/update"
         app:layout_constraintEnd_toEndOf="parent"
 
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/profile_line2_card" />
-
+        app:layout_constraintTop_toBottomOf="@id/profile_line1_card" />
 
 
 

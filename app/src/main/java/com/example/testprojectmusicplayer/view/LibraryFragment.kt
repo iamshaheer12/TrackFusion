@@ -5,6 +5,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.constraintlayout.widget.ConstraintSet
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
@@ -78,35 +79,62 @@ class LibraryFragment : Fragment(),OnItemClickListener1 {
 
 
 
-    private fun handleImageOrIcon(user: User){
-        if (user.imageUrl.isNotEmpty()){
-            glide
-                .load(user.imageUrl)
-                .apply(
-                    RequestOptions()
-                        .placeholder(R.drawable.default_image) // Replace with your default image resource
-                        .error(R.drawable.default_image) // Shown when there is an error loading the image
-                )
+    private fun handleImageOrIcon(user: User) {
+        val constraintLayout = binding.libConstraintLayout
+        val constraintSet = ConstraintSet()
+        constraintSet.clone(constraintLayout)
+
+        if (user.imageUrl.isNotEmpty()) {
+            // Load the image and show the ImageView
+            glide.load(user.imageUrl)
+                .apply(RequestOptions()
+                    .placeholder(R.drawable.default_image)
+                    .error(R.drawable.default_image))
                 .into(binding.libProfileImage)
+
+            binding.libProfileImage.visibility = View.VISIBLE // Ensure the image is visible
             binding.libCustomIcon.visibility = View.GONE
+
+            // Connect toolbar title to the image view
+            constraintSet.connect(
+                binding.libToolbarTitle.id,
+                ConstraintSet.START,
+                binding.libProfileImage.id,
+                ConstraintSet.END,
+                8 // margin in pixels
+            )
+
             binding.libProfileImage.setOnClickListener {
                 findNavController().navigate(R.id.action_libraryFragment_to_profileFragment2)
             }
-        }
-        else{
+        } else {
+            // Show the custom icon
             val name = user.name
-
             binding.libCustomIcon.text = if (name.length >= 2) name.substring(0, 2).uppercase() else name.uppercase()
+            binding.libCustomIcon.visibility = View.VISIBLE // Ensure the custom icon is visible
             binding.libProfileImage.visibility = View.GONE
+
+            // Connect toolbar title to the custom icon
+            constraintSet.connect(
+                binding.libToolbarTitle.id,
+                ConstraintSet.START,
+                binding.libCustomIcon.id,
+                ConstraintSet.END,
+                8 // margin in pixels
+            )
+
             binding.libCustomIcon.setOnClickListener {
                 findNavController().navigate(R.id.action_libraryFragment_to_profileFragment2)
             }
         }
 
+        // Apply the updated constraints to the layout
+        constraintSet.applyTo(constraintLayout)
 
-
-
+        // Request layout update to ensure changes are reflected
+        constraintLayout.requestLayout()
     }
+
 
     private fun onClick(){
         binding.libPlusIcon.setOnClickListener {

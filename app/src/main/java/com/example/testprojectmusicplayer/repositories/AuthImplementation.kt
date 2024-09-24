@@ -2,6 +2,7 @@ package com.example.testprojectmusicplayer.repositories
 
 import android.content.Intent
 import android.content.SharedPreferences
+import android.net.Uri
 import com.example.testprojectmusicplayer.model.Album
 import com.example.testprojectmusicplayer.model.User
 import com.example.testprojectmusicplayer.utils.FireStoreCons
@@ -15,6 +16,7 @@ import com.google.firebase.auth.FirebaseAuthUserCollisionException
 import com.google.firebase.auth.FirebaseAuthWeakPasswordException
 import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.storage.FirebaseStorage
 import com.google.gson.Gson
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -25,7 +27,8 @@ class AuthRepoImplementation(
     private val firebaseAuth: FirebaseAuth,
     private val sharedPref:SharedPreferences,
     private val gson: Gson,
-    private val albumRepository: AlbumRepository
+    private val albumRepository: AlbumRepository,
+    private val firebaseStorage : FirebaseStorage
 
     ):AuthRepository {
 
@@ -306,5 +309,61 @@ class AuthRepoImplementation(
         }
     }
 
+
+
+    override suspend fun signOut(result: (UiStates<String>) -> Unit) {
+         try {
+            firebaseAuth.signOut()  // Signs out the user from Firebase Authentication
+
+             sharedPref.edit().putString(SharedPrefConstants.STORE_SESSION, null).apply()
+
+             // Invoke the callback with success state
+            result(UiStates.Success("Sign out successful"))
+        } catch (e: Exception) {
+            // Invoke the callback with error state if something goes wrong
+            result(UiStates.Failure(e.localizedMessage ?: "An error occurred during sign out"))
+        }
+    }
+
+    override suspend fun uploadingUserImage(imageUrl: Uri, result: (UiStates<String>) -> Unit) {
+        try {
+            val storageRef = firebaseStorage.reference.child("uploads/${System.currentTimeMillis()}.jpg")
+            storageRef.putFile(imageUrl).addOnSuccessListener {
+                storageRef.downloadUrl.addOnSuccessListener { uri ->
+                   result.invoke(UiStates.Success(uri.toString()))
+                }
+            }.addOnFailureListener {
+                result.invoke(UiStates.Failure("Image not uploaded "))
+            }
+        } catch (e: Exception)
+        {
+            result.invoke(UiStates.Failure("An error occured "))
+
+        }
+    }
+
+
+    override suspend fun forgotPassword(email: String, result: (UiStates<String>) -> Unit) {
+
+         try {
+             firebaseAuth.sendPasswordResetEmail(email)
+                 .addOnCompleteListener {
+                     if (it.isSuccessful){
+                         result.invoke(UiStates.Success("Email sentSuccessfully"))
+                     }
+
+                 }
+                 .addOnFailureListener{
+                     result.invoke(UiStates.Failure("Failed due to invalid Email"))
+
+
+                 }
+         }
+         catch (e:Exception){
+             result.invoke(UiStates.Failure("Failed due to error"))
+         }
+
+
+    }
 
 }

@@ -21,41 +21,40 @@ class PlaylistItemsRecyclerView @Inject constructor(
     private val glide: RequestManager
 ) : RecyclerView.Adapter<PlaylistItemsRecyclerView.AudioViewHolder>() {
 
-    private var selectedPosition = -1
+    private var currentSongId: String? = null  // Store the ID of the current song
     private var audioFiles: List<Song> = emptyList()
 
     inner class AudioViewHolder(private val binding: PlaylistSongItemCardBinding) :
         RecyclerView.ViewHolder(binding.root) {
+
         fun bind(item: Song) {
             binding.adsTitle.text = item.title
             binding.adsDescription.text = item.description
             val context = binding.root.context
 
-
             glide
-                //.with(binding.psiImage)
                 .load(item.imageUrl)
                 .apply(
                     RequestOptions()
-                        .placeholder(R.drawable.default_image) // Replace with your default image resource
-                        .error(R.drawable.default_image) // Shown when there is an error loading the image
+                        .placeholder(R.drawable.default_image)
+                        .error(R.drawable.default_image)
                 )
                 .into(binding.adsImage)
-            val color = if (adapterPosition == selectedPosition) {
-                ContextCompat.getColor(context, R.color.spotify_green) // Replace 'green' with your actual color resource name
+
+            // Change color if the current song's ID matches the item's song ID
+            val color = if (item.songId == currentSongId) {
+                ContextCompat.getColor(context, R.color.spotify_green)
             } else {
-                ContextCompat.getColor(context, R.color.spotify_white) // Replace 'defaultColor' with your actual color resource name
+                ContextCompat.getColor(context, R.color.spotify_white)
             }
 
-            // Change the color of the title based on whether this item is selected
-
-                binding.adsTitle.setTextColor(color)
-
+            binding.adsTitle.setTextColor(color)
 
             binding.root.setOnClickListener {
                 onItemClicked(adapterPosition)
-                updateSelection(adapterPosition) // Update selection when an item is clicked
+                updateSelection(item.songId)  // Update selection when an item is clicked
             }
+
             binding.psiMore.setOnClickListener {
                 onMoreClicked(item, adapterPosition)
             }
@@ -73,18 +72,22 @@ class PlaylistItemsRecyclerView @Inject constructor(
 
     override fun getItemCount() = audioFiles.size
 
-    // Function to update the selection
-     fun updateSelection(newPosition: Int) {
-        val previousPosition = selectedPosition
-        selectedPosition = newPosition
-        notifyItemChanged(previousPosition) // Update the previous item to default color
-        notifyItemChanged(newPosition) // Update the newly selected item
+    // Function to update the current song ID and refresh the list
+    fun updateSelection(newSongId: String) {
+        val previousSongId = currentSongId
+        currentSongId = newSongId
+
+        // Find the previous and new song positions and update only those items
+        val previousIndex = audioFiles.indexOfFirst { it.songId == previousSongId }
+        val newIndex = audioFiles.indexOfFirst { it.songId == newSongId }
+
+        if (previousIndex != -1) notifyItemChanged(previousIndex)  // Update the previous song item
+        if (newIndex != -1) notifyItemChanged(newIndex)  // Update the new song item
     }
-     @SuppressLint("NotifyDataSetChanged")
-     fun updateList(list: List<Song>){
-        audioFiles =  list
-        notifyDataSetChanged()
 
-
+    @SuppressLint("NotifyDataSetChanged")
+    fun updateList(list: List<Song>) {
+        audioFiles = list
+        notifyDataSetChanged()  // Notify that the entire dataset has changed
     }
 }

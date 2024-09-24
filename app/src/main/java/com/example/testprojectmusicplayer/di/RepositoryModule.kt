@@ -11,6 +11,7 @@ import com.example.testprojectmusicplayer.repositories.SongRepoImplementation
 import com.example.testprojectmusicplayer.repositories.SongRepository
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.storage.FirebaseStorage
 import com.google.gson.Gson
 import dagger.Module
 import dagger.Provides
@@ -53,15 +54,17 @@ object RepositoryModule {
         sharedPreferences: SharedPreferences,
         gson: Gson,
         firebaseAuth: FirebaseAuth,
-        albumRepository: AlbumRepository
+        albumRepository: AlbumRepository,
+        firebaseStorage: FirebaseStorage
 
-    ):AuthRepoImplementation{
+    ):AuthRepository{
         return  AuthRepoImplementation(
             firestore = firestore,
             firebaseAuth = firebaseAuth,
             sharedPref = sharedPreferences,
             gson = gson,
-            albumRepository = albumRepository
+            albumRepository = albumRepository,
+            firebaseStorage = firebaseStorage
 
         )
     }

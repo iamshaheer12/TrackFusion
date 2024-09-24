@@ -15,7 +15,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class AuthViewModel @Inject constructor(
-    private val authRepository: AuthRepoImplementation
+    private val authRepository: AuthRepository
 ) : ViewModel() {
 
     // State to track the login state or registration state
@@ -24,6 +24,9 @@ class AuthViewModel @Inject constructor(
 
     private val _loginState:MutableStateFlow<UiStates<String>> = MutableStateFlow<UiStates<String>>(UiStates.Loading)
     val loginState : StateFlow<UiStates<String>> = _loginState
+
+    private val _forgotPassword = MutableStateFlow<UiStates<String>>(UiStates.Loading)
+    val forgotPassword :StateFlow<UiStates<String>> = _forgotPassword
 
 
     private val _googleLoginState:MutableStateFlow<UiStates<String>> = MutableStateFlow<UiStates<String>>(UiStates.Loading)
@@ -66,6 +69,18 @@ class AuthViewModel @Inject constructor(
         }
 
 
+    }
+
+
+    fun forgotPasswordLink(email: String){
+        viewModelScope.launch {
+            authRepository.forgotPassword(email){
+                state ->
+                _forgotPassword.update {
+                    state
+                }
+            }
+        }
     }
 
     fun sendEmailLinkForLogging(email: String){

@@ -186,9 +186,15 @@ class PlaylistFragment : Fragment() {
 
             }}
         lifecycleScope.launch {
-            homeViewModel.currentSongIndex.collect { currentIndex ->
-                Log.d("CurrentIndex",currentIndex.toString())
-                adapter.updateSelection(currentIndex)
+            homeViewModel.currentSong.collect { currentSong ->
+                Log.d("CurrentIndex",currentSong.toString())
+                if (currentSong != null){
+                    adapter.updateSelection(currentSong.songId)
+
+                }
+                else{
+
+                }
             }
         }
 
@@ -570,7 +576,7 @@ class PlaylistFragment : Fragment() {
         lifecycleScope.launch {
             homeViewModel.updateIndex(pos)
             homeViewModel.playSong()
-            adapter.updateSelection(pos)
+           // adapter.updateSelection(pos)
         }
     }
 

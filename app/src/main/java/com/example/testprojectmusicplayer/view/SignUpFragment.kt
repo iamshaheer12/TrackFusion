@@ -138,8 +138,9 @@ class SignUpFragment : Fragment() {
                         is UiStates.Success -> {
                             // Handle success
                             Toast.makeText(context, uiState.data, Toast.LENGTH_SHORT).show()
-                            findNavController().navigate(R.id.action_signUpFragment_to_mainFragment)
-                        }
+                            findNavController().popBackStack(R.id.mainFragment,true)
+
+                            findNavController().navigate(R.id.mainFragment)                        }
                         is UiStates.Failure -> {
                             // Handle failure
                             Toast.makeText(context, uiState.error, Toast.LENGTH_SHORT).show()

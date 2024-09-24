@@ -34,7 +34,14 @@
         android:id="@+id/profileFragment2"
         android:name="com.example.testprojectmusicplayer.view.ProfileFragment"
         android:label="fragment_profile"
-        tools:layout="@layout/fragment_profile" />
+        tools:layout="@layout/fragment_profile" >
+        <action
+            android:id="@+id/action_profileFragment2_to_editProfileFragment"
+            app:destination="@id/editProfileFragment" />
+        <action
+            android:id="@+id/action_profileFragment2_to_libraryFragment"
+            app:destination="@id/libraryFragment" />
+    </fragment>
     <fragment
         android:id="@+id/createPlaylistFragment2"
         android:name="com.example.testprojectmusicplayer.view.CreatePlaylistFragment"
@@ -117,5 +124,14 @@
         <action
             android:id="@+id/action_libPlaylistFragment_to_addSongFragment"
             app:destination="@id/addSongFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/editProfileFragment"
+        android:name="com.example.testprojectmusicplayer.view.EditProfileFragment"
+        android:label="fragment_edit_profile"
+        tools:layout="@layout/fragment_edit_profile" >
+        <action
+            android:id="@+id/action_editProfileFragment_to_profileFragment2"
+            app:destination="@id/profileFragment2" />
     </fragment>
 </navigation>

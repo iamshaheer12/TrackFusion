@@ -92,6 +92,11 @@ class LoginFragment : Fragment() {
                     }
                     is UiStates.Success -> {
                         // Navigate to the next screen or show success message
+
+                        findNavController().popBackStack(R.id.mainFragment,true)
+
+                       findNavController().navigate(R.id.mainFragment)
+
                         Toast.makeText(requireContext(), state.data, Toast.LENGTH_SHORT).show()
                     }
                     is UiStates.Failure -> {

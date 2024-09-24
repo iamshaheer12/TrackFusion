@@ -58,6 +58,8 @@ dependencies {
     implementation(libs.androidx.work.runtime)
     implementation(libs.androidx.palette.ktx)
     implementation(platform("com.google.firebase:firebase-bom:33.3.0"))
+    implementation ("com.google.firebase:firebase-storage")
+
     implementation(libs.firebase.analytics)
     implementation(libs.play.services.auth)
     implementation(libs.gson)
