@@ -19,20 +19,20 @@ class AuthViewModel @Inject constructor(
 ) : ViewModel() {
 
     // State to track the login state or registration state
-    private val _authState = MutableStateFlow<UiStates<String>>(UiStates.Loading)
+    private val _authState = MutableStateFlow<UiStates<String>>(UiStates.Initial)
     val authState: StateFlow<UiStates<String>> = _authState
 
-    private val _loginState:MutableStateFlow<UiStates<String>> = MutableStateFlow<UiStates<String>>(UiStates.Loading)
+    private val _loginState:MutableStateFlow<UiStates<String>> = MutableStateFlow<UiStates<String>>(UiStates.Initial)
     val loginState : StateFlow<UiStates<String>> = _loginState
 
-    private val _forgotPassword = MutableStateFlow<UiStates<String>>(UiStates.Loading)
+    private val _forgotPassword = MutableStateFlow<UiStates<String>>(UiStates.Initial)
     val forgotPassword :StateFlow<UiStates<String>> = _forgotPassword
 
 
     private val _googleLoginState:MutableStateFlow<UiStates<String>> = MutableStateFlow<UiStates<String>>(UiStates.Loading)
     val googleLoginState : StateFlow<UiStates<String>> = _googleLoginState
 
-    private val _loginEmailSentState:MutableStateFlow<UiStates<String>> = MutableStateFlow<UiStates<String>>(UiStates.Loading)
+    private val _loginEmailSentState:MutableStateFlow<UiStates<String>> = MutableStateFlow<UiStates<String>>(UiStates.Initial)
     val loginEmailSentState : StateFlow<UiStates<String>> = _loginEmailSentState
 
 

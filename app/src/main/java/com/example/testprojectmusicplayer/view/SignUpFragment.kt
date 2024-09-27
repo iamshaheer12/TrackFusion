@@ -32,6 +32,9 @@ class SignUpFragment : Fragment() {
     private val authViewModel: AuthViewModel by viewModels()
 
 
+
+
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -43,8 +46,11 @@ class SignUpFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         onClick()
-        observers()
+
         setAdapterForAutoCompleteText()
+
+            observers()
+
     }
 
 
@@ -137,19 +143,31 @@ class SignUpFragment : Fragment() {
                     when (uiState) {
                         is UiStates.Success -> {
                             // Handle success
+
+                            binding.suProgressBar.progressBar.visibility = View.GONE
+                            binding.suButton.text = "CREATE"
                             Toast.makeText(context, uiState.data, Toast.LENGTH_SHORT).show()
                             findNavController().popBackStack(R.id.mainFragment,true)
 
                             findNavController().navigate(R.id.mainFragment)                        }
                         is UiStates.Failure -> {
                             // Handle failure
+                            binding.suProgressBar.progressBar.visibility = View.GONE
+                            binding.suButton.text = "CREATE"
                             Toast.makeText(context, uiState.error, Toast.LENGTH_SHORT).show()
                         }
                         is UiStates.Loading -> {
+
+                            binding.suProgressBar.progressBar.visibility = View.VISIBLE
+                            binding.suButton.text = ""
                             // Handle loading state
+                        }
+                        is UiStates.Initial ->{
+
                         }
 
                     }
+
                 }
             }
         }
@@ -166,6 +184,8 @@ class SignUpFragment : Fragment() {
         // Create and show the DatePickerDialog
         val datePickerDialog = DatePickerDialog(
             requireContext(),
+            R.style.SpotifyDatePickerTheme,
+
             { _, selectedYear, selectedMonth, selectedDay ->
                 // Update the UI with the selected date
                 val selectedDate = "$selectedDay/${selectedMonth + 1}/$selectedYear"
@@ -173,6 +193,10 @@ class SignUpFragment : Fragment() {
             },
             year, month, day
         )
+
+        datePickerDialog.datePicker.maxDate = System.currentTimeMillis()
+
+
         datePickerDialog.show()
     }
 

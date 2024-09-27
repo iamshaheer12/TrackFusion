@@ -28,7 +28,7 @@
 <!--        android:layout_margin="8dp"-->
 <!--        android:layout_marginStart="8dp"-->
 <!--        android:src="@drawable/song"-->
-<!--        app:layout_constraintBottom_toTopOf="@+id/ads_linear_layout"-->
+<!--        app:layout_constraintBottom_toTopOf=g@+id/ads_linear_layout"-->
 <!--        app:layout_constraintStart_toEndOf="@+id/ads_image"-->
 
 <!--        app:layout_constraintTop_toTopOf="parent"-->

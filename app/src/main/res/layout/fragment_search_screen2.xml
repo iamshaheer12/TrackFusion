@@ -51,11 +51,16 @@
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/search_text"
                         android:layout_width="match_parent"
-                        android:layout_height="50dp"
+                        android:layout_height="match_parent"
                         android:maxLines="1"
                         android:inputType="text"
                         android:textColor="@color/spotify_dark_gray"
-                        android:textSize="18sp" />
+                        android:textSize="18sp"
+                        android:paddingTop="8dp"
+                        android:paddingBottom="8dp"
+                    />
+
+
                 </com.google.android.material.textfield.TextInputLayout>
 
 

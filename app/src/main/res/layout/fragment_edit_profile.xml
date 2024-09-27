@@ -199,5 +199,19 @@
         app:layout_constraintTop_toBottomOf="@id/profile_line1_card" />
 
 
+    <include
+        android:id="@+id/ed_progress_bar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        layout="@layout/progress_bar"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:visibility="gone"
+        app:layout_constraintTop_toTopOf="@+id/ed_profile_update"
+        app:layout_constraintBottom_toBottomOf="@+id/ed_profile_update"
+
+        />
+
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -38,8 +38,8 @@ class AudioPlaybackService : Service() {
     private var mediaPlayer: MediaPlayer? = null
     private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
 
-    private var playbackCallback: PlaybackCallback? = null
 
+    private var playbackCallback: PlaybackCallback? = null
     private var audioFiles: List<Song> = emptyList()
     private var currentSongIndex = 0
 
@@ -64,6 +64,7 @@ class AudioPlaybackService : Service() {
         fun onPlaybackError(error: String)
         fun onSongChanged(song: Song)
         fun onIndexChanged(index: Int)
+
 
         fun onPlaybackStateChanged(isPlaying: Boolean)
     }
@@ -121,9 +122,23 @@ class AudioPlaybackService : Service() {
         if (audioFiles.isNotEmpty()) {
             serviceScope.launch {
                 try {
-                    // Release and reset MediaPlayer if already playing or exists
+                    val newSong = audioFiles[index]
+                    val currentSong = mediaPlayer?.let {
+                        // Check if MediaPlayer has an active data source
+                        it.isPlaying || it.currentPosition > 0
+                    } == true && audioFiles.getOrNull(currentSongIndex)?.audioFile == newSong.audioFile
+
+                    // If the current song is the same, resume playback if paused
+                    if (currentSong && mediaPlayer?.isPlaying == false) {
+                        mediaPlayer?.start() // Resume the song
+                        notifyPlaybackStateChanged(true)
+                        updateNotification()
+                        return@launch
+                    }
+
+                    // If a different song is requested, start playing the new song
                     mediaPlayer?.reset()  // Reset instead of release
-                    mediaPlayer?.setDataSource(audioFiles[index].audioFile)
+                    mediaPlayer?.setDataSource(newSong.audioFile)
                     mediaPlayer?.prepareAsync()  // Prepare asynchronously
 
                     mediaPlayer?.setOnPreparedListener {
@@ -143,14 +158,20 @@ class AudioPlaybackService : Service() {
                         true
                     }
 
-                    notifySongChanged(audioFiles[index])
+                    notifySongChanged(newSong)
+
+                    // Update the current song index
+                    currentSongIndex = index
+
                 } catch (e: Exception) {
                     Log.e("AudioPlaybackService", "Error playing song: ${e.message}")
+                    notifyPlaybackStateChanged(false)
                     handlePlaybackError(e.message.toString())
                 }
             }
         }
     }
+
 
 
     fun pausePlayback() {
@@ -175,18 +196,35 @@ class AudioPlaybackService : Service() {
         mediaPlayer?.takeIf { it.isPlaying }?.seekTo(position)
     }
 
-    private fun nextSong() {
+     fun nextSong() {
         if (currentSongIndex < audioFiles.size - 1) {
             currentSongIndex++
             playSong(currentSongIndex)
+            notifyIndexChanged()
+            notifySongChanged(song = audioFiles[currentSongIndex])
+
+
+        }
+        else if (currentSongIndex == audioFiles.size ){
+
+            notifyPlaybackStopped()
+            notifyPlaybackCompleted()
+
 
         }
     }
 
-    private fun previousSong() {
+     fun previousSong() {
         if (currentSongIndex > 0) {
             currentSongIndex--
             playSong(currentSongIndex)
+            notifyIndexChanged()
+            notifySongChanged(song = audioFiles[currentSongIndex])
+        }
+        else if (currentSongIndex == 0){
+            notifyIndexChanged()
+
+            notifyPlaybackCompleted()
         }
     }
 
@@ -240,6 +278,8 @@ class AudioPlaybackService : Service() {
     private fun handlePlaybackError(error: String) {
         playbackCallback?.onPlaybackError(error)
     }
+
+
 
     private fun notifyPositionChange() {
         val position = mediaPlayer?.currentPosition ?: 0

@@ -80,9 +80,7 @@ class LibraryFragment : Fragment(),OnItemClickListener1 {
 
 
     private fun handleImageOrIcon(user: User) {
-        val constraintLayout = binding.libConstraintLayout
-        val constraintSet = ConstraintSet()
-        constraintSet.clone(constraintLayout)
+
 
         if (user.imageUrl.isNotEmpty()) {
             // Load the image and show the ImageView
@@ -96,13 +94,7 @@ class LibraryFragment : Fragment(),OnItemClickListener1 {
             binding.libCustomIcon.visibility = View.GONE
 
             // Connect toolbar title to the image view
-            constraintSet.connect(
-                binding.libToolbarTitle.id,
-                ConstraintSet.START,
-                binding.libProfileImage.id,
-                ConstraintSet.END,
-                8 // margin in pixels
-            )
+
 
             binding.libProfileImage.setOnClickListener {
                 findNavController().navigate(R.id.action_libraryFragment_to_profileFragment2)
@@ -115,24 +107,13 @@ class LibraryFragment : Fragment(),OnItemClickListener1 {
             binding.libProfileImage.visibility = View.GONE
 
             // Connect toolbar title to the custom icon
-            constraintSet.connect(
-                binding.libToolbarTitle.id,
-                ConstraintSet.START,
-                binding.libCustomIcon.id,
-                ConstraintSet.END,
-                8 // margin in pixels
-            )
+
 
             binding.libCustomIcon.setOnClickListener {
                 findNavController().navigate(R.id.action_libraryFragment_to_profileFragment2)
             }
         }
 
-        // Apply the updated constraints to the layout
-        constraintSet.applyTo(constraintLayout)
-
-        // Request layout update to ensure changes are reflected
-        constraintLayout.requestLayout()
     }
 
 
@@ -198,6 +179,9 @@ class LibraryFragment : Fragment(),OnItemClickListener1 {
 
                         is UiStates.Failure ->{
 
+
+                        }
+                        is UiStates.Initial ->{
 
                         }
                     }

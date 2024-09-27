@@ -7,6 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.GridView
 import android.widget.Toast
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
@@ -23,6 +24,7 @@ import com.example.testprojectmusicplayer.adapters.RecentGridAdapter
 import com.example.testprojectmusicplayer.adapters.RecentlyPlayedRecyclerViewAdapter
 import com.example.testprojectmusicplayer.databinding.FragmentHomeBinding
 import com.example.testprojectmusicplayer.model.Album
+import com.example.testprojectmusicplayer.model.Artist
 import com.example.testprojectmusicplayer.model.RecentPlayCard
 import com.example.testprojectmusicplayer.model.Song
 import com.example.testprojectmusicplayer.utils.MusicItem
@@ -40,9 +42,16 @@ class HomeFragment : Fragment() {
     lateinit var glide: RequestManager
     @Inject
     lateinit var userObject: UserObject
+    private var isAlbumLoading = true
+    private var isRecentSongsLoading = true
+    private var isArtistLoading = true
+
+
 
     private lateinit var binding: FragmentHomeBinding
     private val homeViewModel: HomeViewModel by activityViewModels()
+
+
 
     private lateinit var recentGridAdapter: RecentGridAdapter
     private val getStartedAdapter by lazy {
@@ -88,6 +97,7 @@ class HomeFragment : Fragment() {
         })
 
     }
+
     private var albumList: List<Album> = emptyList()
 
 
@@ -106,9 +116,8 @@ class HomeFragment : Fragment() {
 
 
         homeViewModel.getStartedAlbums()
-        homeViewModel.getRecentPlayedSongs()
+       // homeViewModel.getRecentPlayedSongs()
         homeViewModel.getArtists()
-        homeViewModel.getRecentPlayedSongs()
 
         homeViewModel.getRecentPlayedAlbum(userObject.getUser()?.userId?:"")
 
@@ -138,124 +147,139 @@ class HomeFragment : Fragment() {
 
     }
 
-    private fun observers(){
+    private fun observers() {
         lifecycleScope.launch {
-           repeatOnLifecycle(Lifecycle.State.STARTED){
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
                 homeViewModel.allAlbumsState.collect { state ->
-                    when (state) {
-                        is UiStates.Loading -> {
-                            // Show loading indicator
-                        }
-                        is UiStates.Success -> {
-                            Log.e("SongsData",state.data.toMutableList().toString())
-                            binding.loadingScreen.loading.visibility = View.GONE
-                            getStartedAdapter.updateList(state.data.toMutableList())
-
-                        }
-                        is UiStates.Failure -> {
-                            // Show error message
-                            Toast.makeText(requireContext(), state.error, Toast.LENGTH_SHORT).show()
-                        }
-                    }
+                    handleAlbumsState(state)
                 }
-
             }
-
         }
 
         lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.STARTED){
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
                 homeViewModel.getRecentPlayedAlbum.collect { state ->
-                    when (state) {
-                        is UiStates.Loading -> {
-                            // Show loading indicator
-                        }
-                        is UiStates.Success -> {
-                                    Log.d("RecentPlayedSong",state.data.toString())
-                            if (state.data.toMutableList().isEmpty()){
-                                binding.hmRecentlyPlayedTxt.visibility = View.GONE
-                            }
-
-
-                            recentPlayAdapter.updateList(state.data.toMutableList())
-                            recentGridAdapter.updateList(state.data.toMutableList())
-
-                            // Navigate to the next screen or show success message
-                        }
-                        is UiStates.Failure -> {
-                            // Show error message
-                            Toast.makeText(requireContext(), state.error, Toast.LENGTH_SHORT).show()
-                        }
-                    }
+                    handleRecentAlbumState(state)
                 }
-
             }
-
         }
 
-
-
-
-
-//        lifecycleScope.launch {
-//            repeatOnLifecycle(Lifecycle.State.STARTED){
-//                homeViewModel.allAlbumsState.collect { state ->
-//                    when (state) {
-//                        is UiStates.Loading -> {
-//                            // Show loading indicator
-//                        }
-//                        is UiStates.Success -> {
-//                            albumList = state.data.toMutableList()
-//                            Log.e("AlbumData",state.data.toMutableList().toString())
-//                            binding.loadingScreen.loading.visibility = View.GONE
-//
-//
-//                            // Navigate to the next screen or show success message
-//                        }
-//                        is UiStates.Failure -> {
-//                            // Show error message
-//                            Toast.makeText(requireContext(), state.error, Toast.LENGTH_SHORT).show()
-//                        }
-//
-//                    }
-//                }
-//
-//            }
-//
-//        }
         lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.STARTED){
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
                 homeViewModel.allArtistsState.collect { state ->
-                    when (state) {
-                        is UiStates.Loading -> {
-                            // Show loading indicator
-                            Toast.makeText(requireContext(), "Loading", Toast.LENGTH_SHORT).show()
-
-                        }
-                        is UiStates.Success -> {
-                            Log.e("ArtistData",state.data.toMutableList().toString())
-                            Toast.makeText(requireContext(), "Successfully"+state.data.toMutableList().toString(), Toast.LENGTH_SHORT).show()
-
-                            binding.loadingScreen.loading.visibility = View.GONE
-
-                            artistAdapter.updateList(state.data.toMutableList())
-                            // Navigate to the next screen or show success message
-                        }
-                        is UiStates.Failure -> {
-                            // Show error message
-                            Toast.makeText(requireContext(), state.error, Toast.LENGTH_SHORT).show()
-                        }
-
-                    }
+                    handleArtistsState(state)
                 }
-
             }
-
         }
     }
 
+    private fun handleAlbumsState(state: UiStates<List<Album>>) {
+        when (state) {
+            is UiStates.Loading -> {
+                isAlbumLoading = true
+                showLoadingIfNeeded()
+            }
+            is UiStates.Success -> {
+                isAlbumLoading = false
+                getStartedAdapter.updateList(state.data.toMutableList())
+                if (state.data.isEmpty()) {
+                    binding.hmGetStartedTxt.visibility = View.GONE
+                }
+                else{
+                    binding.hmGetStartedTxt.visibility = View.VISIBLE
+
+                }
+                hideLoadingIfNeeded()
+            }
+            is UiStates.Failure -> {
+                isAlbumLoading = false
+                hideLoadingIfNeeded()
+                Toast.makeText(requireContext(), state.error, Toast.LENGTH_SHORT).show()
+            }
+            is UiStates.Initial ->{
+
+            }
+        }
+    }
+
+    private fun handleRecentAlbumState(state: UiStates<List<Album>>) {
+        when (state) {
+            is UiStates.Loading -> {
+                isRecentSongsLoading = true
+                showLoadingIfNeeded()
+            }
+            is UiStates.Success -> {
+                isRecentSongsLoading = false
+                if (state.data.isEmpty()) {
+                    binding.hmRecentlyPlayedTxt.visibility = View.GONE
+                }
+                else{
+                    binding.hmRecentlyPlayedTxt.visibility = View.VISIBLE
+
+                }
+                recentPlayAdapter.updateList(state.data.toMutableList())
+                recentGridAdapter.updateList(state.data.toMutableList())
+                hideLoadingIfNeeded()
+            }
+            is UiStates.Failure -> {
+                isRecentSongsLoading = false
+                hideLoadingIfNeeded()
+                Toast.makeText(requireContext(), state.error, Toast.LENGTH_SHORT).show()
+            }
+            is UiStates.Initial ->{
+
+            }
+        }
+    }
+
+    private fun handleArtistsState(state: UiStates<List<Artist>>) {
+        when (state) {
+            is UiStates.Loading -> {
+                isArtistLoading = true
+                showLoadingIfNeeded()
+            }
+            is UiStates.Success -> {
+                isArtistLoading = false
+
+                artistAdapter.updateList(state.data.toMutableList())
+
+                if (state.data.isEmpty()) {
+                    binding.hmArtistsTxt.visibility = View.GONE
+                }
+                else{
+                    binding.hmArtistsTxt.visibility = View.VISIBLE
+
+                }
+                hideLoadingIfNeeded()
+            }
+            is UiStates.Failure -> {
+                isArtistLoading = false
+                hideLoadingIfNeeded()
+                Toast.makeText(requireContext(), state.error, Toast.LENGTH_SHORT).show()
+            }
+            is UiStates.Initial ->{
+
+            }
+        }
+    }
+
+    private fun showLoadingIfNeeded() {
+        if (isAlbumLoading || isRecentSongsLoading || isArtistLoading) {
+            binding.loadingScreen12.visibility = View.VISIBLE
+
+        }
+
+    }
+
+    private fun hideLoadingIfNeeded() {
+        if (!isAlbumLoading && !isRecentSongsLoading && !isArtistLoading) {
+            //view?.findViewById<ConstraintLayout>(R.id.loading_screen12)?.visibility = View.GONE
+            binding.loadingScreen12.visibility = View.GONE
 
 
+
+        }
+    }
 
 
 

@@ -141,6 +141,9 @@ class EditProfileFragment : Fragment() {
                    is UiStates.Failure -> {
 
                    }
+                   is UiStates.Initial ->{
+
+                   }
                }
            }
         }
@@ -150,13 +153,23 @@ class EditProfileFragment : Fragment() {
                 when(state){
                     is UiStates.Loading -> {
 
+                        binding.edProgressBar.progressBar.visibility = View.VISIBLE
+
+
                     }
                     is UiStates.Success -> {
+                        binding.edProgressBar.progressBar.visibility = View.GONE
+
                         Toast.makeText(requireContext(), "Update Successfully", Toast.LENGTH_SHORT).show()
                       findNavController().popBackStack()
                     }
                     is UiStates.Failure -> {
+                        binding.edProgressBar.progressBar.visibility = View.GONE
 
+
+
+                    }
+                    is UiStates.Initial ->{
 
                     }
                 }

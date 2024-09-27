@@ -113,7 +113,23 @@
           android:text="Forgot password"
           app:layout_constraintTop_toBottomOf="@+id/si_button"/>
 
+
+        <include
+            android:id="@+id/lg_progress_bar"
+            layout="@layout/progress_bar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:visibility="invisible"
+            app:layout_constraintTop_toTopOf="@+id/si_button"
+            app:layout_constraintBottom_toBottomOf="@+id/si_button"
+
+            />
+
     </androidx.constraintlayout.widget.ConstraintLayout>
+
+
 
 
 

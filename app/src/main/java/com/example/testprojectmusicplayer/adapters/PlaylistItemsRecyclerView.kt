@@ -16,7 +16,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
 class PlaylistItemsRecyclerView @Inject constructor(
-    private val onItemClicked: (Int) -> Unit,
+    private val onItemClicked: (Int, Song) -> Unit,
     private val onMoreClicked: (Song, Int) -> Unit,
     private val glide: RequestManager
 ) : RecyclerView.Adapter<PlaylistItemsRecyclerView.AudioViewHolder>() {
@@ -51,7 +51,7 @@ class PlaylistItemsRecyclerView @Inject constructor(
             binding.adsTitle.setTextColor(color)
 
             binding.root.setOnClickListener {
-                onItemClicked(adapterPosition)
+                onItemClicked(adapterPosition,item)
                 updateSelection(item.songId)  // Update selection when an item is clicked
             }
 

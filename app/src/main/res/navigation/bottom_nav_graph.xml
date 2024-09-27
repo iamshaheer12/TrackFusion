@@ -29,7 +29,11 @@
         android:id="@+id/libSearchFragment2"
         android:name="com.example.testprojectmusicplayer.view.LibSearchFragment"
         android:label="fragment_lib_search"
-        tools:layout="@layout/fragment_lib_search" />
+        tools:layout="@layout/fragment_lib_search" >
+        <action
+            android:id="@+id/action_libSearchFragment2_to_libPlaylistFragment"
+            app:destination="@id/libPlaylistFragment" />
+    </fragment>
     <fragment
         android:id="@+id/profileFragment2"
         android:name="com.example.testprojectmusicplayer.view.ProfileFragment"
@@ -66,7 +70,11 @@
         android:id="@+id/searchScreen2Fragment"
         android:name="com.example.testprojectmusicplayer.view.SearchScreen2Fragment"
         android:label="fragment_search_screen2"
-        tools:layout="@layout/fragment_search_screen2" />
+        tools:layout="@layout/fragment_search_screen2" >
+        <action
+            android:id="@+id/action_searchScreen2Fragment_to_playlistFragment2"
+            app:destination="@id/playlistFragment2" />
+    </fragment>
     <fragment
         android:id="@+id/homeFragment"
         android:name="com.example.testprojectmusicplayer.view.HomeFragment"

@@ -1,6 +1,7 @@
 package com.example.testprojectmusicplayer.view
 
 import android.os.Bundle
+import android.util.DisplayMetrics
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -18,6 +19,7 @@ import com.example.testprojectmusicplayer.model.Song
 import com.example.testprojectmusicplayer.utils.UiStates
 import com.example.testprojectmusicplayer.utils.UserObject
 import com.example.testprojectmusicplayer.viewModel.HomeViewModel
+import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collect
@@ -56,6 +58,17 @@ class MusicPlayerBottomSheet : BottomSheetDialogFragment() {
     ): View {
         // Inflate the layout for this bottom sheet
         binding = MusciPlayerScreenBinding.inflate(layoutInflater)
+
+//        // Setting bottom sheet behavior to full screen
+//        val bottomSheetBehavior = BottomSheetBehavior.from(binding.root.parent as View)
+//        bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED // Start collapsed
+//        bottomSheetBehavior.isHideable = false // Prevent hiding the bottom sheet completely
+//        bottomSheetBehavior.peekHeight = 200 // Adjust peek height as necessar
+//        // Set up the full screen behavior
+
+
+
+
         return binding.root
     }
 
@@ -67,7 +80,23 @@ class MusicPlayerBottomSheet : BottomSheetDialogFragment() {
 
 
 
+        // Initialize BottomSheetBehavior
+        val bottomSheetBehavior = BottomSheetBehavior.from(view.parent as View)
+        bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED // Start collapsed
+        bottomSheetBehavior.isHideable = false // Prevent hiding the bottom sheet completely
 
+        // Get screen height
+        val displayMetrics = DisplayMetrics()
+        requireActivity().windowManager.defaultDisplay.getMetrics(displayMetrics)
+        val screenHeight = displayMetrics.heightPixels
+
+        // Set peek height to max screen height
+        bottomSheetBehavior.peekHeight = screenHeight
+
+        // Set up click listener for the arrow button
+        binding.mpArrowDown.setOnClickListener {
+
+        }
 
 
         handleClickOnLikedSong()
@@ -120,7 +149,10 @@ class MusicPlayerBottomSheet : BottomSheetDialogFragment() {
                         Toast.makeText(requireContext(), state.error, Toast.LENGTH_SHORT).show()
 
 
-                    }
+                    }is UiStates.Initial ->{
+
+                }
+
                 }
             }
 
@@ -145,6 +177,9 @@ class MusicPlayerBottomSheet : BottomSheetDialogFragment() {
 
 
                     }
+                    is UiStates.Initial ->{
+
+                    }
                 }
             }
 
@@ -162,6 +197,7 @@ class MusicPlayerBottomSheet : BottomSheetDialogFragment() {
 
                     initUi(song)
                     songId = song.songId
+                    homeViewModel.setCurrentSongArtist()
 
                 } else {
                     Toast.makeText(requireContext(),"Current Song is Empty", Toast.LENGTH_SHORT).show()
@@ -190,16 +226,22 @@ class MusicPlayerBottomSheet : BottomSheetDialogFragment() {
     }
 
     private fun onClick(){
+        // Assuming you have already initialized bottomSheetBehavior
+        val bottomSheetBehavior = BottomSheetBehavior.from(binding.root.parent as View)
+
         binding.mpArrowDown.setOnClickListener {
-            findNavController().popBackStack()
+            // Dismiss the bottom sheet by collapsing it
+            if (bottomSheetBehavior.state != BottomSheetBehavior.STATE_COLLAPSED) {
+                bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
+            }
+            // Alternatively, to completely hide it
+            // bottomSheetBehavior.state = BottomSheetBehavior.STATE_HIDDEN
         }
-
-
 
     }
 
     private fun handleClickOnLikedSong(){
-        this.binding.mpLikedBtn
+        this.binding.mpLikeBtn
             .setOnClickListener {
                 if (homeViewModel.isLikedSong.value){
                     homeViewModel.onUnLikedSong(songId?:"",userId?:"", albumId = albumId?:"")
@@ -281,12 +323,12 @@ class MusicPlayerBottomSheet : BottomSheetDialogFragment() {
     private fun updateLikedButtonStateSong(isLiked: Boolean){
         if (isLiked){
 
-            this.binding.mpLikedBtn.setImageResource(R.drawable.liked_button)
+            this.binding.mpLikeBtn.setImageResource(R.drawable.liked_button)
 
 
         }
         else{
-            this.binding.mpLoopBtn.setImageResource(R.drawable.ic_unlike)
+            this.binding.mpLikeBtn.setImageResource(R.drawable.ic_unlike)
 
 
         }
@@ -345,14 +387,17 @@ class MusicPlayerBottomSheet : BottomSheetDialogFragment() {
 
 
     private fun handleMediaPlayerFunctionality(){
-        binding.mpPreviousBtn.setOnClickListener {  }
-
-
-        binding.mpPlayBtn.setOnClickListener {
+        binding.mpPreviousBtn.setOnClickListener {
+            homeViewModel.onClickPrevious()
 
         }
 
+
+        binding.mpPlayBtn.setOnClickListener {
+        }
+
         binding.mpNextBtn.setOnClickListener {
+            homeViewModel.onClickNext()
 
         }
     }

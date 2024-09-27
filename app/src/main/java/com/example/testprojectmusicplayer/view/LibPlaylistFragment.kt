@@ -48,7 +48,7 @@ class LibPlaylistFragment : Fragment() {
 
     private val args : LibPlaylistFragmentArgs by navArgs()
     private lateinit var bottomBinding: MoreBottomSheetLayoutBinding
-    private lateinit var requestPermissionsLauncher: ActivityResultLauncher<Array<String>>
+   // private lateinit var requestPermissionsLauncher: ActivityResultLauncher<Array<String>>
 
 
     private var isLikedAlbum = false
@@ -64,9 +64,11 @@ class LibPlaylistFragment : Fragment() {
                 currentSongId = song.songId
 
             },
-            onItemClicked = { song ->
-                Log.d("CurrentIndex",song.toString())
-                playSong(song) // Handles song item click
+            onItemClicked = { pos,song ->
+             // Handles song item click
+                foregroundNotification()
+                homeViewModel.updateCurrentSong(song)
+                homeViewModel.updateIndex(pos)
             }
         )
     }
@@ -82,16 +84,16 @@ class LibPlaylistFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
 
-        requestPermissionsLauncher = registerForActivityResult(
-            ActivityResultContracts.RequestMultiplePermissions()
-        ) { permissions ->
-            val allPermissionsGranted = permissions.all { it.value }
-            if (allPermissionsGranted) {
-                foregroundNotification()
-            } else {
-                PlaylistUtils.showPermissionDeniedDialog(requireContext())
-            }
-        }
+//        requestPermissionsLauncher = registerForActivityResult(
+//            ActivityResultContracts.RequestMultiplePermissions()
+//        ) { permissions ->
+//            val allPermissionsGranted = permissions.all { it.value }
+//            if (allPermissionsGranted) {
+//                foregroundNotification()
+//            } else {
+//                PlaylistUtils.showPermissionDeniedDialog(requireContext())
+//            }
+//        }
 
 
         binding = FragmentLibPlaylistBinding.inflate(inflater, container, false)
@@ -136,11 +138,11 @@ class LibPlaylistFragment : Fragment() {
 
 
         setRecyclerView()
-        PlaylistUtils.checkAndRequestPermissions(
-            context = requireContext(),
-            requestPermissionsLauncher = requestPermissionsLauncher,
-            onPermissionsGranted = { foregroundNotification() }
-        )
+//        PlaylistUtils.checkAndRequestPermissions(
+//            context = requireContext(),
+//            requestPermissionsLauncher = requestPermissionsLauncher,
+//            onPermissionsGranted = { foregroundNotification() }
+//        )
 
         // Display playlist duration (if you need this as well)
 
@@ -158,10 +160,13 @@ class LibPlaylistFragment : Fragment() {
                     Log.d("SongListState", state.toString()) // Log state changes
                     when (state) {
                         is UiStates.Loading -> {
-                            Toast.makeText(requireContext(), "Loading", Toast.LENGTH_SHORT).show()
+                            binding.playlistLoadingScreen.loading.visibility = View.VISIBLE
+                          //  Toast.makeText(requireContext(), "Loading", Toast.LENGTH_SHORT).show()
                         }
                         is UiStates.Success -> {
                             Log.d("SongListSuccess", state.data.toString())
+                            binding.playlistLoadingScreen.loading.visibility = View.GONE
+
 
                             if (state.data.toMutableList().isEmpty()){
                                 binding.playlistPlayBtn.visibility = View.GONE
@@ -178,31 +183,36 @@ class LibPlaylistFragment : Fragment() {
                             adapter.updateList(state.data.toMutableList())
                         }
                         is UiStates.Failure -> {
+                            binding.playlistLoadingScreen.loading.visibility = View.GONE
+
                             Toast.makeText(requireContext(), state.error, Toast.LENGTH_SHORT).show()
+                        }
+                        is UiStates.Initial ->{
+
                         }
                     }
                 }
 
             }}
-        lifecycleScope.launch {
-            homeViewModel.currentSong.collect { currentSong ->
-                Log.d("CurrentIndex",currentSong.toString())
-                if (currentSong != null){
-                    adapter.updateSelection(currentSong.songId)
-                }
-                else{
+        if (homeViewModel.currentArtistId.value == args.artistId || homeViewModel.currentAlbumId.value == args.albumId){
+            lifecycleScope.launch {
+                homeViewModel.currentSong.collect { currentSong ->
+                    Log.d("CurrentIndex",currentSong.toString())
+                    if (currentSong != null){
+                        adapter.updateSelection(currentSong.songId)
+
+                    }
 
                 }
-
             }
-        }
 
 
-        lifecycleScope.launch {
-            homeViewModel.isPlaying.collect { isPlaying ->
-                isPlayingAll = isPlaying
-                val playButtonIcon = if (isPlaying) R.drawable.ic_play else R.drawable.ic_play_button_green
-                binding.playlistPlayBtn.setImageResource(playButtonIcon)
+            lifecycleScope.launch {
+                homeViewModel.isPlaying.collect { isPlaying ->
+                    isPlayingAll = isPlaying
+                    val playButtonIcon = if (isPlaying) R.drawable.ic_play else R.drawable.ic_play_button_green
+                    binding.playlistPlayBtn.setImageResource(playButtonIcon)
+                }
             }
         }
     }
@@ -215,7 +225,9 @@ class LibPlaylistFragment : Fragment() {
                         state ->
                     when(state){
                         is UiStates.Loading -> {
-                            Toast.makeText(requireContext(), "Loading", Toast.LENGTH_SHORT).show()
+                            binding.playlistLoadingScreen.loading.visibility = View.VISIBLE
+
+                            //Toast.makeText(requireContext(), "Loading", Toast.LENGTH_SHORT).show()
 
                         }
                         is UiStates.Success -> {
@@ -223,12 +235,16 @@ class LibPlaylistFragment : Fragment() {
                             Log.d("AlbumData",state.data.toString())
                             //   homeViewModel.songListFunc(state.data.songs)
                             initUi(album = state.data, artist = null)
+                            homeViewModel.songListFunc(state.data?.songs?: emptyList())
 
 
 
                         }
                         is UiStates.Failure -> {
                             Toast.makeText(requireContext(), state.error, Toast.LENGTH_SHORT).show()
+
+                        }
+                        is UiStates.Initial ->{
 
                         }
                     }
@@ -258,7 +274,7 @@ class LibPlaylistFragment : Fragment() {
                     state ->
                 when(state){
                     is UiStates.Loading -> {
-                        Toast.makeText(requireContext(), "Loading", Toast.LENGTH_SHORT).show()
+                       // Toast.makeText(requireContext(), "Loading", Toast.LENGTH_SHORT).show()
 
 
                     }
@@ -270,6 +286,9 @@ class LibPlaylistFragment : Fragment() {
                     is UiStates.Failure -> {
                         Toast.makeText(requireContext(), state.error, Toast.LENGTH_SHORT).show()
 
+
+                    }
+                    is UiStates.Initial ->{
 
                     }
                 }
@@ -281,7 +300,7 @@ class LibPlaylistFragment : Fragment() {
                     state ->
                 when(state){
                     is UiStates.Loading -> {
-                        Toast.makeText(requireContext(), "Loading", Toast.LENGTH_SHORT).show()
+                      //  Toast.makeText(requireContext(), "Loading", Toast.LENGTH_SHORT).show()
 
 
                     }
@@ -293,6 +312,9 @@ class LibPlaylistFragment : Fragment() {
                     is UiStates.Failure -> {
                         Toast.makeText(requireContext(), state.error, Toast.LENGTH_SHORT).show()
 
+
+                    }
+                    is UiStates.Initial ->{
 
                     }
                 }
@@ -318,7 +340,7 @@ class LibPlaylistFragment : Fragment() {
                     state ->
                 when(state){
                     is UiStates.Loading -> {
-                        Toast.makeText(requireContext(), "Loading", Toast.LENGTH_SHORT).show()
+                      //  Toast.makeText(requireContext(), "Loading", Toast.LENGTH_SHORT).show()
 
 
                     }
@@ -330,6 +352,9 @@ class LibPlaylistFragment : Fragment() {
                     is UiStates.Failure -> {
                         Toast.makeText(requireContext(), state.error, Toast.LENGTH_SHORT).show()
 
+
+                    }
+                    is UiStates.Initial ->{
 
                     }
                 }
@@ -342,7 +367,7 @@ class LibPlaylistFragment : Fragment() {
                     state ->
                 when(state){
                     is UiStates.Loading -> {
-                        Toast.makeText(requireContext(), "Loading", Toast.LENGTH_SHORT).show()
+                       // Toast.makeText(requireContext(), "Loading", Toast.LENGTH_SHORT).show()
 
 
                     }
@@ -354,6 +379,9 @@ class LibPlaylistFragment : Fragment() {
                     is UiStates.Failure -> {
                         Toast.makeText(requireContext(), state.error, Toast.LENGTH_SHORT).show()
 
+
+                    }
+                    is UiStates.Initial ->{
 
                     }
                 }
@@ -368,18 +396,24 @@ class LibPlaylistFragment : Fragment() {
                     state ->
                 when(state){
                     is UiStates.Loading -> {
-                        Toast.makeText(requireContext(), "Loading", Toast.LENGTH_SHORT).show()
+                        binding.playlistLoadingScreen.loading.visibility = View.VISIBLE
+
+                        //Toast.makeText(requireContext(), "Loading", Toast.LENGTH_SHORT).show()
 
 
                     }
                     is UiStates.Success -> {
                         Toast.makeText(requireContext(), state.data.toString(), Toast.LENGTH_SHORT).show()
                         initUi(null,state.data)
+                        homeViewModel.songListFunc(state.data?.songs?: emptyList())
 
                     }
                     is UiStates.Failure -> {
                         Toast.makeText(requireContext(), state.error, Toast.LENGTH_SHORT).show()
 
+
+                    }
+                    is UiStates.Initial ->{
 
                     }
                 }
@@ -391,7 +425,7 @@ class LibPlaylistFragment : Fragment() {
                     state ->
                 when(state){
                     is UiStates.Loading -> {
-                        Toast.makeText(requireContext(), "Loading", Toast.LENGTH_SHORT).show()
+                       // Toast.makeText(requireContext(), "Loading", Toast.LENGTH_SHORT).show()
 
 
                     }
@@ -405,6 +439,9 @@ class LibPlaylistFragment : Fragment() {
 
 
                     }
+                    is UiStates.Initial ->{
+
+                    }
                 }
             }
 
@@ -414,7 +451,7 @@ class LibPlaylistFragment : Fragment() {
                     state ->
                 when(state){
                     is UiStates.Loading -> {
-                        Toast.makeText(requireContext(), "Loading", Toast.LENGTH_SHORT).show()
+                       // Toast.makeText(requireContext(), "Loading", Toast.LENGTH_SHORT).show()
 
 
                     }
@@ -426,6 +463,9 @@ class LibPlaylistFragment : Fragment() {
                     is UiStates.Failure -> {
                         Toast.makeText(requireContext(), state.error, Toast.LENGTH_SHORT).show()
 
+
+                    }
+                    is UiStates.Initial ->{
 
                     }
                 }
@@ -533,44 +573,28 @@ class LibPlaylistFragment : Fragment() {
             }
         }
     }
-    private fun playAllSongs() {
+    private fun handlePlayPause(){
         lifecycleScope.launch {
-            homeViewModel.playSong()
-            binding.playlistPlayBtn.setImageResource(R.drawable.ic_play)
-            homeViewModel.updatePlayPauseState(true)
+            homeViewModel.handlePlayPause(args.albumId,args.artistId,null)
         }
     }
-
-    private fun pauseAllSongs() {
-        lifecycleScope.launch {
-            homeViewModel.pausePlayback()
-            homeViewModel.updatePlayPauseState(false)
-        }
-        binding.playlistPlayBtn.setImageResource(R.drawable.ic_play_button_green)
-    }
-
-
-
 
 
 
 
     private fun foregroundNotification() {
+
+
         if (isPlayingAll) {
-            pauseAllSongs()
-        } else {
-            playAllSongs()
+            handlePlayPause()
+            binding.playlistPlayBtn.setImageResource(R.drawable.ic_play)
+
+
         }
-    }
+        else {
+            handlePlayPause()
+            binding.playlistPlayBtn.setImageResource(R.drawable.ic_play_button_green)
 
-
-
-
-    private fun playSong(pos: Int) {
-        lifecycleScope.launch {
-            homeViewModel.updateIndex(pos)
-            homeViewModel.playSong()
-                // adapter.updateSelection(pos)
         }
     }
 
@@ -622,6 +646,8 @@ class LibPlaylistFragment : Fragment() {
         bottomBinding.moreBottomLinearlayoutAddToPlaylist.setOnClickListener {
             val action = LibPlaylistFragmentDirections.actionLibPlaylistFragmentToAddSongFragment(song.songId)
             findNavController().navigate(action)
+            dialog.dismiss()
+
         }
 
         glide

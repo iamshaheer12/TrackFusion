@@ -94,6 +94,7 @@
             android:secondaryProgressTint="@color/spotify_green"
             android:progressBackgroundTint="@color/spotify_white"
             app:layout_constraintTop_toBottomOf="@+id/btm_sheet_song_image"
+            android:progressTint="@color/spotify_dark_green"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintBottom_toBottomOf="parent" />

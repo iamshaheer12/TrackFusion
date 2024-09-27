@@ -101,6 +101,7 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/su_user_name_layout">
 
+
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/su_dob_name"
                     android:clickable="true"
@@ -207,6 +208,21 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/su_user_password_layout" />
+
+
+
+
+        <include
+            android:id="@+id/su_progress_bar"
+            layout="@layout/progress_bar"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+
+            android:visibility="invisible"
+            app:layout_constraintTop_toTopOf="@+id/su_button"
+            app:layout_constraintBottom_toBottomOf="@+id/su_button"
+
+            />
 
 
 

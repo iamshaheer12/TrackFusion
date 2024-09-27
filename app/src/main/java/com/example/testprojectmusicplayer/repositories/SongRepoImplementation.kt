@@ -53,31 +53,33 @@ class SongRepoImplementation(
 
 
     override suspend fun getSongsByIds(ids: List<String>, result: (UiStates<List<Song>>) -> Unit) {
-     try {
+        try {
+            if (ids.isEmpty()) {
+                // Return an empty list of songs if the ids list is empty
+                result.invoke(UiStates.Success(emptyList()))
+                return
+            }
 
-        firestore.collection(FireStoreCons.SONG_COLLECTION)
-            .whereIn("id",ids)
-            .get()
-            .addOnSuccessListener {
-                    querySnapshot ->
-                val songs = ArrayList<Song>()
-                for (document in querySnapshot) {
-                    val song = document.toObject(Song::class.java)
-                    songs.add(song)
+            firestore.collection(FireStoreCons.SONG_COLLECTION)
+                .whereIn("id", ids)
+                .get()
+                .addOnSuccessListener { querySnapshot ->
+                    val songs = ArrayList<Song>()
+                    for (document in querySnapshot) {
+                        val song = document.toObject(Song::class.java)
+                        songs.add(song)
+                    }
+                    result.invoke(UiStates.Success(songs))
                 }
-                result.invoke(UiStates.Success(songs))
-
-            }
-            .addOnFailureListener { exception ->
-                result.invoke(UiStates.Failure(exception.localizedMessage ?: "Unknown error occurred"))
-            }
-    } catch (e: Exception) {
-        // Handle any other unexpected exceptions
-        result.invoke(UiStates.Failure(e.localizedMessage ?: "An unexpected error occurred"))
+                .addOnFailureListener { exception ->
+                    result.invoke(UiStates.Failure(exception.localizedMessage ?: "Unknown error occurred"))
+                }
+        } catch (e: Exception) {
+            // Handle any other unexpected exceptions
+            result.invoke(UiStates.Failure(e.localizedMessage ?: "An unexpected error occurred"))
+        }
     }
 
-
-    }
 
 
 

@@ -3,6 +3,7 @@ package com.example.testprojectmusicplayer.repositories
 import android.annotation.SuppressLint
 import android.util.Log
 import com.example.testprojectmusicplayer.model.Album
+import com.example.testprojectmusicplayer.model.Artist
 import com.example.testprojectmusicplayer.utils.FireStoreCons
 import com.example.testprojectmusicplayer.utils.UiStates
 import com.google.android.gms.tasks.Tasks
@@ -45,6 +46,8 @@ class AlbumRepoImplementation(
                 .get()
                 .addOnSuccessListener {
                     val album =  it.toObject<Album>()
+
+
                     result.invoke(UiStates.Success(album))
                 }
                 .addOnFailureListener {
@@ -144,7 +147,7 @@ class AlbumRepoImplementation(
     ) {
         try {
             val document = firestore.collection(FireStoreCons.ALBUM_COLLECTION).document(albumId)
-            val runTransaction = firestore.runTransaction{
+            firestore.runTransaction{
                     transaction ->
                 val snapshot = transaction.get(document)
                 val like = snapshot.getLong("like")?:0

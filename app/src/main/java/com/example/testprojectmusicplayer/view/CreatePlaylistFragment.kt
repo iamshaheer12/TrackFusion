@@ -119,6 +119,9 @@ class CreatePlaylistFragment : Fragment() {
 
 
                         }
+                        is UiStates.Initial ->{
+
+                        }
 
 
                     }
@@ -142,6 +145,9 @@ class CreatePlaylistFragment : Fragment() {
                         }
                         is UiStates.Failure -> {
                             Toast.makeText(requireContext(),state.error,Toast.LENGTH_SHORT).show()
+
+                        }
+                        is UiStates.Initial ->{
 
                         }
                     }

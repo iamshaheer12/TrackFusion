@@ -69,6 +69,9 @@ class StartingFragment : Fragment() {
                         is UiStates.Loading -> {
                             // Handle loading state
                         }
+                        is UiStates.Initial ->{
+
+                        }
 
                     }
                 }

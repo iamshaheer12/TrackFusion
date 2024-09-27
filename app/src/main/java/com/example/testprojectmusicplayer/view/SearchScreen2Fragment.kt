@@ -17,6 +17,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.RequestManager
+import com.example.testprojectmusicplayer.R
 import com.example.testprojectmusicplayer.adapters.OnItemClickListener
 import com.example.testprojectmusicplayer.databinding.FragmentSearchScreen2Binding
 import com.example.testprojectmusicplayer.utils.UiStates
@@ -79,6 +80,9 @@ class SearchScreen2Fragment : Fragment(), OnItemClickListener {
                             // Show error message
                             Toast.makeText(requireContext(), state.error, Toast.LENGTH_SHORT).show()
                         }
+                        is UiStates.Initial ->{
+
+                        }
                     }
                 }
             }
@@ -109,11 +113,16 @@ class SearchScreen2Fragment : Fragment(), OnItemClickListener {
     override fun onItemClick(item: MediaItem) {
         when (item) {
             is MediaItem.AlbumItem -> {
-                Log.d("SongsData",item.album.toString())
+                val action = SearchScreen2FragmentDirections.actionSearchScreen2FragmentToPlaylistFragment2(item.album.id,null)
+
+              findNavController().navigate(action)
                 // Handle album item click
             }
             is MediaItem.ArtistItem -> {
                 Log.d("SongsData",item.artist.toString())
+                val action = SearchScreen2FragmentDirections.actionSearchScreen2FragmentToPlaylistFragment2(null,item.artist.id)
+
+                findNavController().navigate(action)
 
                 // Handle artist item click
             }

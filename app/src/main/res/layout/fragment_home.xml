@@ -13,7 +13,6 @@
         android:layout_height="wrap_content">
 
         <GridView
-
             android:id="@+id/hm_recent_play_grid"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -39,6 +38,7 @@
             android:textColor="@color/spotify_white"
             android:textSize="@dimen/heading_text_size"
             android:textStyle="bold"
+            android:visibility="gone"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/hm_recent_play_grid" />
 
@@ -62,6 +62,7 @@
             android:text="@string/recently_played"
             android:textColor="@color/spotify_white"
             android:textSize="@dimen/heading_text_size"
+            android:visibility="gone"
             android:textStyle="bold"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/hm_get_started_recyclerview" />
@@ -89,6 +90,8 @@
             android:textColor="@color/spotify_white"
             android:textSize="@dimen/heading_text_size"
             android:textStyle="bold"
+
+            android:visibility="gone"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/hm_recent_played_recyclerview" />
 
@@ -112,6 +115,7 @@
             android:text="@string/suggested_artists"
             android:textColor="@color/spotify_white"
             android:textSize="@dimen/heading_text_size"
+            android:visibility="gone"
             android:textStyle="bold"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/hm_recommended_recyclerview" />
@@ -130,17 +134,42 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/hm_artists_txt"
             tools:listitem="@layout/artist_card" />
-        <include
-            android:layout_height="match_parent"
-            android:layout_width="match_parent"
-            layout="@layout/loading_screen"
-            android:id="@+id/loading_screen"
+
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guideline_middle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            app:layout_constraintGuide_percent="0.7" />
+
+
+
+
+        <ProgressBar
+            android:id="@+id/loading_screen12"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:indeterminate="true"
+            android:indeterminateTint="@color/spotify_white"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
 
-           />
+
+
+        <!--        <include-->
+<!--            android:id="@+id/loading_screen12"-->
+<!--            layout="@layout/loading_screen"-->
+
+<!--            android:layout_width="0dp"-->
+<!--            android:layout_height="0dp"-->
+<!--            app:layout_constraintBottom_toBottomOf="parent"-->
+<!--            app:layout_constraintStart_toStartOf="parent"-->
+<!--            app:layout_constraintTop_toTopOf="parent"-->
+
+<!--            app:layout_constraintEnd_toEndOf="parent" />-->
 
 
 

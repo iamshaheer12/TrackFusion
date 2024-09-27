@@ -101,18 +101,27 @@ class AddSongFragment : Fragment() {
             viewModel.addSongState.collect { state ->
                 when (state) {
                     is UiStates.Loading -> {
-                        Toast.makeText(requireContext(), "Loading", Toast.LENGTH_SHORT).show()
+
+                        binding.adProgressBar.visibility = View.VISIBLE
+
+                       // Toast.makeText(requireContext(), "Loading", Toast.LENGTH_SHORT).show()
 
                     }
 
                     is UiStates.Success -> {
+                        binding.adProgressBar.visibility = View.GONE
                         Toast.makeText(requireContext(), state.data, Toast.LENGTH_SHORT).show()
                         findNavController().popBackStack()
 
                     }
 
                     is UiStates.Failure -> {
+                        binding.adProgressBar.visibility = View.GONE
+
                         Toast.makeText(requireContext(), state.error, Toast.LENGTH_SHORT).show()
+
+                    }
+                    is UiStates.Initial ->{
 
                     }
                 }
@@ -123,11 +132,17 @@ class AddSongFragment : Fragment() {
                 viewModel.allAlbums.collect { state ->
                     when (state) {
                         is UiStates.Loading -> {
+
+
+                            binding.adCenterProgressBar.visibility = View.VISIBLE
+
                             Toast.makeText(requireContext(), "Loading", Toast.LENGTH_SHORT).show()
 
                         }
 
                         is UiStates.Success -> {
+                            binding.adCenterProgressBar.visibility = View.GONE
+
                             val albumList = state.data.toMutableList()
                             Toast.makeText(
                                 requireContext(),
@@ -140,7 +155,12 @@ class AddSongFragment : Fragment() {
                         }
 
                         is UiStates.Failure -> {
+                            binding.adCenterProgressBar.visibility = View.GONE
+
                             Toast.makeText(requireContext(), state.error, Toast.LENGTH_SHORT).show()
+
+                        }
+                        is UiStates.Initial ->{
 
                         }
                     }

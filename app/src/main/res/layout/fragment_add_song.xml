@@ -57,9 +57,7 @@
         android:gravity="center"
         android:layout_marginBottom="16dp"
         android:orientation="horizontal"
-        app:layout_constraintBottom_toBottomOf="parent"
-
-        tools:ignore="UselessLeaf">
+        app:layout_constraintBottom_toBottomOf="parent">
 
         <Button
             android:id="@+id/create_playlist_cancel_btn"
@@ -71,24 +69,50 @@
             android:textColor="@color/spotify_black"
             android:text="Cancel" />
 
-        <Button
-            style="?android:attr/buttonBarButtonStyle"
-            android:layout_marginStart="16dp"
-            android:id="@+id/create_playlist_create_btn"
+        <FrameLayout
             android:layout_width="wrap_content"
-            android:layout_height="60dp"
-            android:backgroundTint="@color/spotify_green"
-            android:textColor="@color/spotify_white"
-            android:textSize="@dimen/default_text_size"
-            android:text="Done"
-            />
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp">
 
+            <!-- Button -->
+            <Button
+                android:id="@+id/create_playlist_create_btn"
+                style="?android:attr/buttonBarButtonStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="60dp"
+                android:backgroundTint="@color/spotify_green"
+                android:textColor="@color/spotify_white"
+                android:textSize="@dimen/default_text_size"
+                android:text="Done" />
 
+            <!-- Progress Bar in the center of the button -->
+            <ProgressBar
+                android:id="@+id/ad_progress_bar"
+                android:layout_width="40dp"
 
+                android:layout_height="40dp"
+                android:indeterminate="true"
+                android:layout_gravity="center"
+                android:visibility="gone" /> <!-- Set visibility to 'gone' initially -->
+
+        </FrameLayout>
 
 
 
     </LinearLayout>
+    <ProgressBar
+        android:id="@+id/ad_center_progress_bar"
+        android:layout_width="40dp"
+
+        android:layout_height="40dp"
+        android:indeterminate="true"
+
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:visibility="gone" />
+
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

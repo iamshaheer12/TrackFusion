@@ -83,6 +83,9 @@ class ProfileFragment : Fragment() {
                     is UiStates.Failure ->{
 
                     }
+                    is UiStates.Initial ->{
+
+                    }
                 }
             }
         }

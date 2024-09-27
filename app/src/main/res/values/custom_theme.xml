@@ -1,0 +1,24 @@
+<resources>
+    <!-- Custom DatePickerDialog Theme -->
+    <style name="SpotifyDatePickerTheme" parent="Theme.AppCompat.Light.Dialog">
+        <!-- Customize the background color to Spotify Black -->
+        <item name="android:background">@color/spotify_black</item>
+
+        <!-- Customize the text color to Spotify White -->
+        <item name="android:textColorPrimary">@color/spotify_white</item>
+
+        <!-- Customize the button colors -->
+        <item name="android:buttonBarPositiveButtonStyle">@style/SpotifyPositiveButton</item>
+        <item name="android:buttonBarNegativeButtonStyle">@style/SpotifyNegativeButton</item>
+    </style>
+
+    <!-- Positive button with Spotify Green -->
+    <style name="SpotifyPositiveButton" parent="Widget.AppCompat.Button.ButtonBar.AlertDialog">
+        <item name="android:textColor">@color/spotify_green</item>
+    </style>
+
+    <!-- Negative button with Spotify White -->
+    <style name="SpotifyNegativeButton" parent="Widget.AppCompat.Button.ButtonBar.AlertDialog">
+        <item name="android:textColor">@color/spotify_white</item>
+    </style>
+</resources>

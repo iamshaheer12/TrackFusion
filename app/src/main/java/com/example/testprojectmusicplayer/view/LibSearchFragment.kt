@@ -96,6 +96,9 @@ class LibSearchFragment : Fragment(),OnItemClickListener1 {
 
 
                         }
+                        is UiStates.Initial ->{
+
+                        }
                     }
                 }
 
@@ -126,10 +129,16 @@ class LibSearchFragment : Fragment(),OnItemClickListener1 {
         when (item) {
             is AlbumArtist.AlbumItem -> {
                 Log.d("",item.album.toString())
+                val action = LibSearchFragmentDirections.actionLibSearchFragment2ToLibPlaylistFragment(item.album.id,null)
+
+                findNavController().navigate(action)
                 // Handle album item click
             }
             is AlbumArtist.ArtistItem -> {
                 Log.d("",item.artist.toString())
+                val action = LibSearchFragmentDirections.actionLibSearchFragment2ToLibPlaylistFragment(null,item.artist.id)
+
+                findNavController().navigate(action)
 
                 // Handle artist item click
             }

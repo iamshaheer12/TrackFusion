@@ -20,7 +20,7 @@ class AddSongViewModel @Inject constructor(
     private val _allAlbums = MutableStateFlow<UiStates<List<Album>>>(UiStates.Loading)
     val allAlbums : StateFlow<UiStates<List<Album>>> = _allAlbums
 
-    private val _addSongState = MutableStateFlow<UiStates<String>>(UiStates.Loading)
+    private val _addSongState = MutableStateFlow<UiStates<String>>(UiStates.Initial)
     val addSongState : StateFlow<UiStates<String>> = _addSongState
 
 
@@ -39,6 +39,9 @@ class AddSongViewModel @Inject constructor(
     }
     fun addSongs(songId:String, albumIds: List<String>){
         viewModelScope.launch {
+            _addSongState.update {
+                UiStates.Loading
+            }
             albumRepository.addSongToAlbums(songId = songId, list = albumIds){
                 _addSongState.update {
                     it

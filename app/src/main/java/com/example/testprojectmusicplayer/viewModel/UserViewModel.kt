@@ -29,7 +29,7 @@ class UserViewModel @Inject constructor(
     private val _uploadUserImage = MutableStateFlow<UiStates<String>>(UiStates.Loading)
     val uploadUserImage : StateFlow<UiStates<String>> = _uploadUserImage
 
-    private val _updateUser = MutableStateFlow<UiStates<String>>(UiStates.Loading)
+    private val _updateUser = MutableStateFlow<UiStates<String>>(UiStates.Initial)
     val updateUser : StateFlow<UiStates<String>> = _updateUser
 
 

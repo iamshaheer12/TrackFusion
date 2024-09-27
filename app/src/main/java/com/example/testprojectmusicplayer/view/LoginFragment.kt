@@ -89,9 +89,14 @@ class LoginFragment : Fragment() {
                 when (state) {
                     is UiStates.Loading -> {
                         // Show loading indicator
+
+                        binding.lgProgressBar.progressBar.visibility = View.VISIBLE
+                        binding.siButton.text = ""
                     }
                     is UiStates.Success -> {
                         // Navigate to the next screen or show success message
+                        binding.lgProgressBar.progressBar.visibility = View.GONE
+                        binding.siButton.text = "LOG IN"
 
                         findNavController().popBackStack(R.id.mainFragment,true)
 
@@ -100,6 +105,9 @@ class LoginFragment : Fragment() {
                         Toast.makeText(requireContext(), state.data, Toast.LENGTH_SHORT).show()
                     }
                     is UiStates.Failure -> {
+                        binding.lgProgressBar.progressBar.visibility = View.GONE
+                        binding.siButton.text = "LOG IN"
+
                         // Show error message
                         Toast.makeText(requireContext(), state.error, Toast.LENGTH_SHORT).show()
                     }

@@ -26,52 +26,61 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp">
+                <LinearLayout
+                    android:id="@+id/lib_linear_layout"
+                    android:layout_width="wrap_content"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    android:layout_height="wrap_content">
+                    <TextView
+                        android:id="@+id/lib_custom_icon"
+                        android:layout_width="55dp"
+                        android:layout_height="55dp"
+                        android:clickable="true"
+                        android:contentDescription="Custom Icon"
+                        android:background="@drawable/circle_filled"
+
+                        android:focusable="true"
+                        android:gravity="center"
+                        android:text="SH"
+                        android:textStyle="bold"
+                        android:visibility="gone"
+                        app:layout_constraintStart_toStartOf="parent"
+
+                        app:layout_constraintTop_toTopOf="parent" />
+                    <de.hdodenhof.circleimageview.CircleImageView
+                        android:id="@+id/lib_profileImage"
+                        android:layout_width="55dp"
+                        android:layout_height="55dp"
+                        android:background="@drawable/circle_filled"
+                        android:clickable="true"
+                        android:scaleType="centerCrop"
+                        android:visibility="visible"
+                        android:focusable="true"
+                        android:gravity="center"
+
+
+                        app:layout_constraintStart_toStartOf="parent"
+
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                    <TextView
+                        android:id="@+id/lib_toolbar_title"
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:layout_gravity="start"
+                        android:layout_marginStart="8dp"
+                        android:gravity="center"
+                        android:text="Your Library"
+                        android:textColor="@android:color/white"
+                        android:textSize="@dimen/heading_text_size"
+                        android:textStyle="bold"
+                        app:layout_constraintStart_toEndOf="@id/lib_custom_icon" />
+
+
+                </LinearLayout>
 
                 <!-- Your custom view, like a logo or custom text -->
-                <TextView
-                    android:id="@+id/lib_custom_icon"
-                    android:layout_width="55dp"
-                    android:layout_height="55dp"
-                    android:clickable="true"
-                    android:contentDescription="Custom Icon"
-                    android:background="@drawable/circle_filled"
-
-                    android:focusable="true"
-                    android:gravity="center"
-                    android:text="SH"
-                    android:textStyle="bold"
-                    android:visibility="gone"
-                    app:layout_constraintStart_toStartOf="parent"
-
-                    app:layout_constraintTop_toTopOf="parent" />
-                <de.hdodenhof.circleimageview.CircleImageView
-                    android:id="@+id/lib_profileImage"
-                    android:layout_width="55dp"
-                    android:layout_height="55dp"
-                    android:background="@drawable/circle_filled"
-                    android:clickable="true"
-                    android:scaleType="centerCrop"
-                    android:visibility="gone"
-                    android:focusable="true"
-                    android:gravity="center"
-
-
-                    app:layout_constraintStart_toStartOf="parent"
-
-                    app:layout_constraintTop_toTopOf="parent" />
-
-                <TextView
-                    android:id="@+id/lib_toolbar_title"
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:layout_gravity="start"
-                    android:layout_marginStart="8dp"
-                    android:gravity="center"
-                    android:text="Your Library"
-                    android:textColor="@android:color/white"
-                    android:textSize="@dimen/heading_text_size"
-                    android:textStyle="bold"
-                    app:layout_constraintStart_toEndOf="@id/lib_custom_icon" />
 
                 <!-- Icons on the right side -->
 
@@ -79,16 +88,21 @@
                     android:id="@+id/lib_plus_icon"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="end"
+                    android:layout_gravity="center_vertical"
                     android:layout_marginEnd="8dp"
                     android:contentDescription="Plus Icon"
                     android:padding="8dp"
+
+
                     android:clickable="true"
                     android:focusable="true"
                     android:scaleType="centerCrop"
                     android:src="@drawable/ic_add_24"
                     app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
+                    app:layout_constraintTop_toTopOf="@id/lib_linear_layout"
+                    app:layout_constraintBottom_toBottomOf="@id/lib_linear_layout"
+
+                    />
 
                 <ImageView
                     android:id="@+id/lib_search_icon"
@@ -102,17 +116,19 @@
                     android:padding="8dp"
                     android:src="@drawable/baseline_search_24"
                     app:layout_constraintEnd_toStartOf="@+id/lib_plus_icon"
-                    app:layout_constraintTop_toTopOf="parent" />
+                    app:layout_constraintTop_toTopOf="@id/lib_linear_layout"
+                    app:layout_constraintBottom_toBottomOf="@id/lib_linear_layout"
+                    />
 
                 <RadioGroup
                     android:id="@+id/lib_radio"
                     android:layout_width="match_parent"
                     android:layout_height="50dp"
-                    android:layout_marginTop="24dp"
+                    android:layout_marginTop="16dp"
                     android:orientation="horizontal"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/lib_toolbar_title">
+                    app:layout_constraintTop_toBottomOf="@+id/lib_linear_layout">
 
                     <RadioButton
                         android:id="@+id/custom_radio_all"

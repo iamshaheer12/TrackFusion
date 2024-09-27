@@ -82,6 +82,9 @@ class EmailLoginFragment : Fragment() {
                             // Show error message
                             Toast.makeText(requireContext(), state.error, Toast.LENGTH_SHORT).show()
                         }
+                        is UiStates.Initial ->{
+
+                        }
 
                     }
                 }

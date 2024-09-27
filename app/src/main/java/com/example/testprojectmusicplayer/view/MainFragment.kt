@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.SeekBar
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
@@ -21,6 +22,7 @@ import com.example.testprojectmusicplayer.utils.UserObject
 import com.example.testprojectmusicplayer.viewModel.HomeViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -69,12 +71,20 @@ class MainFragment : Fragment() {
         handleClickOnLikedSong()
         handlePlayPause()
         playPauseObserver()
+        handlePlaybackPositionOrSeekBar()
+        onClick()
     }
 
 
+    private fun  onClick(){
+        binding.mainBottomSheetForSong.root.setOnClickListener {
+            openMusicPlayerBottomSheet()
+        }
+    }
+
     private fun observer(){
         lifecycleScope.launch {
-            viewModel.currentSong.collect{
+            viewModel.currentSong.collectLatest{
                 song ->
                 if (song != null){
                     initUi(song)
@@ -85,6 +95,8 @@ class MainFragment : Fragment() {
                 }
             }
         }
+
+
 
 
 
@@ -128,6 +140,9 @@ class MainFragment : Fragment() {
 
 
                     }
+                    is UiStates.Initial ->{
+
+                    }
                 }
             }
 
@@ -150,6 +165,9 @@ class MainFragment : Fragment() {
                     is UiStates.Failure -> {
                         Toast.makeText(requireContext(), state.error, Toast.LENGTH_SHORT).show()
 
+
+                    }
+                    is UiStates.Initial ->{
 
                     }
                 }
@@ -227,7 +245,33 @@ class MainFragment : Fragment() {
             }
 
     }
+    private fun handlePlaybackPositionOrSeekBar(){
+        binding.mainBottomSheetForSong.mpSeekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
+                if (fromUser) {
+                    // Update the playback position in the ViewModel when user drags the SeekBar
+                    viewModel.seekTo(progress)
+                }
+            }
 
+            override fun onStartTrackingTouch(seekBar: SeekBar?) {
+                // Optional: Handle user start tracking
+            }
+
+            override fun onStopTrackingTouch(seekBar: SeekBar?) {
+                // Optional: Handle user stop tracking
+            }
+        })
+
+        lifecycleScope.launch {
+            viewModel.playbackPosition.collect { seekBarPosition ->
+
+                binding.mainBottomSheetForSong.mpSeekBar.progress = seekBarPosition
+
+            }
+
+        }
+    }
 
 
 
@@ -246,7 +290,15 @@ class MainFragment : Fragment() {
             )
             .into(binding.mainBottomSheetForSong.btmSheetSongImage)
 
+        binding.mainBottomSheetForSong.root.visibility = View.VISIBLE
+    }
 
+    private fun openMusicPlayerBottomSheet() {
+        // Create an instance of the MusicPlayerBottomSheet
+        val musicPlayerBottomSheet = MusicPlayerBottomSheet()
+
+        // Show the bottom sheet
+        musicPlayerBottomSheet.show(requireActivity().supportFragmentManager, musicPlayerBottomSheet.tag)
     }
 
 

@@ -7,16 +7,14 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:context=".view.LibSearchFragment">
 
-    <!-- AppBarLayout to hold the Toolbar and SearchView -->
     <com.google.android.material.appbar.AppBarLayout
-
         android:id="@+id/lib_search_appbar_layout"
         android:layout_width="match_parent"
         android:background="@color/spotify_dark_gray"
         android:layout_height="wrap_content"
         app:layout_constraintTop_toTopOf="parent"
-
         >
+
         <androidx.appcompat.widget.Toolbar
             android:id="@+id/lib_search_toolbar"
             android:layout_width="match_parent"
@@ -61,14 +59,14 @@
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/search_text"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
+                        android:layout_height="match_parent"
                         android:maxLines="1"
-
-                        android:layout_margin="8dp"
-                        android:layout_gravity="center"
-
+                        android:inputType="text"
                         android:textColor="@color/spotify_dark_gray"
-                        android:textSize="18sp" />
+                        android:textSize="18sp"
+                        android:paddingTop="8dp"
+                        android:paddingBottom="8dp"
+                        />
                 </com.google.android.material.textfield.TextInputLayout>
 
 

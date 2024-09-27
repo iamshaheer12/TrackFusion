@@ -9,16 +9,20 @@
     <androidx.fragment.app.FragmentContainerView
         android:id="@+id/nested_nav_host"
         android:name = "androidx.navigation.fragment.NavHostFragment"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="0dp"
+        app:defaultNavHost = "true"
+
+
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintBottom_toTopOf="@+id/bottomNav"
         app:navGraph="@navigation/bottom_nav_graph"
         />
-
     <include
+        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
         android:id="@+id/main_bottom_sheet_for_song"
         layout="@layout/bottom_sheet_for_songs_card"
         app:layout_constraintBottom_toTopOf="@+id/bottomNav"

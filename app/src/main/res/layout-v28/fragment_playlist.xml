@@ -120,6 +120,11 @@
         tools:listitem="@layout/playlist_song_item_card"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/playlist_gif_image" />
+    <include
+        android:id="@+id/playlist_loading_screen"
+        layout="@layout/loading_screen"
+        android:visibility="visible"
+        />
 
 
 
