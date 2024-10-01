@@ -14,20 +14,20 @@ import javax.inject.Inject
 
 @HiltViewModel
 class AddSongViewModel @Inject constructor(
-   private val albumRepository: AlbumRepository,
-): ViewModel(){
+    private val albumRepository: AlbumRepository,
+) : ViewModel() {
 
     private val _allAlbums = MutableStateFlow<UiStates<List<Album>>>(UiStates.Loading)
-    val allAlbums : StateFlow<UiStates<List<Album>>> = _allAlbums
+    val allAlbums: StateFlow<UiStates<List<Album>>> = _allAlbums
 
     private val _addSongState = MutableStateFlow<UiStates<String>>(UiStates.Initial)
-    val addSongState : StateFlow<UiStates<String>> = _addSongState
+    val addSongState: StateFlow<UiStates<String>> = _addSongState
 
 
-    fun getAllAlbum(userId:String){
+    fun getAllAlbum(userId: String) {
         viewModelScope.launch {
-            albumRepository.getAlbumCreatedByUser(userId){
-                state ->
+
+            albumRepository.getAlbumCreatedByUser(userId) { state ->
                 _allAlbums.update {
                     state
                 }
@@ -37,14 +37,16 @@ class AddSongViewModel @Inject constructor(
         }
 
     }
-    fun addSongs(songId:String, albumIds: List<String>){
+
+    fun addSongs(songId: String, albumIds: List<String>) {
         viewModelScope.launch {
             _addSongState.update {
                 UiStates.Loading
             }
-            albumRepository.addSongToAlbums(songId = songId, list = albumIds){
+            albumRepository.addSongToAlbums(songId = songId, list = albumIds) {
+                state ->
                 _addSongState.update {
-                    it
+                    state
                 }
             }
         }

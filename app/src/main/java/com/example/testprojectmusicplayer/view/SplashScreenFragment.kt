@@ -7,6 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.navigation.NavOptions
 import androidx.navigation.fragment.findNavController
 import com.example.testprojectmusicplayer.R
 import com.example.testprojectmusicplayer.databinding.FragmentSplashScreenBinding
@@ -21,6 +22,7 @@ class SplashScreenFragment : Fragment() {
 
     private lateinit var binding: FragmentSplashScreenBinding
     private lateinit var job: Job
+
     @Inject
     lateinit var userObject: UserObject
 
@@ -35,19 +37,17 @@ class SplashScreenFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        job =   GlobalScope.launch(Dispatchers.Main) {
+        job = GlobalScope.launch(Dispatchers.Main) {
             delay(2000)
-            if ( userObject.getUser() != null){
+
+
+            if (userObject.getUser() != null) {
+               // findNavController().popBackStack(R.id.splashScreenFragment, true) // Ensure splash is removed
                 findNavController().navigate(R.id.action_splashScreenFragment_to_mainFragment)
-
-
-
-            }
-            else{
+            } else {
+                //findNavController().popBackStack(R.id.splashScreenFragment, true) // Ensure splash is removed
                 findNavController().navigate(R.id.action_splashScreenFragment_to_startingFragment)
-
             }
-
 
 
             // Adjust the delay as needed

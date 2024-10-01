@@ -17,27 +17,24 @@ import javax.inject.Inject
 @HiltViewModel
 class UserViewModel @Inject constructor(
 
-    private val  authRepository: AuthRepository
+    private val authRepository: AuthRepository
 
-): ViewModel() {
-
+) : ViewModel() {
 
 
     private val _signOutState = MutableStateFlow<UiStates<String>>(UiStates.Loading)
-    val signOutState : StateFlow<UiStates<String>> = _signOutState
+    val signOutState: StateFlow<UiStates<String>> = _signOutState
 
     private val _uploadUserImage = MutableStateFlow<UiStates<String>>(UiStates.Loading)
-    val uploadUserImage : StateFlow<UiStates<String>> = _uploadUserImage
+    val uploadUserImage: StateFlow<UiStates<String>> = _uploadUserImage
 
     private val _updateUser = MutableStateFlow<UiStates<String>>(UiStates.Initial)
-    val updateUser : StateFlow<UiStates<String>> = _updateUser
+    val updateUser: StateFlow<UiStates<String>> = _updateUser
 
 
-
-     fun singOut(){
+    fun singOut() {
         viewModelScope.launch {
-            authRepository.signOut {
-                uiStates ->
+            authRepository.signOut { uiStates ->
                 _signOutState.update {
                     uiStates
                 }
@@ -45,10 +42,9 @@ class UserViewModel @Inject constructor(
         }
     }
 
-    fun uploadUserImage(imageUrl : Uri){
+    fun uploadUserImage(imageUrl: Uri) {
         viewModelScope.launch {
-            authRepository.uploadingUserImage(imageUrl){
-                state ->
+            authRepository.uploadingUserImage(imageUrl) { state ->
                 _uploadUserImage.update {
                     state
                 }
@@ -56,19 +52,15 @@ class UserViewModel @Inject constructor(
         }
     }
 
-    fun updateUser(user: User){
+    fun updateUser(user: User) {
         viewModelScope.launch {
-            authRepository.updateUser(user){
-                state ->
+            authRepository.updateUser(user) { state ->
                 _updateUser.update {
                     state
                 }
             }
         }
     }
-
-
-
 
 
 }

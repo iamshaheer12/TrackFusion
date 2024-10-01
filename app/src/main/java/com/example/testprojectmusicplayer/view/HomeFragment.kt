@@ -38,8 +38,10 @@ import javax.inject.Inject
 @AndroidEntryPoint
 class HomeFragment : Fragment() {
     private lateinit var recentPlayGrid: GridView
+
     @Inject
     lateinit var glide: RequestManager
+
     @Inject
     lateinit var userObject: UserObject
     private var isAlbumLoading = true
@@ -47,20 +49,18 @@ class HomeFragment : Fragment() {
     private var isArtistLoading = true
 
 
-
     private lateinit var binding: FragmentHomeBinding
     private val homeViewModel: HomeViewModel by activityViewModels()
-
 
 
     private lateinit var recentGridAdapter: RecentGridAdapter
     private val getStartedAdapter by lazy {
         HomeGetStartedRecyclerViewAdapter(glide = glide,
-            onItemClicked = { _, album->
+            onItemClicked = { _, album ->
 
-                val action =HomeFragmentDirections.actionHomeFragmentToPlaylistFragment2(
+                val action = HomeFragmentDirections.actionHomeFragmentToPlaylistFragment2(
 
-                    album.id,null
+                    album.id, null
                 )
                 findNavController().navigate(action)
 
@@ -69,17 +69,17 @@ class HomeFragment : Fragment() {
 
     }
     private val recentPlayAdapter by lazy {
-        RecentlyPlayedRecyclerViewAdapter(glide = glide,onItemClicked = {pos,album ->
-            val action =HomeFragmentDirections.actionHomeFragmentToPlaylistFragment2(
+        RecentlyPlayedRecyclerViewAdapter(glide = glide, onItemClicked = { pos, album ->
+            val action = HomeFragmentDirections.actionHomeFragmentToPlaylistFragment2(
 
-                album.id,null
+                album.id, null
             )
             findNavController().navigate(action)
         })
 
     }
     private val recommendedAdapter by lazy {
-        MusicRecyclerViewAdapter(glide = glide,onItemClicked =  {
+        MusicRecyclerViewAdapter(glide = glide, onItemClicked = {
 
         })
 
@@ -88,24 +88,23 @@ class HomeFragment : Fragment() {
 
     private val artistAdapter by lazy {
         ArtistRecyclerViewAdapter(glide = glide,
-            onItemClick = {_,artist ->
-                val action =HomeFragmentDirections.actionHomeFragmentToPlaylistFragment2(
-                    null,artist.id
+            onItemClick = { _, artist ->
+                val action = HomeFragmentDirections.actionHomeFragmentToPlaylistFragment2(
+                    null, artist.id
                 )
                 findNavController().navigate(action)
 
-        })
+            })
 
     }
 
     private var albumList: List<Album> = emptyList()
 
 
-
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View{
+    ): View {
         binding = FragmentHomeBinding.inflate(layoutInflater)
         return binding.root
     }
@@ -116,17 +115,16 @@ class HomeFragment : Fragment() {
 
 
         homeViewModel.getStartedAlbums()
-       // homeViewModel.getRecentPlayedSongs()
+        // homeViewModel.getRecentPlayedSongs()
         homeViewModel.getArtists()
 
-        homeViewModel.getRecentPlayedAlbum(userObject.getUser()?.userId?:"")
+        homeViewModel.getRecentPlayedAlbum(userObject.getUser()?.userId ?: "")
 
 
 
 
         settingAdapters()
         observers()
-
 
 
     }
@@ -138,10 +136,14 @@ class HomeFragment : Fragment() {
         binding.hmRecommendedRecyclerview.adapter = recommendedAdapter
         binding.hmArtistRecyclerview.adapter = artistAdapter
 
-        recentPlayGrid =binding.hmRecentPlayGrid
+        recentPlayGrid = binding.hmRecentPlayGrid
         recentPlayGrid.numColumns = 2
 
-       recentGridAdapter = RecentGridAdapter(glide = glide, context = requireContext(), recentPlayList = emptyList())
+        recentGridAdapter = RecentGridAdapter(
+            glide = glide,
+            context = requireContext(),
+            recentPlayList = emptyList()
+        )
         recentPlayGrid.adapter = recentGridAdapter
 
 
@@ -179,24 +181,26 @@ class HomeFragment : Fragment() {
                 isAlbumLoading = true
                 showLoadingIfNeeded()
             }
+
             is UiStates.Success -> {
                 isAlbumLoading = false
                 getStartedAdapter.updateList(state.data.toMutableList())
                 if (state.data.isEmpty()) {
                     binding.hmGetStartedTxt.visibility = View.GONE
-                }
-                else{
+                } else {
                     binding.hmGetStartedTxt.visibility = View.VISIBLE
 
                 }
                 hideLoadingIfNeeded()
             }
+
             is UiStates.Failure -> {
                 isAlbumLoading = false
                 hideLoadingIfNeeded()
                 Toast.makeText(requireContext(), state.error, Toast.LENGTH_SHORT).show()
             }
-            is UiStates.Initial ->{
+
+            is UiStates.Initial -> {
 
             }
         }
@@ -208,12 +212,12 @@ class HomeFragment : Fragment() {
                 isRecentSongsLoading = true
                 showLoadingIfNeeded()
             }
+
             is UiStates.Success -> {
                 isRecentSongsLoading = false
                 if (state.data.isEmpty()) {
                     binding.hmRecentlyPlayedTxt.visibility = View.GONE
-                }
-                else{
+                } else {
                     binding.hmRecentlyPlayedTxt.visibility = View.VISIBLE
 
                 }
@@ -221,12 +225,14 @@ class HomeFragment : Fragment() {
                 recentGridAdapter.updateList(state.data.toMutableList())
                 hideLoadingIfNeeded()
             }
+
             is UiStates.Failure -> {
                 isRecentSongsLoading = false
                 hideLoadingIfNeeded()
                 Toast.makeText(requireContext(), state.error, Toast.LENGTH_SHORT).show()
             }
-            is UiStates.Initial ->{
+
+            is UiStates.Initial -> {
 
             }
         }
@@ -238,6 +244,7 @@ class HomeFragment : Fragment() {
                 isArtistLoading = true
                 showLoadingIfNeeded()
             }
+
             is UiStates.Success -> {
                 isArtistLoading = false
 
@@ -245,19 +252,20 @@ class HomeFragment : Fragment() {
 
                 if (state.data.isEmpty()) {
                     binding.hmArtistsTxt.visibility = View.GONE
-                }
-                else{
+                } else {
                     binding.hmArtistsTxt.visibility = View.VISIBLE
 
                 }
                 hideLoadingIfNeeded()
             }
+
             is UiStates.Failure -> {
                 isArtistLoading = false
                 hideLoadingIfNeeded()
                 Toast.makeText(requireContext(), state.error, Toast.LENGTH_SHORT).show()
             }
-            is UiStates.Initial ->{
+
+            is UiStates.Initial -> {
 
             }
         }
@@ -277,12 +285,8 @@ class HomeFragment : Fragment() {
             binding.loadingScreen12.visibility = View.GONE
 
 
-
         }
     }
-
-
-
 
 
 }

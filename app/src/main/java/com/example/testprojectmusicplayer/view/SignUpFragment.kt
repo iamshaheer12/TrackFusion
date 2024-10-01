@@ -3,6 +3,7 @@ package com.example.testprojectmusicplayer.view
 import android.app.DatePickerDialog
 import android.os.Bundle
 import android.text.Editable
+import android.text.TextWatcher
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -15,7 +16,6 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
-
 import com.example.testprojectmusicplayer.R
 import com.example.testprojectmusicplayer.databinding.FragmentSignUpBinding
 import com.example.testprojectmusicplayer.model.User
@@ -28,12 +28,8 @@ import java.util.Calendar
 
 @AndroidEntryPoint
 class SignUpFragment : Fragment() {
-   private lateinit var binding: FragmentSignUpBinding
+    private lateinit var binding: FragmentSignUpBinding
     private val authViewModel: AuthViewModel by viewModels()
-
-
-
-
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -45,15 +41,13 @@ class SignUpFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        setUpListeners()  // Set up real-time validation
         onClick()
-
         setAdapterForAutoCompleteText()
-
-            observers()
-
+        observeViewModel()
     }
 
-
+    // Function to handle button clicks
     private fun onClick() {
         binding.suButton.setOnClickListener {
             val email = binding.suEmail.text.toString()
@@ -62,47 +56,11 @@ class SignUpFragment : Fragment() {
             val dob = binding.suDobName.text.toString()
             val gender = binding.suGender.text.toString()
 
-            Log.d("GenderTes",binding.suGender.text.toString(),)
+            Log.d("GenderTest", gender)
 
-
-            // Validate email
-            val emailValidation = Validator.emailValidator(email)
-            if (!emailValidation.first) {
-                binding.suEmailLayout.error = emailValidation.second
+            // Validate fields before proceeding
+            if (!validateFields(name, email, password, dob, gender)) {
                 return@setOnClickListener
-            } else {
-                binding.suEmailLayout.error = null
-            }
-
-            // Validate password
-            val passwordValidation = Validator.passwordValidator(password)
-            if (!passwordValidation.first) {
-                binding.suUserPasswordLayout.error = passwordValidation.second
-                return@setOnClickListener
-            } else {
-                binding.suUserPasswordLayout.error = null
-            }
-
-            // Validate name
-            if (name.isEmpty()) {
-                binding.suUserNameLayout.error = "Field is Empty"
-                return@setOnClickListener
-            } else {
-                binding.suUserNameLayout.error = null
-            }
-
-            // Validate date of birth
-            if (dob.isEmpty()) {
-                binding.suUserDobLayout.error = "Field is Empty"
-                return@setOnClickListener
-            } else {
-                binding.suUserDobLayout.error = null
-            }
-            if (gender.isEmpty()) {
-                binding.suGenderLayout.error = "Please select gender"
-                return@setOnClickListener
-            } else {
-                binding.suGenderLayout.error = null
             }
 
             // Proceed with account creation
@@ -112,14 +70,11 @@ class SignUpFragment : Fragment() {
                 user = User(
                     name = name,
                     dob = dob,
-                    gender = binding.suGender.text.toString(),
-                    email = email,
-
+                    gender = gender,
+                    email = email
                 )
             )
         }
-
-
 
         binding.arrowBack.setOnClickListener {
             findNavController().popBackStack()
@@ -127,88 +82,118 @@ class SignUpFragment : Fragment() {
         binding.suDobName.setOnClickListener {
             showDatePicker()
         }
-
-
-
     }
 
-    private  fun observers(){
+    // Real-time validation using TextWatcher
+    private fun setUpListeners() {
+        binding.suUserName.addTextChangedListener(createTextWatcher { binding.suUserNameLayout.error = null })
+        binding.suEmail.addTextChangedListener(createTextWatcher { binding.suEmailLayout.error = null })
+        binding.suPassword.addTextChangedListener(createTextWatcher { binding.suUserPasswordLayout.error = null })
+    }
+
+    private fun createTextWatcher(onTextChanged: () -> Unit): TextWatcher {
+        return object : TextWatcher {
+            override fun afterTextChanged(s: Editable?) {}
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                onTextChanged()
+            }
+        }
+    }
+
+    // Validation function for all fields
+    private fun validateFields(name: String, email: String, password: String, dob: String, gender: String): Boolean {
+        var isValid = true
+
+        // Validate email
+        val emailValidation = Validator.emailValidator(email)
+        if (!emailValidation.first) {
+            binding.suEmailLayout.error = emailValidation.second
+            isValid = false
+        }
+
+        // Validate password
+        val passwordValidation = Validator.passwordValidator(password)
+        if (!passwordValidation.first) {
+            binding.suUserPasswordLayout.error = passwordValidation.second
+            isValid = false
+        }
+
+        // Validate name
+        if (name.isEmpty()) {
+            binding.suUserNameLayout.error = "Field is Empty"
+            isValid = false
+        }
+
+        // Validate date of birth
+        if (dob.isEmpty()) {
+            binding.suUserDobLayout.error = "Field is Empty"
+            isValid = false
+        }
+
+        // Validate gender
+        if (gender.isEmpty()) {
+            binding.suGenderLayout.error = "Please select gender"
+            isValid = false
+        }
+
+        return isValid
+    }
+
+    // Observe ViewModel state changes
+    private fun observeViewModel() {
         lifecycleScope.launch {
-            // Use repeatOnLifecycle with the desired state
             repeatOnLifecycle(Lifecycle.State.STARTED) {
-                // Place the code that you want to execute when the lifecycle is in the STARTED state
-                // For example, collecting from a Flow or handling UI updates
                 authViewModel.authState.collect { uiState ->
-                    // Handle the collected UI state
                     when (uiState) {
                         is UiStates.Success -> {
-                            // Handle success
-
                             binding.suProgressBar.progressBar.visibility = View.GONE
                             binding.suButton.text = "CREATE"
                             Toast.makeText(context, uiState.data, Toast.LENGTH_SHORT).show()
-                            findNavController().popBackStack(R.id.mainFragment,true)
-
-                            findNavController().navigate(R.id.mainFragment)                        }
+                            findNavController().navigate(R.id.mainFragment)
+                        }
                         is UiStates.Failure -> {
-                            // Handle failure
                             binding.suProgressBar.progressBar.visibility = View.GONE
                             binding.suButton.text = "CREATE"
                             Toast.makeText(context, uiState.error, Toast.LENGTH_SHORT).show()
                         }
                         is UiStates.Loading -> {
-
                             binding.suProgressBar.progressBar.visibility = View.VISIBLE
                             binding.suButton.text = ""
-                            // Handle loading state
                         }
-                        is UiStates.Initial ->{
-
-                        }
-
+                        is UiStates.Initial -> {}
                     }
-
                 }
             }
         }
-
-
     }
+
     private fun showDatePicker() {
-        // Create an instance of the calendar
         val calendar = Calendar.getInstance()
         val year = calendar.get(Calendar.YEAR)
         val month = calendar.get(Calendar.MONTH)
         val day = calendar.get(Calendar.DAY_OF_MONTH)
 
-        // Create and show the DatePickerDialog
         val datePickerDialog = DatePickerDialog(
             requireContext(),
             R.style.SpotifyDatePickerTheme,
-
             { _, selectedYear, selectedMonth, selectedDay ->
-                // Update the UI with the selected date
                 val selectedDate = "$selectedDay/${selectedMonth + 1}/$selectedYear"
                 binding.suDobName.text = Editable.Factory.getInstance().newEditable(selectedDate)
             },
             year, month, day
         )
-
         datePickerDialog.datePicker.maxDate = System.currentTimeMillis()
-
-
         datePickerDialog.show()
     }
 
-
-    private fun setAdapterForAutoCompleteText(){
+    private fun setAdapterForAutoCompleteText() {
         val genderArray = resources.getStringArray(R.array.gender)
-
-        val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_dropdown_item, genderArray)
+        val adapter = ArrayAdapter(
+            requireContext(),
+            android.R.layout.simple_spinner_dropdown_item,
+            genderArray
+        )
         binding.suGender.setAdapter(adapter)
-
     }
-
-    }
-
-
+}

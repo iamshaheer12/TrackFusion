@@ -14,6 +14,7 @@
         android:layout_height="wrap_content"
        >
         <ImageView
+
             android:id="@+id/mp_arrow_down"
             android:clickable="true"
             android:layout_width="wrap_content"
@@ -100,7 +101,7 @@
                 android:textStyle="bold"
                 app:layout_constraintTop_toBottomOf="@id/mp_current_song_poster"
                 app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toStartOf="@+id/mp_liked_btn"
+            app:layout_constraintEnd_toEndOf="parent"
                 android:layout_marginTop="32dp"/>
 
 
@@ -111,7 +112,7 @@
                 android:text="The Kid LAROI, Justin Bieber"
                 android:textColor="@android:color/white"
                 android:textSize="14sp"
-                app:layout_constraintEnd_toStartOf="@+id/mp_liked_btn"
+                app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/mp_song_title"
                 app:layout_constraintStart_toStartOf="parent"
                 android:layout_marginTop="4dp"/>
@@ -183,9 +184,9 @@
             <ImageView
                 android:id="@+id/mp_play_btn"
                 android:layout_width="60dp"
-                android:layout_height="wrap_content"
+                android:layout_height="60dp"
                 android:src="@drawable/ic_pause_circle"
-android:focusable="true"
+                android:focusable="true"
                 android:clickable="true"/>
             <ImageView
                 android:id="@+id/mp_next_btn"

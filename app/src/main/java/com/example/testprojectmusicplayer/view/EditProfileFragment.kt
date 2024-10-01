@@ -30,10 +30,10 @@ class EditProfileFragment : Fragment() {
 
     private lateinit var binding: FragmentEditProfileBinding
 
-    private val viewModel : UserViewModel by viewModels()
+    private val viewModel: UserViewModel by viewModels()
 
     @Inject
-    lateinit var glide : RequestManager
+    lateinit var glide: RequestManager
 
     @Inject
     lateinit var userObject: UserObject
@@ -44,13 +44,11 @@ class EditProfileFragment : Fragment() {
     private var userData: User? = null
 
 
-
-
     private val pickMedia = registerForActivityResult(ActivityResultContracts.GetContent()) { uri ->
         uri?.let {
 
             binding.circleImageView.setImageURI(uri)
-           viewModel.uploadUserImage(uri)
+            viewModel.uploadUserImage(uri)
         }
     }
 
@@ -70,7 +68,11 @@ class EditProfileFragment : Fragment() {
         userData = userObject.getUser()
 
 
-        userData?.let { initUi(it) }
+
+        userData?.let {
+            initUi(it)
+            imageUrl = it.imageUrl
+        }
 
 
 
@@ -79,7 +81,7 @@ class EditProfileFragment : Fragment() {
 
     }
 
-    private fun onClick(){
+    private fun onClick() {
         binding.circleImageView.setOnClickListener {
             pickMedia.launch("image/*")
         }
@@ -95,23 +97,22 @@ class EditProfileFragment : Fragment() {
         binding.edProfileUpdate.setOnClickListener {
 
 
-            if (binding.prName.text.isNotEmpty()){
+            if (binding.prName.text.isNotEmpty()) {
 
                 Log.d("Click on Update User", "Click")
 
                 viewModel.updateUser(
                     user = User(
                         name = binding.prName.text.toString(),
-                        dob = userData?.dob?:"",
-                        gender = userData?.gender?:"",
-                        email = userData?.email?:"",
-                        userId = userData?.userId?:"",
-                        imageUrl = imageUrl,
-                        likedSong = userData?.likedSong?: emptyList(),
-                        likedAlbums = userData?.likedAlbums?:"",
-                        likedArtist = userData?.likedArtist?: emptyList(),
-                        recentlyPlayedSongs = userData?.recentlyPlayedSongs?: emptyList()
-
+                        dob = userData?.dob ?: "",
+                        gender = userData?.gender ?: "",
+                        email = userData?.email ?: "",
+                        userId = userData?.userId ?: "",
+                        imageUrl = imageUrl,  // update it for if image url is empty then user image url 
+                        likedSong = userData?.likedSong ?: emptyList(),
+                        likedAlbums = userData?.likedAlbums ?: "",
+                        likedArtist = userData?.likedArtist ?: emptyList(),
+                        recentlyPlayedSongs = userData?.recentlyPlayedSongs ?: emptyList()
 
 
                     )
@@ -123,53 +124,61 @@ class EditProfileFragment : Fragment() {
     }
 
 
-    private fun observer(){
+    private fun observer() {
 
         lifecycleScope.launch {
-           viewModel.uploadUserImage.collect{
-               state ->
-               when(state){
-                   is UiStates.Loading -> {
+            viewModel.uploadUserImage.collect { state ->
+                when (state) {
+                    is UiStates.Loading -> {
 
-                   }
-                   is UiStates.Success -> {
-                       imageUrl = state.data
+                    }
 
-                       Toast.makeText(requireContext(),"Uploaded Successfully",Toast.LENGTH_SHORT).show()
+                    is UiStates.Success -> {
+                        imageUrl = state.data
 
-                   }
-                   is UiStates.Failure -> {
+                        Toast.makeText(
+                            requireContext(),
+                            "Uploaded Successfully",
+                            Toast.LENGTH_SHORT
+                        ).show()
 
-                   }
-                   is UiStates.Initial ->{
+                    }
 
-                   }
-               }
-           }
+                    is UiStates.Failure -> {
+
+                    }
+
+                    is UiStates.Initial -> {
+
+                    }
+                }
+            }
         }
         lifecycleScope.launch {
-            viewModel.updateUser.collect{
-                    state ->
-                when(state){
+            viewModel.updateUser.collect { state ->
+                when (state) {
                     is UiStates.Loading -> {
 
                         binding.edProgressBar.progressBar.visibility = View.VISIBLE
 
 
                     }
+
                     is UiStates.Success -> {
                         binding.edProgressBar.progressBar.visibility = View.GONE
 
-                        Toast.makeText(requireContext(), "Update Successfully", Toast.LENGTH_SHORT).show()
-                      findNavController().popBackStack()
+                        Toast.makeText(requireContext(), "Update Successfully", Toast.LENGTH_SHORT)
+                            .show()
+                        findNavController().popBackStack()
                     }
+
                     is UiStates.Failure -> {
                         binding.edProgressBar.progressBar.visibility = View.GONE
 
 
-
                     }
-                    is UiStates.Initial ->{
+
+                    is UiStates.Initial -> {
 
                     }
                 }
@@ -177,21 +186,17 @@ class EditProfileFragment : Fragment() {
         }
 
 
-
-
-
     }
 
 
-
-    private fun initUi(user: User){
+    private fun initUi(user: User) {
 
 
         binding.profileName.text = user.name
         binding.prName.setText(user.name)
 
 
-        if (user.imageUrl.isNotEmpty()){
+        if (user.imageUrl.isNotEmpty()) {
             glide
                 .load(user.imageUrl)
                 .apply(
@@ -200,17 +205,12 @@ class EditProfileFragment : Fragment() {
                         .error(R.drawable.default_image) // Shown when there is an error loading the image
                 )
                 .into(binding.circleImageView)
-        }
-        else
-        {
+        } else {
             binding.circleImageView.setImageResource(R.drawable.edit_profile_image)
         }
 
 
-
     }
-
-
 
 
 }

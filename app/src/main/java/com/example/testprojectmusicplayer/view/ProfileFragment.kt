@@ -30,14 +30,11 @@ class ProfileFragment : Fragment() {
     lateinit var userObject: UserObject
 
     @Inject
-    lateinit var glide : RequestManager
+    lateinit var glide: RequestManager
     private lateinit var binding: FragmentProfileBinding
 
 
-    private val viewModel : UserViewModel by viewModels()
-
-
-
+    private val viewModel: UserViewModel by viewModels()
 
 
     override fun onCreateView(
@@ -53,21 +50,22 @@ class ProfileFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         val user = userObject.getUser()
-        if (user != null){
+        if (user != null) {
             initUi(user)
         }
         observer()
         onClick()
 
     }
-    private fun observer(){
+
+    private fun observer() {
         lifecycleScope.launch {
-            viewModel.signOutState.collect{
-                state ->
-                when(state){
+            viewModel.signOutState.collect { state ->
+                when (state) {
                     is UiStates.Success -> {
                         // Get the NavController for the startingFragment's NavHostFragment
-                        val startingNavController = (requireActivity().supportFragmentManager.findFragmentById(R.id.nav_host) as NavHostFragment).navController
+                        val startingNavController =
+                            (requireActivity().supportFragmentManager.findFragmentById(R.id.nav_host) as NavHostFragment).navController
 
                         // Pop the back stack and navigate to startingFragment
                         startingNavController.popBackStack(R.id.startingFragment, true)
@@ -75,15 +73,17 @@ class ProfileFragment : Fragment() {
 
 
                     }
+
                     is UiStates.Loading -> {
 
 
+                    }
+
+                    is UiStates.Failure -> {
 
                     }
-                    is UiStates.Failure ->{
 
-                    }
-                    is UiStates.Initial ->{
+                    is UiStates.Initial -> {
 
                     }
                 }
@@ -92,8 +92,7 @@ class ProfileFragment : Fragment() {
     }
 
 
-
-    private fun onClick(){
+    private fun onClick() {
         binding.profileArrowBack.setOnClickListener {
             findNavController().popBackStack()
         }
@@ -111,32 +110,28 @@ class ProfileFragment : Fragment() {
     }
 
 
-   private fun initUi(user: User){
+    private fun initUi(user: User) {
 
 
-       binding.profileName.text = user.name
-       binding.prName.text = user.name
-       binding.prEmail.text = user.email
+        binding.profileName.text = user.name
+        binding.prName.text = user.name
+        binding.prEmail.text = user.email
 
-       if (user.imageUrl.isNotEmpty()){
-           glide
-               .load(user.imageUrl)
-               .apply(
-                   RequestOptions()
-                       .placeholder(R.drawable.default_image) // Replace with your default image resource
-                       .error(R.drawable.default_image) // Shown when there is an error loading the image
-               )
-               .into(binding.circleImageView)
-       }
-       else
-       {
-           binding.circleImageView.setImageResource(R.drawable.edit_profile_image)
-       }
+        if (user.imageUrl.isNotEmpty()) {
+            glide
+                .load(user.imageUrl)
+                .apply(
+                    RequestOptions()
+                        .placeholder(R.drawable.default_image) // Replace with your default image resource
+                        .error(R.drawable.default_image) // Shown when there is an error loading the image
+                )
+                .into(binding.circleImageView)
+        } else {
+            binding.circleImageView.setImageResource(R.drawable.edit_profile_image)
+        }
 
 
-
-   }
-
+    }
 
 
 }

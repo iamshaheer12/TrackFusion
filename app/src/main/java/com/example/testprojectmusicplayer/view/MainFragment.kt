@@ -1,6 +1,7 @@
 package com.example.testprojectmusicplayer.view
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -31,19 +32,19 @@ class MainFragment : Fragment() {
     lateinit var binding: FragmentMainBinding
     private lateinit var navController: NavController
 
-    private val viewModel : HomeViewModel by activityViewModels()
+    private val viewModel: HomeViewModel by activityViewModels()
 
 
     @Inject
-    lateinit var glide : RequestManager
+    lateinit var glide: RequestManager
+
     @Inject
     lateinit var userObject: UserObject
 
 
-    private var userId : String? = null
-    private var albumId :String? = null
-    private var songId :String? = null
-
+    private var userId: String? = null
+    private var albumId: String? = null
+    private var songId: String? = null
 
 
     override fun onCreateView(
@@ -59,12 +60,15 @@ class MainFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         val user = userObject.getUser()
         userId = user?.userId
-        albumId = user?.userId
+        albumId = user?.likedAlbums
 
 
-        val navHostFragment = childFragmentManager.findFragmentById(binding.nestedNavHost.id) as NavHostFragment
+        val navHostFragment =
+            childFragmentManager.findFragmentById(binding.nestedNavHost.id) as NavHostFragment
         navController = navHostFragment.navController
         binding.bottomNav.setupWithNavController(navController = navController)
+
+        viewModel.setupPlaybackCallback()
 
         observer()
         likedFunctionalityObserver()
@@ -76,21 +80,27 @@ class MainFragment : Fragment() {
     }
 
 
-    private fun  onClick(){
+    private fun onClick() {
+
         binding.mainBottomSheetForSong.root.setOnClickListener {
             openMusicPlayerBottomSheet()
         }
+
+        // Remove this from here if the bottom sheet has its own play/pause logic
+        binding.mainBottomSheetForSong.btmSheetSongPlayBtn.setOnClickListener {
+            handlePlayPause()
+        }
+
+
     }
 
-    private fun observer(){
+    private fun observer() {
         lifecycleScope.launch {
-            viewModel.currentSong.collectLatest{
-                song ->
-                if (song != null){
+            viewModel.currentSong.collectLatest { song ->
+                if (song != null) {
                     initUi(song)
                     songId = song.songId
-                }
-                else{
+                } else {
                     binding.mainBottomSheetForSong.root.visibility = View.GONE
                 }
             }
@@ -101,8 +111,7 @@ class MainFragment : Fragment() {
 
 
         lifecycleScope.launch {
-            viewModel.playbackPosition.collect{
-                position ->
+            viewModel.playbackPosition.collect { position ->
                 binding.mainBottomSheetForSong.mpSeekBar.progress = position
 
             }
@@ -110,10 +119,9 @@ class MainFragment : Fragment() {
 
     }
 
-    private fun likedFunctionalityObserver(){
+    private fun likedFunctionalityObserver() {
         lifecycleScope.launch {
-            viewModel.isLikedSong.collect{
-                    state ->
+            viewModel.isLikedSong.collect { state ->
                 updateLikedButtonStateSong(state)
 
 
@@ -122,25 +130,27 @@ class MainFragment : Fragment() {
         }
 
         lifecycleScope.launch {
-            viewModel.likedSong.collect{
-                    state ->
-                when(state){
+            viewModel.likedSong.collect { state ->
+                when (state) {
                     is UiStates.Loading -> {
                         //   Toast.makeText(requireContext(), "Loading", Toast.LENGTH_SHORT).show()
 
 
                     }
+
                     is UiStates.Success -> {
-                        Toast.makeText(requireContext(), state.data, Toast.LENGTH_SHORT).show()
+                    //    Toast.makeText(requireContext(), state.data, Toast.LENGTH_SHORT).show()
 
 
                     }
+
                     is UiStates.Failure -> {
                         Toast.makeText(requireContext(), state.error, Toast.LENGTH_SHORT).show()
 
 
                     }
-                    is UiStates.Initial ->{
+
+                    is UiStates.Initial -> {
 
                     }
                 }
@@ -149,25 +159,27 @@ class MainFragment : Fragment() {
         }
 
         lifecycleScope.launch {
-            viewModel.unLikedSong.collect{
-                    state ->
-                when(state){
+            viewModel.unLikedSong.collect { state ->
+                when (state) {
                     is UiStates.Loading -> {
                         //     Toast.makeText(requireContext(), "Loading", Toast.LENGTH_SHORT).show()
 
 
                     }
+
                     is UiStates.Success -> {
-                        Toast.makeText(requireContext(), state.data, Toast.LENGTH_SHORT).show()
+                      //  Toast.makeText(requireContext(), state.data, Toast.LENGTH_SHORT).show()
 
 
                     }
+
                     is UiStates.Failure -> {
                         Toast.makeText(requireContext(), state.error, Toast.LENGTH_SHORT).show()
 
 
                     }
-                    is UiStates.Initial ->{
+
+                    is UiStates.Initial -> {
 
                     }
                 }
@@ -176,26 +188,24 @@ class MainFragment : Fragment() {
         }
 
 
-
     }
 
 
-    private fun playPauseObserver(){
+    private fun playPauseObserver() {
         lifecycleScope.launch {
-            viewModel.isPlaying.collect{
-                state ->
+            viewModel.isPlaying.collect { state ->
                 updatePlayPauseButtonState(state)
             }
         }
     }
-    private fun updateLikedButtonStateSong(isLiked: Boolean){
-        if (isLiked){
+
+    private fun updateLikedButtonStateSong(isLiked: Boolean) {
+        if (isLiked) {
 
             this.binding.mainBottomSheetForSong.btmSheetSongLikeBtn.setImageResource(R.drawable.liked_button)
 
 
-        }
-        else{
+        } else {
             this.binding.mainBottomSheetForSong.btmSheetSongLikeBtn.setImageResource(R.drawable.ic_unlike)
 
 
@@ -203,29 +213,29 @@ class MainFragment : Fragment() {
 
     }
 
+    private fun handlePlayPause() {
+        Log.d(
+            "MainFragment",
+            "Play/Pause button clicked. Current state: ${viewModel.isPlaying.value}"
+        )
 
-    private fun handlePlayPause(){
-        this.binding.mainBottomSheetForSong.btmSheetSongPlayBtn
-            .setOnClickListener {
-                if (viewModel.isPlaying.value){
-                  viewModel.updatePlayPauseState(false)
-                }
-                else{
-                    viewModel.updatePlayPauseState(true )
-                }
-            }
+        if (viewModel.isPlaying.value) {
+            viewModel.pauseSong()
+        } else {
+            viewModel.playSong()
+        }
 
 
     }
 
-    private fun updatePlayPauseButtonState(isPlaying: Boolean){
-        if (isPlaying){
+
+    private fun updatePlayPauseButtonState(isPlaying: Boolean) {
+        if (isPlaying) {
 
             this.binding.mainBottomSheetForSong.btmSheetSongPlayBtn.setImageResource(R.drawable.ic_play)
 
 
-        }
-        else{
+        } else {
             this.binding.mainBottomSheetForSong.btmSheetSongPlayBtn.setImageResource(R.drawable.ic_play_button_green)
 
 
@@ -233,50 +243,50 @@ class MainFragment : Fragment() {
     }
 
 
-    private fun handleClickOnLikedSong(){
+    private fun handleClickOnLikedSong() {
         this.binding.mainBottomSheetForSong.btmSheetSongLikeBtn
             .setOnClickListener {
-                if (viewModel.isLikedSong.value){
-                    viewModel.onUnLikedSong(songId?:"",userId?:"", albumId = albumId?:"")
-                }
-                else{
-                    viewModel.onLikedSong(songId?:"",userId?:"", albumId = albumId?:"")
+                if (viewModel.isLikedSong.value) {
+                    viewModel.onUnLikedSong(songId ?: "", userId ?: "", albumId = albumId ?: "")
+                } else {
+                    viewModel.onLikedSong(songId ?: "", userId ?: "", albumId = albumId ?: "")
                 }
             }
 
     }
-    private fun handlePlaybackPositionOrSeekBar(){
-        binding.mainBottomSheetForSong.mpSeekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+
+    private fun handlePlaybackPositionOrSeekBar() {
+        // Set up the SeekBar listener for user interaction
+        binding.mainBottomSheetForSong.mpSeekBar.setOnSeekBarChangeListener(object :
+            SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
                 if (fromUser) {
-                    // Update the playback position in the ViewModel when user drags the SeekBar
+                    // Update the playback position in the ViewModel when the user drags the SeekBar
                     viewModel.seekTo(progress)
                 }
             }
 
             override fun onStartTrackingTouch(seekBar: SeekBar?) {
-                // Optional: Handle user start tracking
+                // Optional: You can pause the position updates when the user is tracking
             }
 
             override fun onStopTrackingTouch(seekBar: SeekBar?) {
-                // Optional: Handle user stop tracking
+                // Optional: You can resume position updates when the user stops tracking
             }
         })
 
+        // Observe the playback position from the ViewModel to continuously update the SeekBar
         lifecycleScope.launch {
-            viewModel.playbackPosition.collect { seekBarPosition ->
-
-                binding.mainBottomSheetForSong.mpSeekBar.progress = seekBarPosition
-
+            viewModel.playbackPosition.collect { livePlaybackPosition ->
+                // Only update the SeekBar's progress if the user is not currently dragging it
+                binding.mainBottomSheetForSong.mpSeekBar.progress = livePlaybackPosition
             }
-
         }
     }
 
 
 
-
-    private fun initUi(song: Song){
+    private fun initUi(song: Song) {
 
         binding.mainBottomSheetForSong.btmSheetSongTitle.text = song.title
         binding.mainBottomSheetForSong.btmSheetSongArtist.text = song.description
@@ -298,7 +308,10 @@ class MainFragment : Fragment() {
         val musicPlayerBottomSheet = MusicPlayerBottomSheet()
 
         // Show the bottom sheet
-        musicPlayerBottomSheet.show(requireActivity().supportFragmentManager, musicPlayerBottomSheet.tag)
+        musicPlayerBottomSheet.show(
+            requireActivity().supportFragmentManager,
+            musicPlayerBottomSheet.tag
+        )
     }
 
 

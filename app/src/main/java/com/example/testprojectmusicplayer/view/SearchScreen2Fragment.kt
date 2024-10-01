@@ -30,6 +30,7 @@ import javax.inject.Inject
 class SearchScreen2Fragment : Fragment(), OnItemClickListener {
     private lateinit var binding: FragmentSearchScreen2Binding
     private lateinit var mediaAdapter: MediaAdapter
+
     @Inject
     lateinit var glide: RequestManager
 
@@ -72,15 +73,18 @@ class SearchScreen2Fragment : Fragment(), OnItemClickListener {
                             binding.searchProgressBar.visibility = View.VISIBLE
 
                         }
+
                         is UiStates.Success -> {
                             binding.searchProgressBar.visibility = View.GONE
                             mediaAdapter.updateItems(state.data.toMutableList())
                         }
+
                         is UiStates.Failure -> {
                             // Show error message
                             Toast.makeText(requireContext(), state.error, Toast.LENGTH_SHORT).show()
                         }
-                        is UiStates.Initial ->{
+
+                        is UiStates.Initial -> {
 
                         }
                     }
@@ -88,6 +92,7 @@ class SearchScreen2Fragment : Fragment(), OnItemClickListener {
             }
         }
     }
+
     private fun setupLiveSearch() {
         binding.searchText.addTextChangedListener(object : TextWatcher {
             override fun afterTextChanged(s: Editable?) {
@@ -105,30 +110,41 @@ class SearchScreen2Fragment : Fragment(), OnItemClickListener {
         })
     }
 
-    private fun onclick(){
+    private fun onclick() {
         binding.searchArrowBack.setOnClickListener {
             findNavController().popBackStack()
         }
     }
+
     override fun onItemClick(item: MediaItem) {
         when (item) {
             is MediaItem.AlbumItem -> {
-                val action = SearchScreen2FragmentDirections.actionSearchScreen2FragmentToPlaylistFragment2(item.album.id,null)
+                val action =
+                    SearchScreen2FragmentDirections.actionSearchScreen2FragmentToPlaylistFragment2(
+                        item.album.id,
+                        null
+                    )
 
-              findNavController().navigate(action)
+                findNavController().navigate(action)
                 // Handle album item click
             }
+
             is MediaItem.ArtistItem -> {
-                Log.d("SongsData",item.artist.toString())
-                val action = SearchScreen2FragmentDirections.actionSearchScreen2FragmentToPlaylistFragment2(null,item.artist.id)
+                Log.d("SongsData", item.artist.toString())
+                val action =
+                    SearchScreen2FragmentDirections.actionSearchScreen2FragmentToPlaylistFragment2(
+                        null,
+                        item.artist.id
+                    )
 
                 findNavController().navigate(action)
 
                 // Handle artist item click
             }
+
             is MediaItem.SongItem -> {
                 // Handle song item click
-                Log.d("SongsData",item.song.toString())
+                Log.d("SongsData", item.song.toString())
 
             }
 

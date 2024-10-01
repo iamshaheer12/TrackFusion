@@ -2,6 +2,7 @@ package com.example.testprojectmusicplayer.view
 
 import android.os.Bundle
 import android.util.DisplayMetrics
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -35,21 +36,14 @@ class MusicPlayerBottomSheet : BottomSheetDialogFragment() {
     private lateinit var binding: MusciPlayerScreenBinding
 
     @Inject
-    lateinit var glide : RequestManager
+    lateinit var glide: RequestManager
 
     @Inject
     lateinit var userObject: UserObject
 
-    private var userId : String? = null
-    private var albumId :String? = null
-    private var songId :String? = null
-
-
-
-
-
-
-
+    private var userId: String? = null
+    private var albumId: String? = null
+    private var songId: String? = null
 
 
     override fun onCreateView(
@@ -59,16 +53,6 @@ class MusicPlayerBottomSheet : BottomSheetDialogFragment() {
         // Inflate the layout for this bottom sheet
         binding = MusciPlayerScreenBinding.inflate(layoutInflater)
 
-//        // Setting bottom sheet behavior to full screen
-//        val bottomSheetBehavior = BottomSheetBehavior.from(binding.root.parent as View)
-//        bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED // Start collapsed
-//        bottomSheetBehavior.isHideable = false // Prevent hiding the bottom sheet completely
-//        bottomSheetBehavior.peekHeight = 200 // Adjust peek height as necessar
-//        // Set up the full screen behavior
-
-
-
-
         return binding.root
     }
 
@@ -77,7 +61,6 @@ class MusicPlayerBottomSheet : BottomSheetDialogFragment() {
         val user = userObject.getUser()
         userId = user?.userId
         albumId = user?.likedAlbums
-
 
 
         // Initialize BottomSheetBehavior
@@ -94,9 +77,6 @@ class MusicPlayerBottomSheet : BottomSheetDialogFragment() {
         bottomSheetBehavior.peekHeight = screenHeight
 
         // Set up click listener for the arrow button
-        binding.mpArrowDown.setOnClickListener {
-
-        }
 
 
         handleClickOnLikedSong()
@@ -108,22 +88,15 @@ class MusicPlayerBottomSheet : BottomSheetDialogFragment() {
         handleMediaPlayerFunctionality()
 
         handleMediaPlayerObserver()
-        handlePlayPause()
-
-
-
-
-
+        //  handlePlayPause()
 
 
     }
 
 
-
-    private fun likedFunctionalityObserver(){
+    private fun likedFunctionalityObserver() {
         lifecycleScope.launch {
-            homeViewModel.isLikedSong.collect{
-                    state ->
+            homeViewModel.isLikedSong.collect { state ->
                 updateLikedButtonStateSong(state)
 
 
@@ -132,26 +105,29 @@ class MusicPlayerBottomSheet : BottomSheetDialogFragment() {
         }
 
         lifecycleScope.launch {
-            homeViewModel.likedSong.collect{
-                    state ->
-                when(state){
+            homeViewModel.likedSong.collect { state ->
+                when (state) {
                     is UiStates.Loading -> {
-                     //   Toast.makeText(requireContext(), "Loading", Toast.LENGTH_SHORT).show()
+                        //   Toast.makeText(requireContext(), "Loading", Toast.LENGTH_SHORT).show()
 
 
                     }
+
                     is UiStates.Success -> {
-                        Toast.makeText(requireContext(), state.data, Toast.LENGTH_SHORT).show()
+                       // Toast.makeText(requireContext(), state.data, Toast.LENGTH_SHORT).show()
 
 
                     }
+
                     is UiStates.Failure -> {
                         Toast.makeText(requireContext(), state.error, Toast.LENGTH_SHORT).show()
 
 
-                    }is UiStates.Initial ->{
+                    }
 
-                }
+                    is UiStates.Initial -> {
+
+                    }
 
                 }
             }
@@ -159,32 +135,33 @@ class MusicPlayerBottomSheet : BottomSheetDialogFragment() {
         }
 
         lifecycleScope.launch {
-            homeViewModel.unLikedSong.collect{
-                    state ->
-                when(state){
+            homeViewModel.unLikedSong.collect { state ->
+                when (state) {
                     is UiStates.Loading -> {
-                   //     Toast.makeText(requireContext(), "Loading", Toast.LENGTH_SHORT).show()
+                        //     Toast.makeText(requireContext(), "Loading", Toast.LENGTH_SHORT).show()
 
 
                     }
+
                     is UiStates.Success -> {
-                        Toast.makeText(requireContext(), state.data, Toast.LENGTH_SHORT).show()
+                        //Toast.makeText(requireContext(), state.data, Toast.LENGTH_SHORT).show()
 
 
                     }
+
                     is UiStates.Failure -> {
                         Toast.makeText(requireContext(), state.error, Toast.LENGTH_SHORT).show()
 
 
                     }
-                    is UiStates.Initial ->{
+
+                    is UiStates.Initial -> {
 
                     }
                 }
             }
 
         }
-
 
 
     }
@@ -200,19 +177,18 @@ class MusicPlayerBottomSheet : BottomSheetDialogFragment() {
                     homeViewModel.setCurrentSongArtist()
 
                 } else {
-                    Toast.makeText(requireContext(),"Current Song is Empty", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(requireContext(), "Current Song is Empty", Toast.LENGTH_SHORT)
+                        .show()
                 }
             }
 
         }
 
         lifecycleScope.launch {
-            homeViewModel.currentSongArtist.collect{
-                artist ->
-                if (artist != null){
+            homeViewModel.currentSongArtist.collect { artist ->
+                if (artist != null) {
                     initializeArtistCard(artist = artist)
-                }
-                else{
+                } else {
                     binding.mpArtist.visibility = View.GONE
                 }
 
@@ -220,73 +196,63 @@ class MusicPlayerBottomSheet : BottomSheetDialogFragment() {
         }
 
 
-
-
-
     }
 
-    private fun onClick(){
+    private fun onClick() {
         // Assuming you have already initialized bottomSheetBehavior
-        val bottomSheetBehavior = BottomSheetBehavior.from(binding.root.parent as View)
 
         binding.mpArrowDown.setOnClickListener {
-            // Dismiss the bottom sheet by collapsing it
-            if (bottomSheetBehavior.state != BottomSheetBehavior.STATE_COLLAPSED) {
-                bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
-            }
-            // Alternatively, to completely hide it
-            // bottomSheetBehavior.state = BottomSheetBehavior.STATE_HIDDEN
+
+            val bottomSheetBehavior = BottomSheetBehavior.from(binding.root.parent as View)
+
+            bottomSheetBehavior.isHideable = true
+
+            bottomSheetBehavior.state = BottomSheetBehavior.STATE_HIDDEN
+
+
         }
 
     }
 
-    private fun handleClickOnLikedSong(){
+    private fun handleClickOnLikedSong() {
         this.binding.mpLikeBtn
             .setOnClickListener {
-                if (homeViewModel.isLikedSong.value){
-                    homeViewModel.onUnLikedSong(songId?:"",userId?:"", albumId = albumId?:"")
-                }
-                else{
-                    homeViewModel.onLikedSong(songId?:"",userId?:"", albumId = albumId?:"")
+                if (homeViewModel.isLikedSong.value) {
+                    homeViewModel.onUnLikedSong(songId ?: "", userId ?: "", albumId = albumId ?: "")
+                } else {
+                    homeViewModel.onLikedSong(songId ?: "", userId ?: "", albumId = albumId ?: "")
                 }
             }
 
     }
 
 
-
-
-    private fun handleMediaPlayerObserver(){
+    private fun handleMediaPlayerObserver() {
         lifecycleScope.launch {
-            homeViewModel.isPlaying.collect{
-                playing ->
+            homeViewModel.isPlaying.collect { playing ->
                 updatePlayPauseButtonState(playing)
             }
         }
     }
 
-    private fun handlePlayPause(){
-        this.binding.mpPlayBtn
-            .setOnClickListener {
-                if (homeViewModel.isPlaying.value){
-                    homeViewModel.updatePlayPauseState(false)
-                }
-                else{
-                    homeViewModel.updatePlayPauseState(true )
-                }
-            }
+    private fun handlePlayPause() {
+
+        if (homeViewModel.isPlaying.value) {
+            homeViewModel.pauseSong()
+        } else {
+            homeViewModel.playSong()
+        }
 
 
     }
 
-    private fun updatePlayPauseButtonState(isPlaying: Boolean){
-        if (isPlaying){
+    private fun updatePlayPauseButtonState(isPlaying: Boolean) {
+        if (isPlaying) {
 
             this.binding.mpPlayBtn.setImageResource(R.drawable.ic_play)
 
 
-        }
-        else{
+        } else {
             this.binding.mpPlayBtn.setImageResource(R.drawable.ic_play_button_green)
 
 
@@ -294,8 +260,7 @@ class MusicPlayerBottomSheet : BottomSheetDialogFragment() {
     }
 
 
-
-    private fun initUi(song: Song){
+    private fun initUi(song: Song) {
         glide
             .load(song.imageUrl)
             .apply(
@@ -313,21 +278,16 @@ class MusicPlayerBottomSheet : BottomSheetDialogFragment() {
         binding.mpLyricsPreview.lpLyrics.text = song.lyrics
 
 
-
-
     }
 
 
-
-
-    private fun updateLikedButtonStateSong(isLiked: Boolean){
-        if (isLiked){
+    private fun updateLikedButtonStateSong(isLiked: Boolean) {
+        if (isLiked) {
 
             this.binding.mpLikeBtn.setImageResource(R.drawable.liked_button)
 
 
-        }
-        else{
+        } else {
             this.binding.mpLikeBtn.setImageResource(R.drawable.ic_unlike)
 
 
@@ -336,7 +296,7 @@ class MusicPlayerBottomSheet : BottomSheetDialogFragment() {
     }
 
 
-    private fun handlePlaybackPositionOrSeekBar(){
+    private fun handlePlaybackPositionOrSeekBar() {
         binding.mpSeekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
                 if (fromUser) {
@@ -358,6 +318,7 @@ class MusicPlayerBottomSheet : BottomSheetDialogFragment() {
             homeViewModel.playbackPosition.collect { seekBarPosition ->
 
                 binding.mpSeekBar.progress = seekBarPosition
+                binding.mpInitialProgressText.text = seekBarPosition.toString()
 
             }
 
@@ -365,7 +326,7 @@ class MusicPlayerBottomSheet : BottomSheetDialogFragment() {
     }
 
 
-    private fun initializeArtistCard(artist: Artist){
+    private fun initializeArtistCard(artist: Artist) {
         binding.mpArtistCard.abaArtistName.text = artist.name
         //binding.mpArtistCard.
         glide
@@ -380,30 +341,40 @@ class MusicPlayerBottomSheet : BottomSheetDialogFragment() {
 
         binding.mpArtistCard.abaDescription.text = artist.name
 
-        binding.mpArtistCard.abaListenerNo.text = "${artist.followers}Monthly Listner"
+        binding.mpArtistCard.abaListenerNo.text = "${artist.followers} Monthly Listner"
 
     }
 
 
-
-    private fun handleMediaPlayerFunctionality(){
+    private fun handleMediaPlayerFunctionality() {
         binding.mpPreviousBtn.setOnClickListener {
-            homeViewModel.onClickPrevious()
+            Log.d("CLickOnNext","PREVIOUS")
+
+                lifecycleScope.launch {   homeViewModel.onClickPrevious() }
+
 
         }
 
 
         binding.mpPlayBtn.setOnClickListener {
+
+            handlePlayPause()
         }
 
         binding.mpNextBtn.setOnClickListener {
-            homeViewModel.onClickNext()
+            Log.d("CLickOnNext","NEXT")
+
+            lifecycleScope.launch {
+                homeViewModel.onClickNext()
+            }
+
+
 
         }
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
-         // Avoid memory leaks
+        // Avoid memory leaks
     }
 }

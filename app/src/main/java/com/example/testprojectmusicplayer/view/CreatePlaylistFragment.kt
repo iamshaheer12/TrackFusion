@@ -27,15 +27,12 @@ import javax.inject.Inject
 
 @AndroidEntryPoint
 class CreatePlaylistFragment : Fragment() {
-    private lateinit var binding:FragmentCreatePlaylistBinding
+    private lateinit var binding: FragmentCreatePlaylistBinding
     private val viewModel: CreatePlaylistViewModel by viewModels()
     private val args: CreatePlaylistFragmentArgs by navArgs()
 
-
     @Inject
     lateinit var userObject: UserObject
-
-
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -51,7 +48,7 @@ class CreatePlaylistFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         val album = args.playlist
 
-        val user =  userObject.getUser()
+        val user = userObject.getUser()
         initUi(album)
 
         if (user != null) {
@@ -60,30 +57,32 @@ class CreatePlaylistFragment : Fragment() {
         observers()
 
 
-
-
     }
 
     private fun onClick(user: User, album: Album?) {
         binding.createPlaylistCreateBtn.setOnClickListener {
-            if (album != null){
-                viewModel.updateAlbum(album = Album(
-                    createdBy = user.userId,
-                    title = binding.playlistTitle.text.toString(),
-                    descriptions = binding.playlistDescription.text.toString(),
-                    visibility = true
-                ))
+            if (album != null) {
+                viewModel.updateAlbum(
+                    album = Album(
+                        id = album.id,
+                        createdBy = user.userId,
+                        title = binding.playlistTitle.text.toString(),
+                        descriptions = binding.playlistDescription.text.toString(),
+                        visibility = true
+                    )
+                )
 
-            }
-            else {
-                viewModel.createAlbum(album = Album(
-                    createdBy = user.userId,
-                    title = binding.playlistTitle.text.toString(),
-                    descriptions = binding.playlistDescription.text.toString(),
-                    visibility = true
-                ))
-            }
+            } else {
+                viewModel.createAlbum(
+                    album = Album(
 
+                        createdBy = user.userId,
+                        title = binding.playlistTitle.text.toString(),
+                        descriptions = binding.playlistDescription.text.toString(),
+                        visibility = true
+                    )
+                )
+            }
 
 
         }
@@ -94,32 +93,40 @@ class CreatePlaylistFragment : Fragment() {
 
     }
 
-    private fun observers(){
+    private fun observers() {
 
         lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.STARTED){
-                viewModel.createAlbum.collect{
-                    state->
-                    when(state){
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.createAlbum.collect { state ->
+                    when (state) {
                         is UiStates.Loading -> {
-                            Toast.makeText(requireContext(),"Loading",Toast.LENGTH_SHORT).show()
+                            binding.createPlaylistProgressBar.progressBar.visibility = View.VISIBLE
+                          //  Toast.makeText(requireContext(), "Loading", Toast.LENGTH_SHORT).show()
 
                         }
+
                         is UiStates.Success -> {
 
-
-                            Toast.makeText(requireContext(),"Created Successfully",Toast.LENGTH_SHORT).show()
+                            binding.createPlaylistProgressBar.progressBar.visibility = View.GONE
+                            Toast.makeText(
+                                requireContext(),
+                                "Created Successfully",
+                                Toast.LENGTH_SHORT
+                            ).show()
 
                             findNavController().popBackStack()
 
 
                         }
+
                         is UiStates.Failure -> {
-                            Toast.makeText(requireContext(),state.error,Toast.LENGTH_SHORT).show()
+                            binding.createPlaylistProgressBar.progressBar.visibility = View.GONE
+                            Toast.makeText(requireContext(), state.error, Toast.LENGTH_SHORT).show()
 
 
                         }
-                        is UiStates.Initial ->{
+
+                        is UiStates.Initial -> {
 
                         }
 
@@ -128,37 +135,48 @@ class CreatePlaylistFragment : Fragment() {
                 }
 
 
-
             }
-            launch {
-                viewModel.updateAlbum.collect{
-                   state ->
-                    when(state){
-                        is UiStates.Loading -> {
-                            Toast.makeText(requireContext(),"Loading",Toast.LENGTH_SHORT).show()
 
-                        }
-                        is UiStates.Success -> {
-                            Toast.makeText(requireContext(),"Successfully Updated",Toast.LENGTH_SHORT).show()
-                            findNavController().popBackStack()
 
-                        }
-                        is UiStates.Failure -> {
-                            Toast.makeText(requireContext(),state.error,Toast.LENGTH_SHORT).show()
+        }
+      lifecycleScope.launch {
+            viewModel.updateAlbum.collect { state ->
+                when (state) {
+                    is UiStates.Loading -> {
+                        binding.createPlaylistProgressBar.progressBar.visibility = View.VISIBLE
+                        //   Toast.makeText(requireContext(), "Loading", Toast.LENGTH_SHORT).show()
 
-                        }
-                        is UiStates.Initial ->{
+                    }
 
-                        }
+                    is UiStates.Success -> {
+
+                        binding.createPlaylistProgressBar.progressBar.visibility = View.GONE
+                        Toast.makeText(
+                            requireContext(),
+                            "Successfully Updated",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                        findNavController().popBackStack()
+
+                    }
+
+                    is UiStates.Failure -> {
+                        binding.createPlaylistProgressBar.progressBar.visibility = View.GONE
+                        Toast.makeText(requireContext(), state.error, Toast.LENGTH_SHORT).show()
+
+                    }
+
+                    is UiStates.Initial -> {
+
                     }
                 }
             }
-
         }
 
     }
-    private fun initUi(album: Album?){
-        if (album != null){
+
+    private fun initUi(album: Album?) {
+        if (album != null) {
             binding.createPlaylistCreateBtn.text = "Update"
             binding.playlistTitle.setText(album.title)
             binding.playlistDescription.setText(album.descriptions)

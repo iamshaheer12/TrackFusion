@@ -16,9 +16,8 @@ import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class SearchFragment : Fragment() {
-   private lateinit var binding: FragmentSearchBinding
+    private lateinit var binding: FragmentSearchBinding
     private lateinit var categoryGrid: GridView
-
 
 
     override fun onCreateView(
@@ -39,22 +38,22 @@ class SearchFragment : Fragment() {
 
     }
 
-    private fun onClick(){
+    private fun onClick() {
         binding.searchBar.setOnClickListener {
             findNavController().navigate(R.id.action_searchFragment_to_searchScreen2Fragment)
         }
     }
 
 
-    private fun settingAdapter(){
-        categoryGrid =binding.searchCategoryItems
+    private fun settingAdapter() {
+        categoryGrid = binding.searchCategoryItems
         categoryGrid.numColumns = 2
 
         val adapter = GenresAdapterForSearch(requireContext(), provideGridData())
         categoryGrid.adapter = adapter
     }
 
-    private fun provideGridData(): ArrayList<RecentPlayCard>{
+    private fun provideGridData(): ArrayList<RecentPlayCard> {
         return arrayListOf(
             RecentPlayCard(title = "Pop", image = R.drawable.atif),
             RecentPlayCard(title = "Bollywood", image = R.drawable.atif),

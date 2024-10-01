@@ -38,7 +38,6 @@ class AudioPlaybackService : Service() {
     private var mediaPlayer: MediaPlayer? = null
     private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
 
-
     private var playbackCallback: PlaybackCallback? = null
     private var audioFiles: List<Song> = emptyList()
     private var currentSongIndex = 0
@@ -49,12 +48,8 @@ class AudioPlaybackService : Service() {
         fun getService(): AudioPlaybackService = this@AudioPlaybackService
     }
 
-
-
-    fun updateSongList(songs:List<Song>){
+    fun updateSongList(songs: List<Song>) {
         audioFiles = songs
-
-
     }
 
     interface PlaybackCallback {
@@ -64,8 +59,6 @@ class AudioPlaybackService : Service() {
         fun onPlaybackError(error: String)
         fun onSongChanged(song: Song)
         fun onIndexChanged(index: Int)
-
-
         fun onPlaybackStateChanged(isPlaying: Boolean)
     }
 
@@ -73,6 +66,7 @@ class AudioPlaybackService : Service() {
         super.onCreate()
         setupMediaPlayer()
         createNotificationChannel()
+       // setPlaybackCallback()
 
         mediaSession = MediaSessionCompat(this, "AudioPlaybackService").apply {
             setCallback(mediaSessionCallback)
@@ -102,10 +96,7 @@ class AudioPlaybackService : Service() {
         return START_STICKY
     }
 
-
-    override fun onBind(intent: Intent): IBinder {
-        return binder
-    }
+    override fun onBind(intent: Intent): IBinder = binder
 
     override fun onDestroy() {
         super.onDestroy()
@@ -124,22 +115,19 @@ class AudioPlaybackService : Service() {
                 try {
                     val newSong = audioFiles[index]
                     val currentSong = mediaPlayer?.let {
-                        // Check if MediaPlayer has an active data source
                         it.isPlaying || it.currentPosition > 0
                     } == true && audioFiles.getOrNull(currentSongIndex)?.audioFile == newSong.audioFile
 
-                    // If the current song is the same, resume playback if paused
                     if (currentSong && mediaPlayer?.isPlaying == false) {
-                        mediaPlayer?.start() // Resume the song
+                        mediaPlayer?.start()
                         notifyPlaybackStateChanged(true)
                         updateNotification()
                         return@launch
                     }
 
-                    // If a different song is requested, start playing the new song
-                    mediaPlayer?.reset()  // Reset instead of release
+                    mediaPlayer?.reset()
                     mediaPlayer?.setDataSource(newSong.audioFile)
-                    mediaPlayer?.prepareAsync()  // Prepare asynchronously
+                    mediaPlayer?.prepareAsync()
 
                     mediaPlayer?.setOnPreparedListener {
                         it.start()
@@ -159,8 +147,6 @@ class AudioPlaybackService : Service() {
                     }
 
                     notifySongChanged(newSong)
-
-                    // Update the current song index
                     currentSongIndex = index
 
                 } catch (e: Exception) {
@@ -172,8 +158,6 @@ class AudioPlaybackService : Service() {
         }
     }
 
-
-
     fun pausePlayback() {
         mediaPlayer?.takeIf { it.isPlaying }?.pause()
         notifyPlaybackStateChanged(false)
@@ -181,7 +165,7 @@ class AudioPlaybackService : Service() {
     }
 
     fun resumePlayback() {
-        mediaPlayer?.takeIf { !it.isPlaying }?.start()  // Resume playback if not already playing
+        mediaPlayer?.takeIf { !it.isPlaying }?.start()
         notifyPlaybackStateChanged(true)
         updateNotification()
     }
@@ -189,42 +173,35 @@ class AudioPlaybackService : Service() {
     fun stopPlayback() {
         mediaPlayer?.takeIf { it.isPlaying }?.stop()
         notifyPlaybackStopped()
+        notifyPlaybackStateChanged(false)
         updateNotification()
     }
 
     fun seekTo(position: Int) {
-        mediaPlayer?.takeIf { it.isPlaying }?.seekTo(position)
+        mediaPlayer?.seekTo(position)
+        notifyPositionChange()
     }
 
-     fun nextSong() {
+    fun nextSong() {
         if (currentSongIndex < audioFiles.size - 1) {
             currentSongIndex++
             playSong(currentSongIndex)
-            notifyIndexChanged()
-            notifySongChanged(song = audioFiles[currentSongIndex])
-
-
-        }
-        else if (currentSongIndex == audioFiles.size ){
-
-            notifyPlaybackStopped()
-            notifyPlaybackCompleted()
-
-
+            notifySongChanged(audioFiles[currentSongIndex])
+         //   notifyIndexChanged(currentSongIndex)
+        } else {
+            stopPlayback()
         }
     }
 
-     fun previousSong() {
+    fun previousSong() {
         if (currentSongIndex > 0) {
             currentSongIndex--
             playSong(currentSongIndex)
-            notifyIndexChanged()
-            notifySongChanged(song = audioFiles[currentSongIndex])
+            notifySongChanged(audioFiles[currentSongIndex])
         }
-        else if (currentSongIndex == 0){
-            notifyIndexChanged()
+        else{
+            stopPlayback()
 
-            notifyPlaybackCompleted()
         }
     }
 
@@ -261,6 +238,7 @@ class AudioPlaybackService : Service() {
 
     private fun notifySongChanged(song: Song) {
         playbackCallback?.onSongChanged(song)
+        Log.d("SongChanged", song.toString())
     }
 
     private fun notifyPlaybackStateChanged(isPlaying: Boolean) {
@@ -279,15 +257,9 @@ class AudioPlaybackService : Service() {
         playbackCallback?.onPlaybackError(error)
     }
 
-
-
     private fun notifyPositionChange() {
         val position = mediaPlayer?.currentPosition ?: 0
         playbackCallback?.onPlaybackPositionChanged(position)
-    }
-
-    private fun notifyIndexChanged(){
-        playbackCallback?.onIndexChanged(currentSongIndex)
     }
 
     @SuppressLint("RemoteViewLayout")
@@ -302,10 +274,10 @@ class AudioPlaybackService : Service() {
         }
 
         if (mediaPlayer?.isPlaying == true) {
-            customView.setImageViewResource(R.id.notification_play, R.drawable.ic_play_button_green)  // Corrected pause icon
+            customView.setImageViewResource(R.id.notification_play, R.drawable.ic_play_button_green)
             customView.setOnClickPendingIntent(R.id.notification_play, getPendingIntent(ACTION_PAUSE))
         } else {
-            customView.setImageViewResource(R.id.notification_play, R.drawable.ic_play)  // Corrected play icon
+            customView.setImageViewResource(R.id.notification_play, R.drawable.ic_play)
             customView.setOnClickPendingIntent(R.id.notification_play, getPendingIntent(ACTION_PLAY))
         }
 
@@ -319,15 +291,14 @@ class AudioPlaybackService : Service() {
             .setStyle(
                 androidx.media.app.NotificationCompat.MediaStyle()
                     .setMediaSession(mediaSession.sessionToken)
-                    .setShowActionsInCompactView(0, 1, 2)  // Ensuring controls are shown in the compact view
+                    .setShowActionsInCompactView(0, 1, 2)
             )
-            .setPriority(NotificationCompat.PRIORITY_LOW)  // Priority set to Low to prevent sound or heads-up notifications
-            .setOngoing(true)  // Ensures the notification is ongoing
+            .setPriority(NotificationCompat.PRIORITY_LOW)
+            .setOngoing(true)
             .build()
 
         notificationManager.notify(serviceId, notification)
     }
-
 
     private fun createNotificationChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -340,39 +311,46 @@ class AudioPlaybackService : Service() {
         }
     }
 
-
     @SuppressLint("ObsoleteSdkInt")
     private fun getPendingIntent(action: String): PendingIntent {
-        val intent = Intent(this, AudioPlaybackService::class.java).apply { this.action = action }
-        val pendingFlags = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-        } else {
-            PendingIntent.FLAG_UPDATE_CURRENT
+        val intent = Intent(this, AudioPlaybackService::class.java).apply {
+            this.action = action
         }
-        return PendingIntent.getService(this, 0, intent, pendingFlags)
+        return PendingIntent.getService(this, 0, intent, PendingIntent.FLAG_MUTABLE)
     }
 
     private val becomingNoisyReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
-            pausePlayback()
+            if (AudioManager.ACTION_AUDIO_BECOMING_NOISY == intent?.action) {
+                pausePlayback()
+            }
         }
     }
 
-    private val mediaSessionCallback = object : MediaSessionCompat.Callback() {
+
+     val mediaSessionCallback = object : MediaSessionCompat.Callback() {
         override fun onPlay() {
-            playSong(currentSongIndex)
+            resumePlayback()
         }
 
         override fun onPause() {
             pausePlayback()
         }
 
+        override fun onSeekTo(pos: Long) {
+            super.onSeekTo(pos)
+            seekTo(pos.toInt())
+        }
         override fun onSkipToNext() {
             nextSong()
         }
 
         override fun onSkipToPrevious() {
             previousSong()
+        }
+
+        override fun onStop() {
+            stopPlayback()
         }
     }
 

@@ -1,42 +1,44 @@
-<ScrollView xmlns:tools="http://schemas.android.com/tools"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
 
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    tools:ignore="MissingPrefix" android:layout_width="match_parent">
-    <androidx.constraintlayout.widget.ConstraintLayout
+    tools:ignore="MissingPrefix">
+
+    <androidx.constraintlayout.widget.ConstraintLayout xmlns:app="http://schemas.android.com/apk/res-auto"
         android:layout_width="match_parent"
-        xmlns:app="http://schemas.android.com/apk/res-auto"
         android:layout_height="match_parent"
         tools:context=".view.SignUpFragment"
         tools:ignore="ScrollViewSize">
+
         <LinearLayout
             android:id="@+id/su_linear_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
             android:gravity="center_vertical"
+            android:orientation="horizontal"
             app:layout_constraintTop_toTopOf="parent">
 
             <ImageView
                 android:id="@+id/arrow_back"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
+                android:layout_gravity="center_vertical"
                 android:layout_marginLeft="16dp"
-                android:layout_marginBottom="16dp"
+                android:layout_marginTop="16dp"
 
+                android:layout_marginBottom="16dp"
                 android:clickable="true"
-                android:src="@drawable/arrow_back"
-                android:layout_gravity="center_vertical" />
+                android:src="@drawable/arrow_back" />
 
             <TextView
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:textSize="@dimen/default_text_size"
-                android:textStyle="bold"
+                android:gravity="center"
                 android:text="@string/create_account"
-                android:gravity="center" />
+                android:textSize="@dimen/default_text_size"
+                android:textStyle="bold" />
         </LinearLayout>
 
         <ImageView
@@ -48,6 +50,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/su_linear_layout" />
+
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/su_user_name_layout"
             style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox"
@@ -58,7 +61,7 @@
             android:layout_marginEnd="16dp"
             app:hintEnabled="false"
 
-        app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/su_spotify_icon">
 
@@ -81,22 +84,23 @@
 
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:layout_constraintTop_toBottomOf="@+id/su_user_name_layout"
-            app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            >
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/su_user_name_layout">
+
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/su_user_dob_layout"
                 style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox"
                 android:layout_width="0dp"
 
-                android:layout_weight="1"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
                 android:layout_marginTop="16dp"
                 android:layout_marginEnd="16dp"
+                android:layout_weight="1"
+
                 app:layout_constraintEnd_toEndOf="parent"
-                app:hintEnabled="false"
+
 
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/su_user_name_layout">
@@ -104,14 +108,15 @@
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/su_dob_name"
-                    android:clickable="true"
-                    android:focusable="true"
                     android:layout_width="match_parent"
                     android:layout_height="60dp"
-
-                    android:hint="@string/date_of_birth"
+                    android:clickable="true"
                     android:cursorVisible="false"
+
+
                     android:drawableEnd="@drawable/calendar"
+                    android:focusable="false"
+                    android:hint="@string/date_of_birth"
 
                     android:maxLines="1"
                     android:padding="12dp"
@@ -119,16 +124,17 @@
                     android:textSize="18sp" />
 
             </com.google.android.material.textfield.TextInputLayout>
+
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/su_gender_layout"
                 style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.ExposedDropdownMenu"
                 android:layout_width="0dp"
-                android:layout_weight="1"
                 android:layout_height="60dp"
+                android:layout_marginTop="16dp"
                 android:layout_marginEnd="16dp"
 
 
-                android:layout_marginTop="16dp"
+                android:layout_weight="1"
                 app:layout_constraintHeight_percent="1">
 
                 <AutoCompleteTextView
@@ -137,12 +143,13 @@
                     android:layout_height="match_parent"
                     android:inputType="none"
                     android:padding="12dp"
-                    android:textColor="@color/spotify_dark_gray"
                     android:text="@string/select_gender"
+                    android:textColor="@color/spotify_dark_gray"
                     tools:ignore="LabelFor" />
             </com.google.android.material.textfield.TextInputLayout>
 
         </LinearLayout>
+
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/su_email_layout"
             style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox"
@@ -151,9 +158,9 @@
             android:layout_marginStart="16dp"
             android:layout_marginTop="16dp"
             android:layout_marginEnd="16dp"
+            app:hintEnabled="false"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:hintEnabled="false"
             app:layout_constraintTop_toBottomOf="@+id/su_dg_linear">
 
             <com.google.android.material.textfield.TextInputEditText
@@ -167,6 +174,7 @@
                 android:textColor="@android:color/black"
                 android:textSize="18sp" />
         </com.google.android.material.textfield.TextInputLayout>
+
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/su_user_password_layout"
             style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox"
@@ -175,11 +183,12 @@
             android:layout_marginStart="16dp"
             android:layout_marginTop="16dp"
             android:layout_marginEnd="16dp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:passwordToggleEnabled="true"
             app:hintEnabled="false"
+            app:errorIconDrawable="@null"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/su_email_layout">
+            app:layout_constraintTop_toBottomOf="@+id/su_email_layout"
+            app:passwordToggleEnabled="true">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/su_password"
@@ -194,8 +203,6 @@
         </com.google.android.material.textfield.TextInputLayout>
 
 
-
-
         <Button
             android:id="@+id/su_button"
             android:layout_width="match_parent"
@@ -203,31 +210,24 @@
             android:layout_margin="16dp"
             android:backgroundTint="@color/spotify_green"
             android:text="@string/create"
-            android:textSize="@dimen/default_text_size"
             android:textColor="@color/spotify_black"
+            android:textSize="@dimen/default_text_size"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/su_user_password_layout" />
 
 
-
-
         <include
             android:id="@+id/su_progress_bar"
             layout="@layout/progress_bar"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-
             android:visibility="invisible"
-            app:layout_constraintTop_toTopOf="@+id/su_button"
             app:layout_constraintBottom_toBottomOf="@+id/su_button"
 
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/su_button"
+
             />
-
-
-
-
-
 
 
     </androidx.constraintlayout.widget.ConstraintLayout>

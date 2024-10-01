@@ -37,14 +37,19 @@ class SearchViewModel @Inject constructor(
 //    private val _combinedMediaItems = MutableStateFlow<UiStates<List<MediaItem>>>(UiStates.Loading)
 //    val combinedMediaItems: StateFlow<UiStates<List<MediaItem>>> = _combinedMediaItems
 
-    private val _filteredMediaItems = MutableStateFlow<UiStates<List<MediaItem>>>(UiStates.Success(emptyList()))
+    private val _filteredMediaItems =
+        MutableStateFlow<UiStates<List<MediaItem>>>(UiStates.Success(emptyList()))
     val filteredMediaItems: StateFlow<UiStates<List<MediaItem>>> = _filteredMediaItems
 
     private val allMediaItems = mutableListOf<MediaItem>() // Holds all media items initially loaded
 
     init {
         viewModelScope.launch {
-            combine(_allSongsState, _allAlbumsState, _allArtistsState) { songsState, albumsState, artistsState ->
+            combine(
+                _allSongsState,
+                _allAlbumsState,
+                _allArtistsState
+            ) { songsState, albumsState, artistsState ->
                 val currentSongs = (songsState as? UiStates.Success)?.data ?: emptyList()
                 val currentAlbums = (albumsState as? UiStates.Success)?.data ?: emptyList()
                 val currentArtists = (artistsState as? UiStates.Success)?.data ?: emptyList()
@@ -99,8 +104,16 @@ class SearchViewModel @Inject constructor(
             } else {
                 allMediaItems.filter { item ->
                     when (item) {
-                        is MediaItem.ArtistItem -> item.artist.name.contains(query, ignoreCase = true)
-                        is MediaItem.AlbumItem -> item.album.title.contains(query, ignoreCase = true)
+                        is MediaItem.ArtistItem -> item.artist.name.contains(
+                            query,
+                            ignoreCase = true
+                        )
+
+                        is MediaItem.AlbumItem -> item.album.title.contains(
+                            query,
+                            ignoreCase = true
+                        )
+
                         is MediaItem.SongItem -> item.song.title.contains(query, ignoreCase = true)
 
                     }

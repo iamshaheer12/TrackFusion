@@ -132,6 +132,9 @@
         <action
             android:id="@+id/action_libPlaylistFragment_to_addSongFragment"
             app:destination="@id/addSongFragment" />
+        <action
+            android:id="@+id/action_libPlaylistFragment_to_createPlaylistFragment2"
+            app:destination="@id/createPlaylistFragment2" />
     </fragment>
     <fragment
         android:id="@+id/editProfileFragment"

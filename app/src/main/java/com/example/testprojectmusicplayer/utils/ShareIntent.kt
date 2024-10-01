@@ -13,7 +13,7 @@ object ShareIntent {
             putExtra(Intent.EXTRA_TEXT, playlistUrl) // Add the URL to share
             type = "text/plain" // Specify MIME type
         }
-        return Intent.createChooser(shareIntent, "Share Playlist") // Optional: Add a chooser for selecting sharing method
+        return Intent.createChooser(shareIntent, "playlistUrl") // Optional: Add a chooser for selecting sharing method
     }
 
 

@@ -21,8 +21,8 @@ import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class StartingFragment : Fragment() {
-  private lateinit var binding: FragmentStartingBinding
-  private val authViewModel:AuthViewModel by viewModels()
+    private lateinit var binding: FragmentStartingBinding
+    private val authViewModel: AuthViewModel by viewModels()
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -30,13 +30,14 @@ class StartingFragment : Fragment() {
         binding = FragmentStartingBinding.inflate(layoutInflater)
         return binding.root
     }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         onClick()
         observer()
     }
 
-    private fun onClick(){
+    private fun onClick() {
         binding.stSignUpBtn.setOnClickListener {
             findNavController().navigate(R.id.action_startingFragment_to_signUpFragment)
         }
@@ -51,9 +52,9 @@ class StartingFragment : Fragment() {
     }
 
 
-    private fun observer(){
+    private fun observer() {
         lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.STARTED){
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
                 authViewModel.googleLoginState.collect { uiState ->
                     // Handle the collected UI state
                     when (uiState) {
@@ -62,14 +63,17 @@ class StartingFragment : Fragment() {
                             Toast.makeText(context, uiState.data, Toast.LENGTH_SHORT).show()
                             findNavController().navigate(R.id.action_startingFragment_to_mainFragment)
                         }
+
                         is UiStates.Failure -> {
                             // Handle failure
                             Toast.makeText(context, uiState.error, Toast.LENGTH_SHORT).show()
                         }
+
                         is UiStates.Loading -> {
                             // Handle loading state
                         }
-                        is UiStates.Initial ->{
+
+                        is UiStates.Initial -> {
 
                         }
 
@@ -80,12 +84,7 @@ class StartingFragment : Fragment() {
         }
 
 
-
     }
-
-
-
-
 
 
 }

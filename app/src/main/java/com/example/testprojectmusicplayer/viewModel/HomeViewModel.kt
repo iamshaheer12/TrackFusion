@@ -2,6 +2,7 @@ package com.example.testprojectmusicplayer.viewModel
 
 import com.example.testprojectmusicplayer.utils.AudioPlaybackServiceProvider
 import android.util.Log
+import android.view.View
 import com.example.testprojectmusicplayer.utils.MediaItem
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -29,84 +30,87 @@ class HomeViewModel @Inject constructor(
     private val artistRepository: ArtistRepository,
     private val audioPlaybackServiceProvider: AudioPlaybackServiceProvider
 
-)  :ViewModel() {
+) : ViewModel() {
 
 
-//    private val _allSongsState  = MutableStateFlow<UiStates<List<Song>>>(UiStates.Loading)
-//    val allSongsState :StateFlow<UiStates<List<Song>>> = _allSongsState
 
     private var isSongListSent = false
 
 
 
-    private val _songListState  = MutableStateFlow<UiStates<List<Song>>>(UiStates.Initial)
-    val songListState :StateFlow<UiStates<List<Song>>> = _songListState
-//// Managing like strategy for song
+    private val _songListState = MutableStateFlow<UiStates<List<Song>>>(UiStates.Initial)
+    val songListState: StateFlow<UiStates<List<Song>>> = _songListState
 
 
-    private val _likedSong  = MutableStateFlow<UiStates<String>>(UiStates.Loading)
-    val likedSong :StateFlow<UiStates<String>> = _likedSong
+    private val _likedSong = MutableStateFlow<UiStates<String>>(UiStates.Loading)
+    val likedSong: StateFlow<UiStates<String>> = _likedSong
 
-    private val _unLikedSong  = MutableStateFlow<UiStates<String>>(UiStates.Loading)
-    val unLikedSong :StateFlow<UiStates<String>> = _unLikedSong
+    private val _unLikedSong = MutableStateFlow<UiStates<String>>(UiStates.Loading)
+    val unLikedSong: StateFlow<UiStates<String>> = _unLikedSong
 
-    private val _isLikedSong  = MutableStateFlow<Boolean>(false)
-    val isLikedSong :StateFlow<Boolean> = _isLikedSong
+    private val _isLikedSong = MutableStateFlow<Boolean>(false)
+    val isLikedSong: StateFlow<Boolean> = _isLikedSong
+
+    private val _removeSongFromPlaylist = MutableStateFlow<UiStates<String>>(UiStates.Initial)
+    val removeSongFromPlaylist: StateFlow<UiStates<String>> = _removeSongFromPlaylist
+
+
 //// Managing like strategy for Albums
 
     private val _currentAlbum = MutableStateFlow<UiStates<Album?>>(UiStates.Initial)
-    val currentAlbum : StateFlow<UiStates<Album?>> = _currentAlbum
+    val currentAlbum: StateFlow<UiStates<Album?>> = _currentAlbum
 
-    private val _currentAlbumId  = MutableStateFlow<String?>(null)
-    val currentAlbumId :StateFlow<String?> = _currentAlbumId
+    private val _currentAlbumId = MutableStateFlow<String?>(null)
+    val currentAlbumId: StateFlow<String?> = _currentAlbumId
 
-    private val _likedAlbum  = MutableStateFlow<UiStates<String>>(UiStates.Loading)
-    val likedAlbum :StateFlow<UiStates<String>> = _likedAlbum
+    private val _likedAlbum = MutableStateFlow<UiStates<String>>(UiStates.Loading)
+    val likedAlbum: StateFlow<UiStates<String>> = _likedAlbum
 
-    private val _unLikedAlbum  = MutableStateFlow<UiStates<String>>(UiStates.Loading)
-    val unLikedAlbum :StateFlow<UiStates<String>> = _unLikedAlbum
+    private val _unLikedAlbum = MutableStateFlow<UiStates<String>>(UiStates.Loading)
+    val unLikedAlbum: StateFlow<UiStates<String>> = _unLikedAlbum
 
-    private val _isLikedAlbum  = MutableStateFlow<Boolean>(false)
-    val isLikedAlbum :StateFlow<Boolean> = _isLikedAlbum
+    private val _isLikedAlbum = MutableStateFlow<Boolean>(false)
+    val isLikedAlbum: StateFlow<Boolean> = _isLikedAlbum
 
 
     private val _getRecentPlayedAlbum = MutableStateFlow<UiStates<List<Album>>>(UiStates.Loading)
-    val  getRecentPlayedAlbum :StateFlow<UiStates<List<Album>>> = _getRecentPlayedAlbum
+    val getRecentPlayedAlbum: StateFlow<UiStates<List<Album>>> = _getRecentPlayedAlbum
 
-    private val _allAlbumsState  = MutableStateFlow<UiStates<List<Album>>>(UiStates.Loading)
-    val allAlbumsState :StateFlow<UiStates<List<Album>>> = _allAlbumsState
+    private val _allAlbumsState = MutableStateFlow<UiStates<List<Album>>>(UiStates.Loading)
+    val allAlbumsState: StateFlow<UiStates<List<Album>>> = _allAlbumsState
+
+    private val _deleteAlbum = MutableStateFlow<UiStates<String>>(UiStates.Initial)
+    val deleteAlbum: StateFlow<UiStates<String>> = _deleteAlbum
 
 
-    private val _allArtistsState  = MutableStateFlow<UiStates<List<Artist>>>(UiStates.Loading)
-    val allArtistsState :StateFlow<UiStates<List<Artist>>> = _allArtistsState
+    private val _allArtistsState = MutableStateFlow<UiStates<List<Artist>>>(UiStates.Loading)
+    val allArtistsState: StateFlow<UiStates<List<Artist>>> = _allArtistsState
     private val _currentArtist = MutableStateFlow<UiStates<Artist?>>(UiStates.Initial)
-    val currentArtist : StateFlow<UiStates<Artist?>> = _currentArtist
+    val currentArtist: StateFlow<UiStates<Artist?>> = _currentArtist
 
     private val _currentSongArtist = MutableStateFlow<Artist?>(null)
-    val currentSongArtist :StateFlow<Artist?> = _currentSongArtist
+    val currentSongArtist: StateFlow<Artist?> = _currentSongArtist
 
-    private val _currentArtistId  = MutableStateFlow<String?>(null)
-    val currentArtistId :StateFlow<String?> = _currentArtistId
+    private val _currentArtistId = MutableStateFlow<String?>(null)
+    val currentArtistId: StateFlow<String?> = _currentArtistId
 
 
-    private val _likedArtist  = MutableStateFlow<UiStates<String>>(UiStates.Loading)
-    val likedArtist :StateFlow<UiStates<String>> = _likedArtist
+    private val _likedArtist = MutableStateFlow<UiStates<String>>(UiStates.Loading)
+    val likedArtist: StateFlow<UiStates<String>> = _likedArtist
 
-    private val _unLikedArtist  = MutableStateFlow<UiStates<String>>(UiStates.Loading)
-    val unLikedArtist :StateFlow<UiStates<String>> = _unLikedArtist
+    private val _unLikedArtist = MutableStateFlow<UiStates<String>>(UiStates.Loading)
+    val unLikedArtist: StateFlow<UiStates<String>> = _unLikedArtist
 
-    private val _isLikedArtist  = MutableStateFlow<Boolean>(false)
-    val isLikedArtist :StateFlow<Boolean> = _isLikedArtist
-
+    private val _isLikedArtist = MutableStateFlow<Boolean>(false)
+    val isLikedArtist: StateFlow<Boolean> = _isLikedArtist
 
 
     private val _combinedMediaItems = MutableStateFlow<UiStates<List<MediaItem>>>(UiStates.Loading)
     val combinedMediaItems: StateFlow<UiStates<List<MediaItem>>> = _combinedMediaItems
-   //// service function
+    //// service function
 
 
-
-   private val _currentSong = MutableStateFlow<Song?>(null)
+    private val _currentSong = MutableStateFlow<Song?>(null)
     val currentSong: StateFlow<Song?> get() = _currentSong
 
 
@@ -122,75 +126,26 @@ class HomeViewModel @Inject constructor(
 
 
 
-//    private val audioPlaybackService: AudioPlaybackService
-//        get() = audioPlaybackServiceProvider.getService()
-
-
-
-
 
 
     init {
-
-
-        ///
-        try {
-            val service = audioPlaybackServiceProvider.getService {service ->
-                service.setPlaybackCallback(object : AudioPlaybackService.PlaybackCallback {
-                    override fun onIndexChanged(index: Int) {
-                        _currentSongIndex.value = index
-                    }
-                    override fun onPlaybackPositionChanged(position: Int) {
-                        _playbackPosition.value = position
-                    }
-
-                    override fun onPlaybackCompleted() {
-                        _isPlaying.value = false
-                    }
-
-                    override fun onPlaybackStopped() {
-                        _isPlaying.value = false
-                    }
-
-                    override fun onPlaybackError(error: String) {
-                        // Handle playback error (e.g., show a message to the user)
-                    }
-
-                    override fun onSongChanged(song: Song) {
-                        _currentSong.value = song
-                    }
-
-                    override fun onPlaybackStateChanged(isPlaying: Boolean) {
-                        _isPlaying.value = isPlaying
-                    }
-
-                })
-
-
-            }
-
-
-        }
-       catch (e: IllegalStateException) {
-            Log.e("HomeViewModel", "Error initializing service: ${e.message}")
-        }
-        // Register callbacks with the service
-
+        setupPlaybackCallback()
     }
 
 
-    fun onLikedSong(songId:String,userId:String,albumId: String){
+    fun onLikedSong(songId: String, userId: String, albumId: String) {
         viewModelScope.launch {
-            songRepository.onLikedSong(songId = songId, userId = userId, albumId = albumId){
-              _likedSong.value = it
+            songRepository.onLikedSong(songId = songId, userId = userId, albumId = albumId) {
+                _likedSong.value = it
 
             }
         }
 
     }
-    fun onUnLikedSong(songId:String,userId:String,albumId: String){
+
+    fun onUnLikedSong(songId: String, userId: String, albumId: String) {
         viewModelScope.launch {
-            songRepository.unLikedSong(songId = songId, userId = userId, albumId = albumId){
+            songRepository.unLikedSong(songId = songId, userId = userId, albumId = albumId) {
                 _unLikedSong.update { it }
 
             }
@@ -198,35 +153,50 @@ class HomeViewModel @Inject constructor(
 
     }
 
-    fun isLikedSong(songId: String,userId: String){
+    fun isLikedSong(songId: String, userId: String) {
         viewModelScope.launch {
-        val likeState =     songRepository.isSongLikedByUser(songId = songId, userId = userId){
-            state ->
-            _isLikedSong.value = state
-        }
 
-        }
-    }
+            songRepository.isSongLikedByUser(songId = songId, userId = userId) { state ->
+                _isLikedSong.value = state
+            }
 
-
-    fun addIntoRecentPlay(userId: String,album: Album){
-        viewModelScope.launch {
-            albumRepository.addAlbumToRecentlyPlayed(userId= userId, album = album)
         }
     }
 
 
-    fun onLikedAlbum(albumId:String,userId:String){
+    fun removeSongFromAlbum(songId: String, albumId: String) {
         viewModelScope.launch {
-            albumRepository.onLikedAlbum(albumId = albumId, id = userId){
+            _removeSongFromPlaylist.update {UiStates.Loading}
+
+            albumRepository.removeSongFromAlbum(songId = songId, albumId = albumId) {
+                _removeSongFromPlaylist.update {
+                    Log.d("removeSongFromAlbum", "removeSongFromAlbum: ")
+                    it
+                }
+            }
+        }
+    }
+
+
+    fun addIntoRecentPlay(userId: String, album: Album) {
+        viewModelScope.launch {
+            albumRepository.addAlbumToRecentlyPlayed(userId = userId, album = album)
+        }
+    }
+
+
+    fun onLikedAlbum(albumId: String, userId: String) {
+        viewModelScope.launch {
+            albumRepository.onLikedAlbum(albumId = albumId, id = userId) {
                 _likedAlbum.update { it }
 
             }
         }
     }
-    fun onUnLikedAlbum(albumId:String,userId:String){
+
+    fun onUnLikedAlbum(albumId: String, userId: String) {
         viewModelScope.launch {
-            albumRepository.unLikedAlbum(albumId = albumId, id = userId){
+            albumRepository.unLikedAlbum(albumId = albumId, id = userId) {
                 _unLikedAlbum.update { it }
 
             }
@@ -234,20 +204,31 @@ class HomeViewModel @Inject constructor(
 
     }
 
-    fun isLikedAlbum(albumId: String ,userId: String){
+
+    fun isLikedAlbum(albumId: String, userId: String) {
         viewModelScope.launch {
-                albumRepository.isAlbumLikedByUser(albumId = albumId, userId = userId){
-                    state ->
-                    _isLikedAlbum.value = state
+            albumRepository.isAlbumLikedByUser(albumId = albumId, userId = userId) { state ->
+                _isLikedAlbum.value = state
 
             }
         }
     }
 
-    fun onLikedArtist(artistId: String,userId: String){
+    fun deleteAlbum(id: String) {
         viewModelScope.launch {
-            artistRepository.onLikedArtist(artistId = artistId,userId){
-                state ->
+            _deleteAlbum.value = UiStates.Loading
+
+            albumRepository.deleteAlbum(id) { uiStates ->
+                _deleteAlbum.update {
+                    uiStates
+                }
+            }
+        }
+    }
+
+    fun onLikedArtist(artistId: String, userId: String) {
+        viewModelScope.launch {
+            artistRepository.onLikedArtist(artistId = artistId, userId) { state ->
                 _likedArtist.update {
                     state
                 }
@@ -255,10 +236,10 @@ class HomeViewModel @Inject constructor(
             }
         }
     }
-    fun onUnlikedLikedArtist(artistId: String,userId: String){
+
+    fun onUnlikedLikedArtist(artistId: String, userId: String) {
         viewModelScope.launch {
-            artistRepository.unLikedArtist(artistId = artistId,userId){
-                    state ->
+            artistRepository.unLikedArtist(artistId = artistId, userId) { state ->
                 _unLikedArtist.update {
                     state
                 }
@@ -267,10 +248,9 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    fun isArtistLiked(artistId: String,userId: String){
+    fun isArtistLiked(artistId: String, userId: String) {
         viewModelScope.launch {
-            artistRepository.isArtistLikedByUser(artistId = artistId, userId = userId){
-                state ->
+            artistRepository.isArtistLikedByUser(artistId = artistId, userId = userId) { state ->
                 _isLikedArtist.value = state
             }
 
@@ -278,66 +258,35 @@ class HomeViewModel @Inject constructor(
     }
 
 
-
-    fun getStartedAlbums(){
+    fun getStartedAlbums() {
         viewModelScope.launch {
             albumRepository.getAlbums { states ->
                 _allAlbumsState.update {
                     states
                 }
-               // getMediaItems()
+                // getMediaItems()
 
             }
 
         }
     }
+
     fun getCurrentAlbum(albumId: String) {
         viewModelScope.launch {
-            _currentArtist.value = UiStates.Loading
+            _currentAlbum.value = UiStates.Loading
 
-            albumRepository.getAlbumById(albumId){
-                state ->
+            albumRepository.getAlbumById(albumId) { state ->
                 _currentAlbum.update {
                     state
                 }
-        }}
-//        viewModelScope.launch(Dispatchers.IO) {
-//            when (val currentState = _allAlbumsState.value) {
-//                is UiStates.Success -> {
-//                    val filteredAlbum = currentState.data.filter { album ->
-//                        album.id == albumId // Assuming 'id' is the identifier field in your Album model
-//                    }
-//
-//                    if (filteredAlbum.isNotEmpty()) {
-//                        // Handle the filtered album, update a new state or do something else
-//                        // Assuming you have another state to hold the current album
-//                        _currentAlbum.update { UiStates.Success(filteredAlbum.first()) }
-//                       // songListFunc(filteredAlbum.first().songs)
-//                    } else {
-//                        // If no album is found, you can update state with an error or empty result
-//                        _currentAlbum.update { UiStates.Failure("Album not found")  }
-//                    }
-//                }
-//                is UiStates.Loading -> {
-//                    // Handle loading state if needed
-//                    _currentAlbum.update {UiStates.Loading  }
-//
-//                }
-//                is UiStates.Failure -> {
-//                    _currentAlbum.update {UiStates.Failure("Album not found")  }
-//
-//                    // Handle error state if needed
-//                }
-//
-//                UiStates.Initial -> TODO()
-//            }
-//        }
+            }
+        }
+
     }
 
-    fun getRecentPlayedAlbum(userId: String){
+    fun getRecentPlayedAlbum(userId: String) {
         viewModelScope.launch {
-            albumRepository.getRecentlyPlayedAlbums(userId){
-                state ->
+            albumRepository.getRecentlyPlayedAlbums(userId) { state ->
                 _getRecentPlayedAlbum.update {
                     state
                 }
@@ -350,107 +299,38 @@ class HomeViewModel @Inject constructor(
         viewModelScope.launch {
             _currentArtist.value = UiStates.Loading
 
-            artistRepository.getArtistById(artistId){
-                state ->
+            artistRepository.getArtistById(artistId) { state ->
                 _currentArtist.update {
                     state
                 }
             }
         }
 
-//        viewModelScope.launch(Dispatchers.IO) {
-//            when (val currentState = _allArtistsState.value) {
-//                is UiStates.Success -> {
-//                    val filteredArtist = currentState.data.filter { artist ->
-//                        artist.id == artistId // Assuming 'id' is the identifier field in your Album model
-//                    }
-//
-//                    if (filteredArtist.isNotEmpty()) {
-//                        // Handle the filtered album, update a new state or do something else
-//                        // Assuming you have another state to hold the current album
-//                        _currentArtist.value = UiStates.Success(filteredArtist.first())
-//                        //songListFunc(filteredArtist.first().songs)
-//                    } else {
-//                        // If no album is found, you can update state with an error or empty result
-//                        _currentArtist.value = UiStates.Failure("Album not found")
-//                    }
-//                }
-//                is UiStates.Loading -> {
-//                    // Handle loading state if needed
-//                    _currentArtist.value = UiStates.Loading
-//
-//                }
-//                is UiStates.Failure -> {
-//                    _currentArtist.value = UiStates.Failure("Artist not found")
-//
-//                    // Handle error state if needed
-//                }
-//                is UiStates.Initial ->{
-//
-//                }
-//
-//            }
-        //}
+
     }
 
-      fun songListFunc(songs:List<String>){
-          viewModelScope.launch(Dispatchers.IO){
-              _songListState.value = UiStates.Loading
-              songRepository.getSongsByIds(songs){
-                  state ->
-                  _songListState.update {
-                      state
-                  }
+    fun songListFunc(songs: List<String>) {
+        viewModelScope.launch(Dispatchers.IO) {
+            _songListState.value = UiStates.Loading
+            songRepository.getSongsByIds(songs) { state ->
+                _songListState.update {
+                    state
+                }
 
 
-              }
-//              when (val currentState = _allSongsState.value) {
-//                  is UiStates.Success -> {
-//                      val songList = currentState.data.filter {
-//                              song ->
-//                          song.songId in songs
-//
-//                      }
-//
-//                      _songListState.update { UiStates.Success(songList) }
-//
-//
-//                  }
-//                  is UiStates.Loading ->{
-//                      _songListState.update { UiStates.Loading }
-//
-//                  }
-//                  is UiStates.Failure -> {
-//                      _songListState.update { UiStates.Failure("Unknown Error") }
-//
-//                  }is UiStates.Initial ->{
-//
-//              }
-//              }
-          }
-
-
+            }
 
         }
 
 
-//    fun getRecentPlayedSongs(){
-//        viewModelScope.launch {
-//            songRepository.getAllSongs  { state ->
-//                _allSongsState.update {
-//                    state
-//                }
-//                updateSongList()
-//
-//                // getMediaItems()
-//            }
-//        }
-//
-//    }
+    }
 
-    fun getArtists(){
+
+
+
+    fun getArtists() {
         viewModelScope.launch {
-            artistRepository.getArtists { state->
+            artistRepository.getArtists { state ->
                 _allArtistsState.update {
                     state
 
@@ -461,22 +341,21 @@ class HomeViewModel @Inject constructor(
     }
 
 
-    fun setCurrentSongArtist(){
+    fun setCurrentSongArtist() {
         viewModelScope.launch {
-          val artistId =   _currentSong.value?.artistId
+            val artistId = _currentSong.value?.artistId
             if (artistId != null) {
                 val currentState = _allArtistsState.value
-                if (currentState is UiStates.Success){
+                if (currentState is UiStates.Success) {
                     val allArtist = currentState.data
 
-                    val currentSongArtist = allArtist.filter{ artist ->
-                     artist.id == artistId
+                    val currentSongArtist = allArtist.filter { artist ->
+                        artist.id == artistId
                     }
 
                     _currentSongArtist.value = currentSongArtist.first()
 
-                }
-                else {
+                } else {
                     // Handle the case where artist data is not yet available or still loading
                     Log.e("HomeViewModel", "Artist data is not available yet.")
                 }
@@ -489,123 +368,117 @@ class HomeViewModel @Inject constructor(
 
 //
 
-    private fun playSong() {
+    fun playSong() {
         viewModelScope.launch {
             try {
-                audioPlaybackServiceProvider.getService{service ->
-                service.playSong(currentSongIndex.value)
+                val songList = (_songListState.value as? UiStates.Success)?.data ?: emptyList()
+                if (songList.isNotEmpty()){
+                    _currentSong.value =
+                        songList[currentSongIndex.value]
+                    _isPlaying.value = true
+
+                }
+                else{
+                    _currentSong.value = null
+                }
 
 
-                _isPlaying.value = true}
+                audioPlaybackServiceProvider.getService { service ->
+                    service.playSong(currentSongIndex.value)
+
+                }
             } catch (e: IllegalStateException) {
                 Log.e("HomeViewModel", "Error getting service: ${e.message}")
             }
         }
     }
+
     fun resetSongListSent() {
         isSongListSent = false
+        _currentAlbumId.value = null
+        _currentArtistId.value = null
+        _currentSong.value = null
+        _isPlaying.value = false
+        _currentSongIndex.value = 0
+
     }
 
-    fun handlePlayPause(albumId: String?,artistId: String?,songId: String?) {
+    fun handlePlayPause(albumId: String?, artistId: String?, songId: String?) {
         viewModelScope.launch {
             try {
-                if (albumId != null){
-                    if (!isSongListSent && albumId != _currentAlbumId.value){
+                if (albumId != null) {
+                    if (!isSongListSent && albumId != _currentAlbumId.value) {
                         updateSongList()
+                        //addIntoRecentPlay()
                         isSongListSent = true
+
                         _currentAlbumId.update {
                             albumId
                         }
-                        if (songId != null){
-                        playSong()
-                        }
-
-                        else{
-                            if (!_isPlaying.value){
-
-                                playSong()
-
-                            }
-                            else{
-                                audioPlaybackServiceProvider.getService{service ->
-                                    service.pausePlayback()
-                                }
-                                _isPlaying.value = false
-                            }
-                        }
-
-                    }
-                    else{
-
-
-                        if (songId != null){
+                        if (songId != null) {
                             playSong()
-                        }
-                        else{
-                            if (!_isPlaying.value){
+                        } else {
+                            if (!_isPlaying.value) {
+
 
                                 playSong()
+
+                            } else {
+                                pauseSong()
                             }
-                            else{
-                                audioPlaybackServiceProvider.getService{service ->
-                                    service.pausePlayback()}
-                                _isPlaying.value = false
+                        }
+
+                    } else {
+
+
+                        if (songId != null) {
+                            playSong()
+                        } else {
+                            if (!_isPlaying.value) {
+
+                                playSong()
+                            } else {
+                                pauseSong()
                             }
                         }
 
 
                     }
-                }
-                else{
-                    if (!isSongListSent && artistId != _currentArtistId.value){
+                } else {
+                    if (!isSongListSent && artistId != _currentArtistId.value) {
                         updateSongList()
                         isSongListSent = true
                         _currentArtistId.update {
                             artistId
                         }
-                        if (songId != null){
+                        if (songId != null) {
                             playSong()
-                        }
-
-                        else{
-                            if (!_isPlaying.value){
+                        } else {
+                            if (!_isPlaying.value) {
 
                                 playSong()
-                            }
-                            else{
-                                audioPlaybackServiceProvider.getService{service ->
-                                    service.pausePlayback()}
-                                _isPlaying.value = false
+                            } else {
+                                pauseSong()
                             }
                         }
-                    }
-                    else{
+                    } else {
 
-                        if (songId != null){
+                        if (songId != null) {
                             playSong()
-                        }
-                        else{
-                            if (!_isPlaying.value){
+                        } else {
+                            if (!_isPlaying.value) {
 
                                 playSong()
+                            } else {
+                                pauseSong()
                             }
-                            else{
-                                audioPlaybackServiceProvider.getService{service ->
-                                    service.pausePlayback()}
-                                _isPlaying.value = false
-                            }
-
 
                         }
-
 
                     }
                 }
 
-
-
-            }
-            catch (e:IllegalStateException){
+            } catch (e: IllegalStateException) {
                 Log.e("HomeViewModel", "Service not available: ${e.message}")
 
             }
@@ -614,7 +487,7 @@ class HomeViewModel @Inject constructor(
     }
 
 
-    fun updateCurrentSong(song: Song){
+    fun updateCurrentSong(song: Song?) {
         viewModelScope.launch {
             _currentSong.update {
                 song
@@ -622,12 +495,20 @@ class HomeViewModel @Inject constructor(
         }
     }
 
+    fun pauseSong() {
+        audioPlaybackServiceProvider.getService { service ->
+            service.pausePlayback()
+        }
+        _isPlaying.value = false
+    }
+
 
     fun stopPlayback() {
         viewModelScope.launch {
             try {
-                val service = audioPlaybackServiceProvider.getService{service ->
-                service.stopPlayback()}
+                val service = audioPlaybackServiceProvider.getService { service ->
+                    service.stopPlayback()
+                }
             } catch (e: IllegalStateException) {
                 Log.e("HomeViewModel", "Service not available: ${e.message}")
                 // Handle the error or notify the user
@@ -635,12 +516,16 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-     private fun updateSongList() {
+    private fun updateSongList() {
         viewModelScope.launch {
             try {
                 val songList = (_songListState.value as? UiStates.Success)?.data ?: emptyList()
-              audioPlaybackServiceProvider.getService{service ->
-                service.updateSongList(songList)}
+
+
+
+                audioPlaybackServiceProvider.getService { service ->
+                    service.updateSongList(songList)
+                }
             } catch (e: IllegalStateException) {
                 Log.e("HomeViewModel", "Service not available: ${e.message}")
                 // Handle the error or notify the user
@@ -651,11 +536,13 @@ class HomeViewModel @Inject constructor(
     fun seekTo(position: Int) {
         viewModelScope.launch {
             try {
-                val service = audioPlaybackServiceProvider.getService{service ->
-                service.seekTo(position)}
-                _playbackPosition.update {
-                    position
+                 audioPlaybackServiceProvider.getService { service ->
+                    service.seekTo(position)
                 }
+                _playbackPosition.value  = position
+            //                update {
+//                    position
+//                }
             } catch (e: IllegalStateException) {
                 Log.e("HomeViewModel", "Service not available: ${e.message}")
                 // Handle the error or notify the user
@@ -664,7 +551,7 @@ class HomeViewModel @Inject constructor(
     }
 
 
-    fun updateIndex(index:Int){
+    fun updateIndex(index: Int) {
         viewModelScope.launch {
             _currentSongIndex.update {
                 index
@@ -672,26 +559,74 @@ class HomeViewModel @Inject constructor(
         }
 
     }
-    fun updatePlayPauseState(state:Boolean){
+
+    fun updatePlayPauseState(state: Boolean) {
         viewModelScope.launch {
             _isPlaying.value = state
         }
     }
-    fun onClickNext(){
+
+    fun onClickNext() {
         viewModelScope.launch {
-            audioPlaybackServiceProvider.getService {
-                service ->
+            audioPlaybackServiceProvider.getService { service ->
                 service.nextSong()
+               // setupPlaybackCallback()
             }
         }
     }
 
-    fun onClickPrevious(){
-        audioPlaybackServiceProvider.getService {
-                service ->
-            service.previousSong()
+    fun onClickPrevious() {
+
+        viewModelScope.launch {
+            audioPlaybackServiceProvider.getService { service ->
+              service.previousSong()
+            }
+
+        }
+
+    }
+
+    fun setupPlaybackCallback() {
+        try {
+            audioPlaybackServiceProvider.getService { service ->
+                Log.d("callbackSet", service.toString())
+                service.setPlaybackCallback(object : AudioPlaybackService.PlaybackCallback {
+                    override fun onIndexChanged(index: Int) {
+                        _currentSongIndex.value = index
+                    }
+
+                    override fun onPlaybackPositionChanged(position: Int) {
+                        _playbackPosition.value = position
+                    }
+
+                    override fun onPlaybackCompleted() {
+                        _isPlaying.value = false
+                    }
+
+                    override fun onPlaybackStopped() {
+                        _isPlaying.value = false
+                        Log.d("PlaybackStopped", "Playback stopped.")
+                    }
+
+                    override fun onPlaybackError(error: String) {
+                        // Handle playback error (e.g., show a message to the user)
+                    }
+
+                    override fun onSongChanged(song: Song) {
+                        _currentSong.value = song
+                        Log.d("CurrentsongCallback", song.toString())
+                    }
+
+                    override fun onPlaybackStateChanged(isPlaying: Boolean) {
+                        _isPlaying.value = isPlaying
+                    }
+                })
+            }
+        } catch (e: IllegalStateException) {
+            Log.e("HomeViewModel123", "Error initializing service: ${e.message}")
         }
     }
+
 
 
     override fun onCleared() {

@@ -26,17 +26,17 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class LibSearchFragment : Fragment(),OnItemClickListener1 {
+class LibSearchFragment : Fragment(), OnItemClickListener1 {
     private lateinit var binding: FragmentLibSearchBinding
     private val viewModel: LibraryViewModel by viewModels()
+
     @Inject
     lateinit var glide: RequestManager
+
     @Inject
     lateinit var userObject: UserObject
 
     private lateinit var adapter: LibraryRecyclerViewAdapter
-
-
 
 
     override fun onCreateView(
@@ -53,7 +53,7 @@ class LibSearchFragment : Fragment(),OnItemClickListener1 {
         super.onViewCreated(view, savedInstanceState)
         val user = userObject.getUser()
         settingAdapter()
-        if (user != null){
+        if (user != null) {
             viewModel.getLikedAlbums(user.userId)
             viewModel.getFollowedArtist(userId = user.userId)
         }
@@ -66,37 +66,38 @@ class LibSearchFragment : Fragment(),OnItemClickListener1 {
     }
 
 
-    private fun settingAdapter(){
-        adapter = LibraryRecyclerViewAdapter(emptyList(),this, glide = glide)
+    private fun settingAdapter() {
+        adapter = LibraryRecyclerViewAdapter(emptyList(), this, glide = glide)
         binding.recyclerViewLibSearchBar.adapter = adapter
 
     }
 
-    private fun onClick (){
+    private fun onClick() {
         binding.libSearchArrowBack.setOnClickListener {
             findNavController().popBackStack()
         }
     }
 
-    private fun observers(){
+    private fun observers() {
         lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.STARTED){
-                viewModel.filteredAlbumArtist.collect{
-                        state ->
-                    when(state){
-                        is UiStates.Loading ->{
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.filteredAlbumArtist.collect { state ->
+                    when (state) {
+                        is UiStates.Loading -> {
                         }
-                        is UiStates.Success ->{
+
+                        is UiStates.Success -> {
                             adapter.updateItems(state.data.toMutableList())
                             binding.libSearchProgressBar.visibility = View.GONE
 
                         }
 
-                        is UiStates.Failure ->{
+                        is UiStates.Failure -> {
 
 
                         }
-                        is UiStates.Initial ->{
+
+                        is UiStates.Initial -> {
 
                         }
                     }
@@ -128,15 +129,24 @@ class LibSearchFragment : Fragment(),OnItemClickListener1 {
 
         when (item) {
             is AlbumArtist.AlbumItem -> {
-                Log.d("",item.album.toString())
-                val action = LibSearchFragmentDirections.actionLibSearchFragment2ToLibPlaylistFragment(item.album.id,null)
+                Log.d("", item.album.toString())
+                val action =
+                    LibSearchFragmentDirections.actionLibSearchFragment2ToLibPlaylistFragment(
+                        item.album.id,
+                        null
+                    )
 
                 findNavController().navigate(action)
                 // Handle album item click
             }
+
             is AlbumArtist.ArtistItem -> {
-                Log.d("",item.artist.toString())
-                val action = LibSearchFragmentDirections.actionLibSearchFragment2ToLibPlaylistFragment(null,item.artist.id)
+                Log.d("", item.artist.toString())
+                val action =
+                    LibSearchFragmentDirections.actionLibSearchFragment2ToLibPlaylistFragment(
+                        null,
+                        item.artist.id
+                    )
 
                 findNavController().navigate(action)
 

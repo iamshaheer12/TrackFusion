@@ -17,33 +17,20 @@ import javax.inject.Inject
 class CreatePlaylistViewModel @Inject constructor(
     private val albumRepository: AlbumRepository
 
-) :ViewModel(){
+) : ViewModel() {
 
-    private val _createAlbum = MutableStateFlow<UiStates<String>>(UiStates.Loading)
+    private val _createAlbum = MutableStateFlow<UiStates<String>>(UiStates.Initial)
     val createAlbum: StateFlow<UiStates<String>> = _createAlbum
-    private val _updateAlbum = MutableStateFlow<UiStates<String>>(UiStates.Loading)
+    private val _updateAlbum = MutableStateFlow<UiStates<String>>(UiStates.Initial)
     val updateAlbum: StateFlow<UiStates<String>> = _updateAlbum
 
-    private val _deleteAlbum = MutableStateFlow<UiStates<String>>(UiStates.Loading)
-    val deleteAlbum: StateFlow<UiStates<String>> = _deleteAlbum
 
-
-    fun deleteAlbum(id:String){
+    fun createAlbum(album: Album) {
         viewModelScope.launch {
-            albumRepository.deleteAlbum(id){
-                    uiStates ->
-                _deleteAlbum.update {
-                    uiStates
-                }
+            _createAlbum.update {
+                UiStates.Loading
             }
-        }
-    }
-
-
-    fun createAlbum(album: Album){
-        viewModelScope.launch {
-            albumRepository.createAlbum(album){
-                    uiStates ->
+            albumRepository.createAlbum(album) { uiStates ->
                 _createAlbum.update {
                     uiStates
                 }
@@ -51,10 +38,12 @@ class CreatePlaylistViewModel @Inject constructor(
         }
     }
 
-    fun updateAlbum(album: Album){
+    fun updateAlbum(album: Album) {
         viewModelScope.launch {
-            albumRepository.updateAlbum(album){
-                    uiStates ->
+            _updateAlbum.update {
+                UiStates.Loading
+            }
+            albumRepository.updateAlbum(album) { uiStates ->
                 _updateAlbum.update {
                     uiStates
                 }

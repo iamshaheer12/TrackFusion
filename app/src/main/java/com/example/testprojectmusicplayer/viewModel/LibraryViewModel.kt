@@ -16,12 +16,13 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+
 @HiltViewModel
 class LibraryViewModel @Inject constructor(
     private val albumRepository: AlbumRepository,
     private val artistRepository: ArtistRepository,
 
-    ):ViewModel() {
+    ) : ViewModel() {
     private val _allAlbumsState = MutableStateFlow<UiStates<List<Album>>>(UiStates.Loading)
     val allAlbumsState: StateFlow<UiStates<List<Album>>> = _allAlbumsState
 
@@ -35,7 +36,8 @@ class LibraryViewModel @Inject constructor(
     val deleteAlbum: StateFlow<UiStates<String>> = _deleteAlbum
 
 
-    private val _filteredAlbumArtist = MutableStateFlow<UiStates<List<AlbumArtist>>>(UiStates.Success(emptyList()))
+    private val _filteredAlbumArtist =
+        MutableStateFlow<UiStates<List<AlbumArtist>>>(UiStates.Success(emptyList()))
     val filteredAlbumArtist: StateFlow<UiStates<List<AlbumArtist>>> = _filteredAlbumArtist
 
     private val allMediaItems = mutableListOf<AlbumArtist>()
@@ -45,12 +47,11 @@ class LibraryViewModel @Inject constructor(
     val currentFilterType: StateFlow<FilterType> = _currentFilterType
 
 
-
     init {
         viewModelScope.launch {
-            combine(_allAlbumsState,_allArtistsState){allAlbumState,allArtistsState ->
+            combine(_allAlbumsState, _allArtistsState) { allAlbumState, allArtistsState ->
                 val currentArtist = (allArtistsState as? UiStates.Success)?.data ?: emptyList()
-                val currentAlbum = (allAlbumState as? UiStates.Success)?.data?: emptyList()
+                val currentAlbum = (allAlbumState as? UiStates.Success)?.data ?: emptyList()
 
 
                 val combineList = mutableListOf<AlbumArtist>().apply {
@@ -60,8 +61,7 @@ class LibraryViewModel @Inject constructor(
 
                 UiStates.Success(combineList)
 
-            }.collect{
-                combineListState ->
+            }.collect { combineListState ->
                 allMediaItems.clear()
                 allMediaItems.addAll(combineListState.data)
                 _filteredAlbumArtist.value = combineListState
@@ -72,7 +72,7 @@ class LibraryViewModel @Inject constructor(
     }
 
 
-    fun getLikedAlbums(userId:String) {
+    fun getLikedAlbums(userId: String) {
         viewModelScope.launch {
             albumRepository.getAlbumsLikedByUser(userId) { states ->
                 _allAlbumsState.update { states }
@@ -82,12 +82,12 @@ class LibraryViewModel @Inject constructor(
     }
 
 
-    fun getFollowedArtist(userId: String){
+    fun getFollowedArtist(userId: String) {
         viewModelScope.launch {
-            artistRepository.getArtistsLikedByUser(userId) {
-                state -> _allArtistsState.update {
-                state
-            }
+            artistRepository.getArtistsLikedByUser(userId) { state ->
+                _allArtistsState.update {
+                    state
+                }
             }
         }
     }
@@ -98,7 +98,6 @@ class LibraryViewModel @Inject constructor(
         _currentFilterType.value = filterType
         applyCurrentFilter() // Re-apply the filter whenever it changes
     }
-
 
 
     // Apply the current filter based on the filter type
@@ -121,8 +120,17 @@ class LibraryViewModel @Inject constructor(
             } else {
                 allMediaItems.filter { item ->
                     when (item) {
-                        is AlbumArtist.ArtistItem -> item.artist.name.contains(query, ignoreCase = true)
-                        is AlbumArtist.AlbumItem -> item.album.title.contains(query, ignoreCase = true)
+                        is AlbumArtist.ArtistItem -> item.artist.name.contains(
+                            query,
+                            ignoreCase = true
+                        )
+
+                        is AlbumArtist.AlbumItem -> item.album.title.contains(
+                            query,
+                            ignoreCase = true
+                        )
+
+
                     }
                 }
             }
@@ -130,10 +138,9 @@ class LibraryViewModel @Inject constructor(
         }
     }
 
-    fun deleteAlbum(id:String){
+    fun deleteAlbum(id: String) {
         viewModelScope.launch {
-            albumRepository.deleteAlbum(id){
-                uiStates ->
+            albumRepository.deleteAlbum(id) { uiStates ->
                 _deleteAlbum.update {
                     uiStates
                 }
@@ -142,10 +149,9 @@ class LibraryViewModel @Inject constructor(
     }
 
 
-   fun updateAlbum(album: Album){
+    fun updateAlbum(album: Album) {
         viewModelScope.launch {
-            albumRepository.updateAlbum(album){
-                    uiStates ->
+            albumRepository.updateAlbum(album) { uiStates ->
                 _updateAlbum.update {
                     uiStates
                 }
@@ -154,9 +160,8 @@ class LibraryViewModel @Inject constructor(
     }
 
 
-
-
 }
+
 // Enum class to define filter types
 enum class FilterType {
     ARTIST, ALBUM, ALL

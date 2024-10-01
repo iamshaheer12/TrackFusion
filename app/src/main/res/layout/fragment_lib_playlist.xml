@@ -88,7 +88,7 @@
         app:layout_constraintTop_toTopOf="@+id/playlist_gif_image"
         app:layout_constraintBottom_toBottomOf="@+id/playlist_gif_image"/>
     <ImageView
-        android:id="@+id/playlist_more_btn"
+        android:id="@+id/playlist_share_btn"
         android:layout_width="wrap_content"
         android:layout_height="30dp"
         android:layout_marginStart="24dp"
@@ -123,7 +123,7 @@
     <include
         android:id="@+id/playlist_loading_screen"
         layout="@layout/loading_screen"
-        android:visibility="gone"
+        android:visibility="visible"
         />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

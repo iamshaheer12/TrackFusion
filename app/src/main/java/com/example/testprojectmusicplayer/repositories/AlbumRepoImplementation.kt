@@ -11,6 +11,12 @@ import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.toObject
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.tasks.await
+import kotlinx.coroutines.withContext
 
 class AlbumRepoImplementation(
     private val firestore: FirebaseFirestore
@@ -249,15 +255,22 @@ class AlbumRepoImplementation(
     }
 
     override suspend fun updateAlbum(album: Album, result: (UiStates<String>) -> Unit) {
-        val document = firestore.collection(FireStoreCons.ALBUM_COLLECTION).document()
+        val document = firestore.collection(FireStoreCons.ALBUM_COLLECTION).document(album.id)
 
-        document.set(album)
-            .addOnSuccessListener {
-                result.invoke(UiStates.Success("Album Updated  Successfully"))
-            }
-            .addOnFailureListener {
-                result.invoke(UiStates.Failure("Sorry Album is not created"))
-            }
+        try {
+            document.set(album)
+                .addOnSuccessListener {
+                    result.invoke(UiStates.Success("Album Updated  Successfully"))
+                }
+                .addOnFailureListener {
+                    result.invoke(UiStates.Failure("Sorry Album is not Updated"))
+                }
+        }
+        catch (e:Exception){
+            result.invoke(UiStates.Failure("Sorry Album is not Updated"))
+        }
+
+
 
     }
 
@@ -266,47 +279,46 @@ class AlbumRepoImplementation(
         list: List<String>,
         result: (UiStates<String>) -> Unit
     ) {
-
-        val albumsCollection = firestore.collection(FireStoreCons.ALBUM_COLLECTION) // Collection name for albums
+        val albumsCollection = firestore.collection(FireStoreCons.ALBUM_COLLECTION)
 
         try {
-            // Iterate through each album ID
-            list.forEach { albumId ->
-                firestore.runTransaction { transaction ->
-                    // Get the reference to the album document
-                    val albumRef = albumsCollection.document(albumId)
+            withContext(Dispatchers.IO) {
+                list.forEach { albumId ->
+                    firestore.runTransaction { transaction ->
+                        // Get the reference to the album document
+                        val albumRef = albumsCollection.document(albumId)
 
-                    // Get the current snapshot of the album document
-                    val albumSnapshot = transaction.get(albumRef)
+                        // Get the current snapshot of the album document
+                        val albumSnapshot = transaction.get(albumRef)
 
-                    // Retrieve the current list of songs
-                    val currentSongs = albumSnapshot.get("songs") as? List<String> ?: emptyList()
+                        // Retrieve the current list of songs
+                        val currentSongs = albumSnapshot.get("songs") as? List<String> ?: emptyList()
 
-                    // Check if the song ID is already in the album's song list
-                    if (!currentSongs.contains(songId)) {
-                        // If not, add the song ID to the list
-                        transaction.update(albumRef, "songs", FieldValue.arrayUnion(songId))
-                    }
-                }.addOnSuccessListener {
-                    // Handle success for each album update
-                    result(UiStates.Success("Song added to album: $albumId"))
-                }.addOnFailureListener { e ->
-                    // Handle failure for each album update
-                    result(UiStates.Failure("Failed to add song to album: $albumId", ))
+                        // Check if the song ID is already in the album's song list
+                        if (!currentSongs.contains(songId)) {
+                            // If not, add the song ID to the list
+                            transaction.update(albumRef, "songs", FieldValue.arrayUnion(songId))
+                        }
+                    }.await() // Wait for the transaction to complete
                 }
+
+                // Once all transactions are successful, trigger success
+                result(UiStates.Success("Song successfully added to all albums"))
             }
         } catch (e: Exception) {
             // Handle any exceptions that occur during the operation
-            result(UiStates.Failure("An error occurred while adding the song to albums", ))
+            result(UiStates.Failure("An error occurred while adding the song to albums"))
         }
     }
+
+
 
 
     override suspend fun removeSongFromAlbum(songId: String,albumId: String, result: (UiStates<String>) -> Unit) {
 
         try {
             val document = firestore.collection(FireStoreCons.ALBUM_COLLECTION).document(albumId)
-        val transaction =     firestore.runTransaction {transaction->
+             firestore.runTransaction {transaction->
 
             val snapshot = transaction.get(document)
             val songs = snapshot.get("songs")as? List<String>?: emptyList()
@@ -319,7 +331,7 @@ class AlbumRepoImplementation(
 
         }
             .addOnSuccessListener {
-                result.invoke(UiStates.Success("Successfully removed from  Album"))
+                result.invoke(UiStates.Success(songId))
 
             }
             .addOnFailureListener{

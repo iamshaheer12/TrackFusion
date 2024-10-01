@@ -31,11 +31,13 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class LibraryFragment : Fragment(),OnItemClickListener1 {
-   private lateinit var binding: FragmentLibraryBinding
-   private val viewModel: LibraryViewModel by viewModels()
+class LibraryFragment : Fragment(), OnItemClickListener1 {
+    private lateinit var binding: FragmentLibraryBinding
+    private val viewModel: LibraryViewModel by viewModels()
+
     @Inject
     lateinit var glide: RequestManager
+
     @Inject
     lateinit var userObject: UserObject
 
@@ -51,16 +53,16 @@ class LibraryFragment : Fragment(),OnItemClickListener1 {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-       val user =  userObject.getUser()
-        if (user != null){
+        val user = userObject.getUser()
+        if (user != null) {
             handleImageOrIcon(user)
         }
 
 
 
 
-        viewModel.getLikedAlbums(user?.userId?:"1234")
-        viewModel.getFollowedArtist(user?.userId?:"1234")
+        viewModel.getLikedAlbums(user?.userId ?: "1234")
+        viewModel.getFollowedArtist(user?.userId ?: "1234")
         observers()
         settingAdapter()
         setFilter()
@@ -71,12 +73,10 @@ class LibraryFragment : Fragment(),OnItemClickListener1 {
 
     private fun settingAdapter() {
 
-        adapter = LibraryRecyclerViewAdapter(emptyList(),this, glide = glide)
-       binding.libRecyclerView.adapter  = adapter
+        adapter = LibraryRecyclerViewAdapter(emptyList(), this, glide = glide)
+        binding.libRecyclerView.adapter = adapter
 
     }
-
-
 
 
     private fun handleImageOrIcon(user: User) {
@@ -85,9 +85,11 @@ class LibraryFragment : Fragment(),OnItemClickListener1 {
         if (user.imageUrl.isNotEmpty()) {
             // Load the image and show the ImageView
             glide.load(user.imageUrl)
-                .apply(RequestOptions()
-                    .placeholder(R.drawable.default_image)
-                    .error(R.drawable.default_image))
+                .apply(
+                    RequestOptions()
+                        .placeholder(R.drawable.default_image)
+                        .error(R.drawable.default_image)
+                )
                 .into(binding.libProfileImage)
 
             binding.libProfileImage.visibility = View.VISIBLE // Ensure the image is visible
@@ -102,7 +104,8 @@ class LibraryFragment : Fragment(),OnItemClickListener1 {
         } else {
             // Show the custom icon
             val name = user.name
-            binding.libCustomIcon.text = if (name.length >= 2) name.substring(0, 2).uppercase() else name.uppercase()
+            binding.libCustomIcon.text =
+                if (name.length >= 2) name.substring(0, 2).uppercase() else name.uppercase()
             binding.libCustomIcon.visibility = View.VISIBLE // Ensure the custom icon is visible
             binding.libProfileImage.visibility = View.GONE
 
@@ -117,12 +120,12 @@ class LibraryFragment : Fragment(),OnItemClickListener1 {
     }
 
 
-    private fun onClick(){
+    private fun onClick() {
         binding.libPlusIcon.setOnClickListener {
             val action =
                 LibraryFragmentDirections.actionLibraryFragmentToCreatePlaylistFragment2(
-                null
-            )
+                    null
+                )
 
             findNavController().navigate(action)
         }
@@ -132,28 +135,28 @@ class LibraryFragment : Fragment(),OnItemClickListener1 {
         }
 
 
-
     }
 
 
-    private fun setFilter(){
+    private fun setFilter() {
 
 
         binding.libRadio.setOnCheckedChangeListener { _, checkedId ->
-            when(checkedId){
-        binding.customRadioAll.id ->{
-                 viewModel.setFilterType(filterType = FilterType.ALL)
+            when (checkedId) {
+                binding.customRadioAll.id -> {
+                    viewModel.setFilterType(filterType = FilterType.ALL)
 
-              }
-           binding.customRadioPlaylist.id ->{
-                 viewModel.setFilterType(filterType = FilterType.ALBUM)
+                }
 
-             }
-           binding.customRadioButtonArtist.id ->{
-                  viewModel.setFilterType(filterType = FilterType.ARTIST)
+                binding.customRadioPlaylist.id -> {
+                    viewModel.setFilterType(filterType = FilterType.ALBUM)
 
-              }
+                }
 
+                binding.customRadioButtonArtist.id -> {
+                    viewModel.setFilterType(filterType = FilterType.ARTIST)
+
+                }
 
 
             }
@@ -162,26 +165,27 @@ class LibraryFragment : Fragment(),OnItemClickListener1 {
     }
 
 
-    private fun observers(){
+    private fun observers() {
 
         lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.STARTED){
-                viewModel.filteredAlbumArtist.collect{
-                    state ->
-                    when(state){
-                        is UiStates.Loading ->{
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.filteredAlbumArtist.collect { state ->
+                    when (state) {
+                        is UiStates.Loading -> {
                         }
-                        is UiStates.Success ->{
+
+                        is UiStates.Success -> {
                             adapter.updateItems(state.data.toMutableList())
                             binding.libraryProgressBar.visibility = View.GONE
 
                         }
 
-                        is UiStates.Failure ->{
+                        is UiStates.Failure -> {
 
 
                         }
-                        is UiStates.Initial ->{
+
+                        is UiStates.Initial -> {
 
                         }
                     }
@@ -197,26 +201,31 @@ class LibraryFragment : Fragment(),OnItemClickListener1 {
 
     override fun onItemClick(item: AlbumArtist) {
 
-            when (item) {
-                is AlbumArtist.AlbumItem -> {
-                    Log.d("SongsData",item.album.toString())
-                    val action = LibraryFragmentDirections.actionLibraryFragmentToLibPlaylistFragment(item.album.id,null)
-                    findNavController().navigate(action)
-                    // Handle album item click
-                }
-                is AlbumArtist.ArtistItem -> {
-                    Log.d("SongsData",item.artist.toString())
-                    val action = LibraryFragmentDirections.actionLibraryFragmentToLibPlaylistFragment(null,item.artist.id)
-                    findNavController().navigate(action)
-
-
-                    // Handle artist item click
-                }
-
+        when (item) {
+            is AlbumArtist.AlbumItem -> {
+                Log.d("SongsData", item.album.toString())
+                val action = LibraryFragmentDirections.actionLibraryFragmentToLibPlaylistFragment(
+                    item.album.id,
+                    null
+                )
+                findNavController().navigate(action)
+                // Handle album item click
             }
+
+            is AlbumArtist.ArtistItem -> {
+                Log.d("SongsData", item.artist.toString())
+                val action = LibraryFragmentDirections.actionLibraryFragmentToLibPlaylistFragment(
+                    null,
+                    item.artist.id
+                )
+                findNavController().navigate(action)
+
+
+                // Handle artist item click
+            }
+
+        }
     }
-
-
 
 
 }

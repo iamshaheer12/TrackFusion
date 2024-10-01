@@ -10,61 +10,13 @@ import kotlinx.coroutines.tasks.await
 
 class ArtistRepoImplementation(
     private val firestore: FirebaseFirestore
-) :ArtistRepository{
+) : ArtistRepository {
 
     override suspend fun getArtists(result: (UiStates<List<Artist>>) -> Unit) {
-            try {
-                firestore.collection(FireStoreCons.ARTIST_COLLECTION)
-                    .get()
-                    .addOnSuccessListener { querySnapshot ->
-                        val artists = ArrayList<Artist>()
-                        for (document in querySnapshot) {
-                            val artist = document.toObject(Artist::class.java)
-                            artists.add(artist)
-                        }
-                        result.invoke(UiStates.Success(artists))
-                    }
-                    .addOnFailureListener { exception ->
-                        result.invoke(UiStates.Failure(exception.localizedMessage ?: "Unknown error occurred"))
-                    }
-            } catch (e: Exception) {
-                // Handle any other unexpected exceptions
-                result.invoke(UiStates.Failure(e.localizedMessage ?: "An unexpected error occurred"))
-            }
-
-
-
-    }
-
-
-
-    override suspend fun getArtistById(id: String, result: (UiStates<Artist?>) -> Unit) {
         try {
-            firestore.collection(FireStoreCons.ARTIST_COLLECTION).document(id)
-                .get()
-                .addOnSuccessListener {
-                    val artist =  it.toObject<Artist>()
-                    result.invoke(UiStates.Success(artist))
-                }
-                .addOnFailureListener {
-                    result.invoke( UiStates.Failure(it.localizedMessage))
-                }
-
-        }
-        catch (e:Exception){
-            result.invoke(UiStates.Failure(e.localizedMessage ?: "An unexpected error occurred"))
-        }
-
-    }
-
-    override suspend fun getArtistByIds(ids: List<String>, result: (UiStates<List<Artist>>) -> Unit) {
-        try {
-
             firestore.collection(FireStoreCons.ARTIST_COLLECTION)
-                .whereIn("id",ids)
                 .get()
-                .addOnSuccessListener {
-                        querySnapshot ->
+                .addOnSuccessListener { querySnapshot ->
                     val artists = ArrayList<Artist>()
                     for (document in querySnapshot) {
                         val artist = document.toObject(Artist::class.java)
@@ -73,7 +25,62 @@ class ArtistRepoImplementation(
                     result.invoke(UiStates.Success(artists))
                 }
                 .addOnFailureListener { exception ->
-                    result.invoke(UiStates.Failure(exception.localizedMessage ?: "Unknown error occurred"))
+                    result.invoke(
+                        UiStates.Failure(
+                            exception.localizedMessage ?: "Unknown error occurred"
+                        )
+                    )
+                }
+        } catch (e: Exception) {
+            // Handle any other unexpected exceptions
+            result.invoke(UiStates.Failure(e.localizedMessage ?: "An unexpected error occurred"))
+        }
+
+
+    }
+
+
+    override suspend fun getArtistById(id: String, result: (UiStates<Artist?>) -> Unit) {
+        try {
+            firestore.collection(FireStoreCons.ARTIST_COLLECTION).document(id)
+                .get()
+                .addOnSuccessListener {
+                    val artist = it.toObject<Artist>()
+                    result.invoke(UiStates.Success(artist))
+                }
+                .addOnFailureListener {
+                    result.invoke(UiStates.Failure(it.localizedMessage))
+                }
+
+        } catch (e: Exception) {
+            result.invoke(UiStates.Failure(e.localizedMessage ?: "An unexpected error occurred"))
+        }
+
+    }
+
+    override suspend fun getArtistByIds(
+        ids: List<String>,
+        result: (UiStates<List<Artist>>) -> Unit
+    ) {
+        try {
+
+            firestore.collection(FireStoreCons.ARTIST_COLLECTION)
+                .whereIn("id", ids)
+                .get()
+                .addOnSuccessListener { querySnapshot ->
+                    val artists = ArrayList<Artist>()
+                    for (document in querySnapshot) {
+                        val artist = document.toObject(Artist::class.java)
+                        artists.add(artist)
+                    }
+                    result.invoke(UiStates.Success(artists))
+                }
+                .addOnFailureListener { exception ->
+                    result.invoke(
+                        UiStates.Failure(
+                            exception.localizedMessage ?: "Unknown error occurred"
+                        )
+                    )
                 }
         } catch (e: Exception) {
             // Handle any other unexpected exceptions
@@ -82,8 +89,13 @@ class ArtistRepoImplementation(
 
     }
 
-    override suspend fun isArtistLikedByUser(artistId: String, userId: String, onLikeStatusChanged: (Boolean) -> Unit) {
-        val artistDocumentRef = firestore.collection(FireStoreCons.ARTIST_COLLECTION).document(artistId)
+    override suspend fun isArtistLikedByUser(
+        artistId: String,
+        userId: String,
+        onLikeStatusChanged: (Boolean) -> Unit
+    ) {
+        val artistDocumentRef =
+            firestore.collection(FireStoreCons.ARTIST_COLLECTION).document(artistId)
 
         // Adding a snapshot listener to listen for real-time changes
         artistDocumentRef.addSnapshotListener { snapshot, e ->
@@ -113,15 +125,15 @@ class ArtistRepoImplementation(
     ) {
         try {
             val document = firestore.collection(FireStoreCons.ARTIST_COLLECTION).document(artistId)
-            firestore.runTransaction {transaction ->
+            firestore.runTransaction { transaction ->
                 val snapshot = transaction.get(document)
-                val like = snapshot.getLong("like")?:0
-                val likedBy = snapshot.get("likedBy") as? List<String> ?:emptyList()
-                if (!likedBy.contains(id)){
+                val like = snapshot.getLong("like") ?: 0
+                val likedBy = snapshot.get("likedBy") as? List<String> ?: emptyList()
+                if (!likedBy.contains(id)) {
                     val newLike = like + 1
                     val newLikedBy = likedBy + id
-                    transaction.update(document,"like",newLike)
-                    transaction.update(document,"likedBy",newLikedBy)
+                    transaction.update(document, "like", newLike)
+                    transaction.update(document, "likedBy", newLikedBy)
                 }
 
             }.addOnSuccessListener {
@@ -132,8 +144,7 @@ class ArtistRepoImplementation(
                 }
 
 
-        }
-        catch (e:Exception){
+        } catch (e: Exception) {
             result.invoke(UiStates.Failure("Error"))
 
         }
@@ -147,15 +158,15 @@ class ArtistRepoImplementation(
     ) {
         try {
             val document = firestore.collection(FireStoreCons.ARTIST_COLLECTION).document(artistId)
-            firestore.runTransaction {transaction ->
+            firestore.runTransaction { transaction ->
                 val snapshot = transaction.get(document)
-                val like = snapshot.getLong("like")?:0
-                val likedBy = snapshot.get("likedBy") as? List<String> ?:emptyList()
-                if (likedBy.contains(id)){
+                val like = snapshot.getLong("like") ?: 0
+                val likedBy = snapshot.get("likedBy") as? List<String> ?: emptyList()
+                if (likedBy.contains(id)) {
                     val newLike = like - 1
                     val newLikedBy = likedBy - id
-                    transaction.update(document,"like",newLike)
-                    transaction.update(document,"likedBy",newLikedBy)
+                    transaction.update(document, "like", newLike)
+                    transaction.update(document, "likedBy", newLikedBy)
                 }
 
             }.addOnSuccessListener {
@@ -166,8 +177,7 @@ class ArtistRepoImplementation(
                 }
 
 
-        }
-        catch (e:Exception){
+        } catch (e: Exception) {
             result.invoke(UiStates.Failure("Error"))
 
         }

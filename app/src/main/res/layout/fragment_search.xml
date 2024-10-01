@@ -72,13 +72,14 @@
 
             android:id="@+id/search_category_items"
             android:layout_width="match_parent"
-            android:layout_height="370dp"
+            android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
             android:gravity="center"
             android:horizontalSpacing="8dp"
             android:numColumns="2"
             android:stretchMode="columnWidth"
             android:verticalSpacing="8dp"
+
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"

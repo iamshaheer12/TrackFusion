@@ -27,7 +27,7 @@ class EmailLoginFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View{
+    ): View {
         binding = FragmentEmailLoginBinding.inflate(layoutInflater)
         // Inflate the layout for this fragment
         return binding.root
@@ -40,7 +40,7 @@ class EmailLoginFragment : Fragment() {
         observers()
     }
 
-    private fun onClick(){
+    private fun onClick() {
         binding.elButton.setOnClickListener {
             val email = binding.elEmail.text.toString()
 
@@ -56,8 +56,6 @@ class EmailLoginFragment : Fragment() {
             authViewModel.forgotPasswordLink(email)
 
 
-
-
         }
 
         binding.arrowBack.setOnClickListener {
@@ -65,24 +63,27 @@ class EmailLoginFragment : Fragment() {
         }
     }
 
-    private fun observers(){
+    private fun observers() {
         lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.STARTED){
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
                 authViewModel.forgotPassword.collect { state ->
                     when (state) {
                         is UiStates.Loading -> {
                             // Show loading indicator
                         }
+
                         is UiStates.Success -> {
                             // Navigate to the next screen or show success message
                             findNavController().popBackStack()
                             Toast.makeText(requireContext(), state.data, Toast.LENGTH_SHORT).show()
                         }
+
                         is UiStates.Failure -> {
                             // Show error message
                             Toast.makeText(requireContext(), state.error, Toast.LENGTH_SHORT).show()
                         }
-                        is UiStates.Initial ->{
+
+                        is UiStates.Initial -> {
 
                         }
 

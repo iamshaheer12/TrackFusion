@@ -39,6 +39,7 @@ class AudioPlaybackServiceProvider(private val context: Context) {
         override fun onServiceConnected(name: ComponentName, binder: IBinder) {
             val localBinder = binder as AudioPlaybackService.LocalBinder
             service = localBinder.getService()
+
             isBound = true
             onServiceReady?.invoke()
         }

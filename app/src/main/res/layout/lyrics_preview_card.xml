@@ -20,6 +20,7 @@
            android:textColor="@color/spotify_white"
            android:text="@string/lyrics_preview"
            android:textStyle="bold"
+           android:textSize="@dimen/heading_text_size"
            app:layout_constraintTop_toTopOf="parent"
            app:layout_constraintStart_toStartOf="parent"
            />
@@ -30,7 +31,6 @@
            android:layout_height="wrap_content"
            android:textColor="@color/spotify_black"
            android:text="Ab Aisa Na Karo Ke Dil Judna Paye Wapis Don’t be so cruel that my heart never heals from the heartbreak. Teri Baaton Se Bikhar Jaun Haan I grow emotional from what you say. Mana Zamana Hai Deewana I agree that the rest of the world admires your beauty. Isilye Tune Na Jana Tere Liye Main Kaafi Hoon That is why you didn’t have to know I would suffice.... - Full article: Husn Lyrics (Translation): Anuv Jain | Dekho Dekho Jaise Mere - https://lyricsraag.com/husn-translation-anuv-jain/"
-           android:maxLines="4"
            android:textFontWeight="500"
            android:textSize="@dimen/artist_text_size"
            android:fadingEdge="vertical"

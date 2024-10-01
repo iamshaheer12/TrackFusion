@@ -30,14 +30,16 @@ class AddSongFragment : Fragment() {
     private lateinit var binding: FragmentAddSongBinding
     private val args: AddSongFragmentArgs by navArgs()
     private val viewModel: AddSongViewModel by viewModels()
+
     @Inject
-    lateinit var glide:RequestManager
+    lateinit var glide: RequestManager
+
     @Inject
     lateinit var userObject: UserObject
 
-    private lateinit var adapter : AddSongAdapter
+    private lateinit var adapter: AddSongAdapter
 
-    private var songId : String = ""
+    private var songId: String = ""
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -51,9 +53,9 @@ class AddSongFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         songId = args.song
-        if (userObject.getUser() != null){
+        if (userObject.getUser() != null) {
             val user = userObject.getUser()
-            viewModel.getAllAlbum(userId = user?.userId?:"")
+            viewModel.getAllAlbum(userId = user?.userId ?: "")
 
         }
 
@@ -69,11 +71,11 @@ class AddSongFragment : Fragment() {
             // Handle item click event here
         }, glide = glide)
 
-            binding.addSongRecyclerview.adapter = adapter
+        binding.addSongRecyclerview.adapter = adapter
 
     }
 
-    private fun onClick(){
+    private fun onClick() {
         binding.arrowBack.setOnClickListener {
             findNavController().popBackStack()
         }
@@ -82,20 +84,22 @@ class AddSongFragment : Fragment() {
         }
         binding.createPlaylistCreateBtn.setOnClickListener {
 
-            if (adapter.getSelectedAlbumsId().toMutableList().isEmpty()){
+            if (adapter.getSelectedAlbumsId().toMutableList().isEmpty()) {
                 Log.d("EmtpyList", "12345")
-                Toast.makeText(requireContext(),"Pleas Select Album",Toast.LENGTH_SHORT).show()
-            }
-            else{
+                Toast.makeText(requireContext(), "Pleas Select Album", Toast.LENGTH_SHORT).show()
+            } else {
                 Log.d("addSongCalled", "12345")
 
-                viewModel.addSongs(songId = songId, albumIds = adapter.getSelectedAlbumsId().toMutableList())
+                viewModel.addSongs(
+                    songId = songId,
+                    albumIds = adapter.getSelectedAlbumsId().toMutableList()
+                )
 
             }
         }
     }
 
-    private fun observers(){
+    private fun observers() {
         lifecycleScope.launch {
 
             viewModel.addSongState.collect { state ->
@@ -104,7 +108,7 @@ class AddSongFragment : Fragment() {
 
                         binding.adProgressBar.visibility = View.VISIBLE
 
-                       // Toast.makeText(requireContext(), "Loading", Toast.LENGTH_SHORT).show()
+                        // Toast.makeText(requireContext(), "Loading", Toast.LENGTH_SHORT).show()
 
                     }
 
@@ -121,49 +125,52 @@ class AddSongFragment : Fragment() {
                         Toast.makeText(requireContext(), state.error, Toast.LENGTH_SHORT).show()
 
                     }
-                    is UiStates.Initial ->{
+
+                    is UiStates.Initial -> {
 
                     }
                 }
             }
         }
 
-            lifecycleScope.launch {
-                viewModel.allAlbums.collect { state ->
-                    when (state) {
-                        is UiStates.Loading -> {
+        lifecycleScope.launch {
+            viewModel.allAlbums.collect { state ->
+                when (state) {
+                    is UiStates.Loading -> {
 
 
-                            binding.adCenterProgressBar.visibility = View.VISIBLE
+                        binding.adCenterProgressBar.visibility = View.VISIBLE
 
-                            Toast.makeText(requireContext(), "Loading", Toast.LENGTH_SHORT).show()
+                       // Toast.makeText(requireContext(), "Loading", Toast.LENGTH_SHORT).show()
 
-                        }
+                    }
 
-                        is UiStates.Success -> {
-                            binding.adCenterProgressBar.visibility = View.GONE
+                    is UiStates.Success -> {
+                        binding.adCenterProgressBar.visibility = View.GONE
 
-                            val albumList = state.data.toMutableList()
-                            Toast.makeText(
-                                requireContext(),
-                                state.data.toString(),
-                                Toast.LENGTH_SHORT
-                            ).show()
-                            adapter.updateList(albumList)
+                        val albumList = state.data.toMutableList()
+//                        Toast.makeText(
+//                            requireContext(),
+//                            state.data.toString(),
+//                            Toast.LENGTH_SHORT
+//                        ).show()
+                        adapter.updateList(albumList)
 
 
-                        }
+                    }
 
-                        is UiStates.Failure -> {
-                            binding.adCenterProgressBar.visibility = View.GONE
+                    is UiStates.Failure -> {
+                        binding.adCenterProgressBar.visibility = View.GONE
 
-                            Toast.makeText(requireContext(), state.error, Toast.LENGTH_SHORT).show()
+                        Toast.makeText(requireContext(), state.error, Toast.LENGTH_SHORT).show()
 
-                        }
-                        is UiStates.Initial ->{
+                    }
 
-                        }
+                    is UiStates.Initial -> {
+
                     }
                 }
             }
-}   }
+        }
+    }
+}

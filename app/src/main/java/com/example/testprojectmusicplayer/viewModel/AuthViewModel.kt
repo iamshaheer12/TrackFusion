@@ -22,18 +22,21 @@ class AuthViewModel @Inject constructor(
     private val _authState = MutableStateFlow<UiStates<String>>(UiStates.Initial)
     val authState: StateFlow<UiStates<String>> = _authState
 
-    private val _loginState:MutableStateFlow<UiStates<String>> = MutableStateFlow<UiStates<String>>(UiStates.Initial)
-    val loginState : StateFlow<UiStates<String>> = _loginState
+    private val _loginState: MutableStateFlow<UiStates<String>> =
+        MutableStateFlow<UiStates<String>>(UiStates.Initial)
+    val loginState: StateFlow<UiStates<String>> = _loginState
 
     private val _forgotPassword = MutableStateFlow<UiStates<String>>(UiStates.Initial)
-    val forgotPassword :StateFlow<UiStates<String>> = _forgotPassword
+    val forgotPassword: StateFlow<UiStates<String>> = _forgotPassword
 
 
-    private val _googleLoginState:MutableStateFlow<UiStates<String>> = MutableStateFlow<UiStates<String>>(UiStates.Loading)
-    val googleLoginState : StateFlow<UiStates<String>> = _googleLoginState
+    private val _googleLoginState: MutableStateFlow<UiStates<String>> =
+        MutableStateFlow<UiStates<String>>(UiStates.Loading)
+    val googleLoginState: StateFlow<UiStates<String>> = _googleLoginState
 
-    private val _loginEmailSentState:MutableStateFlow<UiStates<String>> = MutableStateFlow<UiStates<String>>(UiStates.Initial)
-    val loginEmailSentState : StateFlow<UiStates<String>> = _loginEmailSentState
+    private val _loginEmailSentState: MutableStateFlow<UiStates<String>> =
+        MutableStateFlow<UiStates<String>>(UiStates.Initial)
+    val loginEmailSentState: StateFlow<UiStates<String>> = _loginEmailSentState
 
 
     // Method to create an account with email and password
@@ -49,21 +52,21 @@ class AuthViewModel @Inject constructor(
             }
         }
     }
-    fun loginWithEmailPassword(email: String,password: String){
+
+    fun loginWithEmailPassword(email: String, password: String) {
         _loginState.update { UiStates.Loading }
         viewModelScope.launch {
-            authRepository.loginWithEmailPassword(email,password){
-                uiState ->
+            authRepository.loginWithEmailPassword(email, password) { uiState ->
                 _loginState.update { uiState }
             }
 
         }
     }
-    fun signWithGoogle(id:String){
+
+    fun signWithGoogle(id: String) {
         _googleLoginState.update { UiStates.Loading }
         viewModelScope.launch {
-            authRepository.signUpWithGoogle(id){
-                uiState ->
+            authRepository.signUpWithGoogle(id) { uiState ->
                 _googleLoginState.update { uiState }
             }
         }
@@ -72,10 +75,9 @@ class AuthViewModel @Inject constructor(
     }
 
 
-    fun forgotPasswordLink(email: String){
+    fun forgotPasswordLink(email: String) {
         viewModelScope.launch {
-            authRepository.forgotPassword(email){
-                state ->
+            authRepository.forgotPassword(email) { state ->
                 _forgotPassword.update {
                     state
                 }
@@ -83,11 +85,10 @@ class AuthViewModel @Inject constructor(
         }
     }
 
-    fun sendEmailLinkForLogging(email: String){
+    fun sendEmailLinkForLogging(email: String) {
         _loginEmailSentState.update { UiStates.Loading }
         viewModelScope.launch {
-            authRepository.sendLoginEmail(email){
-                uiStates ->
+            authRepository.sendLoginEmail(email) { uiStates ->
                 _loginEmailSentState.update { uiStates }
             }
         }
