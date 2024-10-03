@@ -53,7 +53,7 @@ class HomeFragment : Fragment() {
     private val homeViewModel: HomeViewModel by activityViewModels()
 
 
-    private lateinit var recentGridAdapter: RecentGridAdapter
+    //private lateinit var recentGridAdapter: RecentGridAdapter
     private val getStartedAdapter by lazy {
         HomeGetStartedRecyclerViewAdapter(glide = glide,
             onItemClicked = { _, album ->
@@ -139,12 +139,12 @@ class HomeFragment : Fragment() {
         recentPlayGrid = binding.hmRecentPlayGrid
         recentPlayGrid.numColumns = 2
 
-        recentGridAdapter = RecentGridAdapter(
-            glide = glide,
-            context = requireContext(),
-            recentPlayList = emptyList()
-        )
-        recentPlayGrid.adapter = recentGridAdapter
+//        recentGridAdapter = RecentGridAdapter(
+//            glide = glide,
+//            context = requireContext(),
+//            recentPlayList = emptyList()
+//        )
+      // recentPlayGrid.adapter = recentGridAdapter
 
 
     }
@@ -218,11 +218,11 @@ class HomeFragment : Fragment() {
                 if (state.data.isEmpty()) {
                     binding.hmRecentlyPlayedTxt.visibility = View.GONE
                 } else {
-                    binding.hmRecentlyPlayedTxt.visibility = View.VISIBLE
+                    binding.hmRecentlyPlayedTxt.visibility = View.GONE
 
                 }
-                recentPlayAdapter.updateList(state.data.toMutableList())
-                recentGridAdapter.updateList(state.data.toMutableList())
+              //  recentPlayAdapter.updateList(state.data.toMutableList())
+             //   recentGridAdapter.updateList(state.data.toMutableList())
                 hideLoadingIfNeeded()
             }
 

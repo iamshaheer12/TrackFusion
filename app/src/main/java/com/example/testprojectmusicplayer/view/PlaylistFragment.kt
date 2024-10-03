@@ -72,6 +72,7 @@ class PlaylistFragment : Fragment() {
     private var currentAlbumId: String? = null
     private var currentArtistId: String? = null
     private var albumDuration = ""
+    private var album: Album? = null
     private val adapter by lazy {
         PlaylistItemsRecyclerView(glide = glide,
             onMoreClicked = { song, pos ->
@@ -84,16 +85,18 @@ class PlaylistFragment : Fragment() {
                 Log.d("CurrentIndex", song.toString())
                 // playSong(song) // Handles song item click
 
-                if (homeViewModel.currentArtistId.value != args.artistId && homeViewModel.currentAlbumId.value != args.albumId) {
-                    homeViewModel.resetSongListSent()
-                    //homeViewModel.updatePlayPauseState(false)
-                }
 
-
-                homeViewModel.updateCurrentSong(song)
-                homeViewModel.updateIndex(pos)
                 lifecycleScope.launch {
                     withContext(Dispatchers.IO) {
+
+
+                        if (homeViewModel.currentArtistId.value != args.artistId && homeViewModel.currentAlbumId.value != args.albumId) {
+                            homeViewModel.resetSongListSent()
+                            //homeViewModel.updatePlayPauseState(false)
+                        }
+
+                        homeViewModel.updateCurrentSong(song)
+                        homeViewModel.updateIndex(pos)
                         homeViewModel.handlePlayPause(args.albumId, args.artistId, song.songId)
                     }
                 }
@@ -120,50 +123,50 @@ class PlaylistFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        val user = userObject.getUser()
-        userId = user?.userId
-        albumId = user?.likedAlbums
 
+        // Fetch user data asynchronously to avoid blocking the main thread
+        lifecycleScope.launch(Dispatchers.IO) {
+            val user = userObject.getUser()
+            userId = user?.userId
+            albumId = user?.likedAlbums
 
-        val artist = args.artistId
-        val albumId = args.albumId
+            val artist = args.artistId
+            val albumId = args.albumId
 
-        if (albumId != null) {
+            withContext(Dispatchers.Main) {
+                // Set up bindings and UI components on the main thread
+                bottomBinding = MoreBottomSheetLayoutBinding.inflate(layoutInflater)
+                setRecyclerView()
+            }
 
-            homeViewModel.getCurrentAlbum(albumId = albumId)
-            homeViewModel.isLikedAlbum(albumId = albumId, user?.userId ?: "1234")
-            handleClickOnLikedAlbum(albumId = albumId, userId = user?.userId ?: "1234")
-            albumObservers()
+            // Trigger data fetching and observe the results
+            if (albumId != null) {
+                // Fetch album data and handle clicks on the album
+                homeViewModel.getCurrentAlbum(albumId = albumId)
+                homeViewModel.isLikedAlbum(albumId = albumId, user?.userId ?: "1234")
+                handleClickOnLikedAlbum(albumId = albumId, userId = user?.userId ?: "1234")
+                albumObservers()
 
+                Log.d("AlbumIdArg", albumId.toString())
 
-            Log.d("AlbumIdArg", albumId.toString())
+            } else {
+                // Fetch artist data and handle clicks on the artist
+                homeViewModel.getCurrentArtist(artistId = artist ?: "")
+                homeViewModel.isArtistLiked(artistId = artist ?: "", userId = userId ?: "")
+                handleClickOnLikedArtist(artistId = artist ?: "", userId = userId ?: "")
+                artistObserver()
+            }
 
+            // Observe other LiveData and handle UI updates for playing state
+            Log.d("PlayingState2", homeViewModel.isPlaying.value.toString())
 
-        } else {
-            homeViewModel.getCurrentArtist(artistId = artist ?: "")
-            homeViewModel.isArtistLiked(artistId = artist ?: "", userId = userId ?: "")
-            handleClickOnLikedArtist(artistId = artist ?: "", userId = userId ?: "")
-            artistObserver()
-
-
+            // Trigger any click handlers and observers for songs and other data
+            onClick()
+            songObserver()
+            observer()
         }
-        Log.d("PlayingState2",homeViewModel.isPlaying.value.toString())
-
-
-        bottomBinding = MoreBottomSheetLayoutBinding.inflate(layoutInflater)
-
-
-        setRecyclerView()
-
-
-
-
-        onClick()
-        songObserver()
-        observer()
-        //requestPermissionResult()
-
     }
+
 
     private fun observer() {
         lifecycleScope.launch {
@@ -219,7 +222,8 @@ class PlaylistFragment : Fragment() {
         }
 
 
-        if (homeViewModel.currentArtistId.value == args.artistId || homeViewModel.currentAlbumId.value == args.albumId) {
+        if (args.albumId != null && homeViewModel.currentAlbumId.value == args.albumId || args.artistId != null && homeViewModel.currentArtistId.value == args.artistId){
+            Log.d("AlbumId and arg", homeViewModel.currentAlbumId.value.toString()+"  "+args.albumId.toString())
             lifecycleScope.launch {
                 homeViewModel.currentSong.collect { currentSong ->
                     Log.d("CurrentSong", currentSong.toString())
@@ -242,10 +246,16 @@ class PlaylistFragment : Fragment() {
                     binding.playlistPlayBtn.setImageResource(playButtonIcon)
                 }
             }
-        } else {
-
-
         }
+
+
+
+//        if (homeViewModel.currentArtistId.value == args.artistId || homeViewModel.currentAlbumId.value == args.albumId) {
+//
+//        } else {
+//
+//
+//        }
 
 
     }
@@ -269,6 +279,7 @@ class PlaylistFragment : Fragment() {
                         is UiStates.Success -> {
 //                                album = state.data
                             Log.d("AlbumData", state.data.toString())
+                            album = state.data
                             //   homeViewModel.songListFunc(state.data.songs)
                             initUi(album = state.data, artist = null)
 
@@ -379,6 +390,8 @@ class PlaylistFragment : Fragment() {
     private fun songObserver() {
         lifecycleScope.launch {
             homeViewModel.isLikedSong.collect { state ->
+
+                Log.d("LikedSong343", state.toString())
                 updateLikedButtonStateSong(state)
 
 
@@ -425,7 +438,7 @@ class PlaylistFragment : Fragment() {
                     }
 
                     is UiStates.Success -> {
-                     //   Toast.makeText(requireContext(), state.data, Toast.LENGTH_SHORT).show()
+                        //   Toast.makeText(requireContext(), state.data, Toast.LENGTH_SHORT).show()
 
 
                     }
@@ -619,9 +632,20 @@ class PlaylistFragment : Fragment() {
 
             if (homeViewModel.currentArtistId.value != args.artistId && homeViewModel.currentAlbumId.value != args.albumId) {
                 homeViewModel.resetSongListSent()
+                if (args.albumId != null){
+                    lifecycleScope.launch(Dispatchers.IO) {
+                    withContext(Dispatchers.IO) {
+                       homeViewModel.addIntoRecentPlay(userId?:"",album?:Album())
+                    }
+                }
+                }
+
+//
+
+
 
                 checkAndRequestPermissions()
-              //  observer()
+                //  observer()
             } else {
                 checkAndRequestPermissions()
                 //observer()
@@ -665,6 +689,10 @@ class PlaylistFragment : Fragment() {
     private fun handleClickOnLikedSong() {
         this.bottomBinding.moreBottomLinearlayoutLike
             .setOnClickListener {
+                val isLiked = !homeViewModel.isLikedSong.value
+                updateLikedButtonStateSong(isLiked)
+                //Log.d("LikedSong343", isLikedSong.toString())
+
                 if (homeViewModel.isLikedSong.value) {
                     homeViewModel.onUnLikedSong(
                         currentSongId,
@@ -680,6 +708,11 @@ class PlaylistFragment : Fragment() {
 
     private fun handleClickOnLikedArtist(artistId: String, userId: String) {
         binding.playlistLikedBtn.setOnClickListener {
+
+            val isLiked = !homeViewModel.isLikedArtist.value
+
+            updateLikeButtonStateAlbum(isLiked)
+
             if (homeViewModel.isLikedArtist.value) {
                 homeViewModel.onUnlikedLikedArtist(artistId = artistId, userId = userId)
             } else {
@@ -690,6 +723,10 @@ class PlaylistFragment : Fragment() {
 
     private fun handleClickOnLikedAlbum(albumId: String, userId: String) {
         binding.playlistLikedBtn.setOnClickListener {
+
+            val isLiked = !homeViewModel.isLikedAlbum.value
+            updateLikeButtonStateAlbum(isLiked)
+
             Log.d("LikedSong343", isLikedAlbum.toString())
             if (homeViewModel.isLikedAlbum.value) {
                 homeViewModel.onUnLikedAlbum(albumId, userId)
@@ -828,8 +865,12 @@ class PlaylistFragment : Fragment() {
             bottomBinding = MoreBottomSheetLayoutBinding.inflate(layoutInflater)
         }
 
+        lifecycleScope.launch {
+            homeViewModel.isLikedSong(songId = song.songId, userId = userId ?: "1234")
 
-        homeViewModel.isLikedSong(songId = song.songId, userId = userId ?: "1234")
+        }
+
+
         bottomBinding.moreBottomLinearlayoutAddToPlaylist.setOnClickListener {
             val action =
                 PlaylistFragmentDirections.actionPlaylistFragment2ToAddSongFragment(song.songId)

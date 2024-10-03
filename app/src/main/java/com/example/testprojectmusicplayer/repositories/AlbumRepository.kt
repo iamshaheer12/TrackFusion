@@ -5,6 +5,8 @@ import com.example.testprojectmusicplayer.model.Song
 import com.example.testprojectmusicplayer.utils.UiStates
 import java.net.IDN
 
+
+
 interface AlbumRepository {
 
     suspend fun getAlbums(result: (UiStates<List<Album>>) -> Unit)

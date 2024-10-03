@@ -49,23 +49,25 @@ class AlbumRepoImplementation(
     override suspend fun getAlbumById(id: String, result: (UiStates<Album?>) -> Unit) {
         try {
             firestore.collection(FireStoreCons.ALBUM_COLLECTION).document(id)
-                .get()
-                .addOnSuccessListener {
-                    val album =  it.toObject<Album>()
+                .addSnapshotListener { documentSnapshot, exception ->
+                    if (exception != null) {
+                        result.invoke(UiStates.Failure(exception.localizedMessage.orEmpty()))
+                        return@addSnapshotListener
+                    }
 
-
-                    result.invoke(UiStates.Success(album))
+                    if (documentSnapshot != null && documentSnapshot.exists()) {
+                        val album = documentSnapshot.toObject<Album>()
+                        result.invoke(UiStates.Success(album))
+                    } else {
+                        // If the album doesn't exist, return null
+                        result.invoke(UiStates.Success(null))
+                    }
                 }
-                .addOnFailureListener {
-                    result.invoke( UiStates.Failure(it.localizedMessage.orEmpty()))
-                }
-
-        }
-        catch (e:Exception){
+        } catch (e: Exception) {
             result.invoke(UiStates.Failure(e.localizedMessage ?: "An unexpected error occurred"))
         }
-
     }
+
 
     override suspend fun getAlbumByIds(ids: List<String>, result: (UiStates<List<Album>>) -> Unit) {
         try {
@@ -303,7 +305,7 @@ class AlbumRepoImplementation(
                 }
 
                 // Once all transactions are successful, trigger success
-                result(UiStates.Success("Song successfully added to all albums"))
+                result(UiStates.Success("Song successfully added to selected albums"))
             }
         } catch (e: Exception) {
             // Handle any exceptions that occur during the operation

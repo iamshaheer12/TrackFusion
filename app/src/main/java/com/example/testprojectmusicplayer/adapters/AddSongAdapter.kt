@@ -84,4 +84,9 @@ class AddSongAdapter @Inject constructor(
     fun getSelectedAlbumsId(): Set<String> {
         return selectedAlbums
     }
+
+    fun clearSelections() {
+        selectedAlbums.clear() // Clear all selected items
+        notifyDataSetChanged() // Refresh the entire list to reflect unselected state
+    }
 }

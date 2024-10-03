@@ -58,30 +58,37 @@ class SongRepoImplementation(
                 // Return an empty list of songs if the ids list is empty
                 result.invoke(UiStates.Success(emptyList()))
                 return
-            }
-            else{
+            } else {
+                // Listen for real-time updates
                 firestore.collection(FireStoreCons.SONG_COLLECTION)
                     .whereIn("id", ids)
-                    .get()
-                    .addOnSuccessListener { querySnapshot ->
-                        val songs = ArrayList<Song>()
-                        for (document in querySnapshot) {
-                            val song = document.toObject(Song::class.java)
-                            songs.add(song)
+                    .addSnapshotListener { querySnapshot, exception ->
+                        if (exception != null) {
+                            result.invoke(UiStates.Failure(exception.localizedMessage ?: "Unknown error occurred"))
+                            return@addSnapshotListener
                         }
-                        result.invoke(UiStates.Success(songs))
-                    }
-                    .addOnFailureListener { exception ->
-                        result.invoke(UiStates.Failure(exception.localizedMessage ?: "Unknown error occurred"))
+
+                        if (querySnapshot != null && !querySnapshot.isEmpty) {
+                            val songs = ArrayList<Song>()
+                            for (document in querySnapshot) {
+                                val song = document.toObject(Song::class.java)
+                                songs.add(song)
+                            }
+                            // Return the updated list of songs
+                            result.invoke(UiStates.Success(songs))
+                        } else {
+                            // If no documents are found
+                            result.invoke(UiStates.Success(emptyList()))
+                        }
                     }
             }
-
 
         } catch (e: Exception) {
             // Handle any other unexpected exceptions
             result.invoke(UiStates.Failure(e.localizedMessage ?: "An unexpected error occurred"))
         }
     }
+
 
 
 

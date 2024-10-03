@@ -1,5 +1,6 @@
 package com.example.testprojectmusicplayer.view
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import android.util.DisplayMetrics
 import android.util.Log
@@ -12,19 +13,23 @@ import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.RequestManager
+import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bumptech.glide.request.RequestOptions
 import com.example.testprojectmusicplayer.R
 import com.example.testprojectmusicplayer.databinding.MusciPlayerScreenBinding
 import com.example.testprojectmusicplayer.model.Artist
 import com.example.testprojectmusicplayer.model.Song
+import com.example.testprojectmusicplayer.utils.AudioDuration
 import com.example.testprojectmusicplayer.utils.UiStates
 import com.example.testprojectmusicplayer.utils.UserObject
 import com.example.testprojectmusicplayer.viewModel.HomeViewModel
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 
@@ -42,7 +47,7 @@ class MusicPlayerBottomSheet : BottomSheetDialogFragment() {
     lateinit var userObject: UserObject
 
     private var userId: String? = null
-    private var albumId: String? = null
+    private var  albumId: String? = null
     private var songId: String? = null
 
 
@@ -56,115 +61,49 @@ class MusicPlayerBottomSheet : BottomSheetDialogFragment() {
         return binding.root
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        val user = userObject.getUser()
-        userId = user?.userId
-        albumId = user?.likedAlbums
+
+        // Launch coroutine for background work
+        //lifecycleScope.launch(Dispatchers.IO) {
+            // Fetch user data in the background
+            val user = userObject.getUser()
+            userId = user?.userId
+            albumId = user?.likedAlbums
+
+            // Switch to the main thread for UI-related tasks
+            //withContext(Dispatchers.Main) {
+                // Initialize BottomSheetBehavior
+                val bottomSheetBehavior = BottomSheetBehavior.from(view.parent as View)
+                bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED // Start collapsed
+                bottomSheetBehavior.isHideable = false // Prevent hiding the bottom sheet completely
+
+                // Get screen height
+                val displayMetrics = DisplayMetrics()
+                requireActivity().windowManager.defaultDisplay.getMetrics(displayMetrics)
+                val screenHeight = displayMetrics.heightPixels
+
+                // Set peek height to max screen height
+                bottomSheetBehavior.peekHeight = screenHeight
 
 
-        // Initialize BottomSheetBehavior
-        val bottomSheetBehavior = BottomSheetBehavior.from(view.parent as View)
-        bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED // Start collapsed
-        bottomSheetBehavior.isHideable = false // Prevent hiding the bottom sheet completely
 
-        // Get screen height
-        val displayMetrics = DisplayMetrics()
-        requireActivity().windowManager.defaultDisplay.getMetrics(displayMetrics)
-        val screenHeight = displayMetrics.heightPixels
-
-        // Set peek height to max screen height
-        bottomSheetBehavior.peekHeight = screenHeight
-
-        // Set up click listener for the arrow button
-
-
-        handleClickOnLikedSong()
-        likedFunctionalityObserver()
-        observer()
-        onClick()
-        handlePlaybackPositionOrSeekBar()
-
-        handleMediaPlayerFunctionality()
-
-        handleMediaPlayerObserver()
-        //  handlePlayPause()
-
-
+                // Set up all the observers and handle media player functionality on the main thread
+                handleClickOnLikedSong()
+                likedFunctionalityObserver()
+                observer()
+                onClick()
+                handlePlaybackPositionOrSeekBar()
+                handleMediaPlayerFunctionality()
+                handleMediaPlayerObserver()
+           // }
+       // }
     }
 
 
-    private fun likedFunctionalityObserver() {
-        lifecycleScope.launch {
-            homeViewModel.isLikedSong.collect { state ->
-                updateLikedButtonStateSong(state)
 
 
-            }
-
-        }
-
-        lifecycleScope.launch {
-            homeViewModel.likedSong.collect { state ->
-                when (state) {
-                    is UiStates.Loading -> {
-                        //   Toast.makeText(requireContext(), "Loading", Toast.LENGTH_SHORT).show()
-
-
-                    }
-
-                    is UiStates.Success -> {
-                       // Toast.makeText(requireContext(), state.data, Toast.LENGTH_SHORT).show()
-
-
-                    }
-
-                    is UiStates.Failure -> {
-                        Toast.makeText(requireContext(), state.error, Toast.LENGTH_SHORT).show()
-
-
-                    }
-
-                    is UiStates.Initial -> {
-
-                    }
-
-                }
-            }
-
-        }
-
-        lifecycleScope.launch {
-            homeViewModel.unLikedSong.collect { state ->
-                when (state) {
-                    is UiStates.Loading -> {
-                        //     Toast.makeText(requireContext(), "Loading", Toast.LENGTH_SHORT).show()
-
-
-                    }
-
-                    is UiStates.Success -> {
-                        //Toast.makeText(requireContext(), state.data, Toast.LENGTH_SHORT).show()
-
-
-                    }
-
-                    is UiStates.Failure -> {
-                        Toast.makeText(requireContext(), state.error, Toast.LENGTH_SHORT).show()
-
-
-                    }
-
-                    is UiStates.Initial -> {
-
-                    }
-                }
-            }
-
-        }
-
-
-    }
 
 
     private fun observer() {
@@ -215,16 +154,65 @@ class MusicPlayerBottomSheet : BottomSheetDialogFragment() {
     }
 
     private fun handleClickOnLikedSong() {
-        this.binding.mpLikeBtn
-            .setOnClickListener {
-                if (homeViewModel.isLikedSong.value) {
-                    homeViewModel.onUnLikedSong(songId ?: "", userId ?: "", albumId = albumId ?: "")
-                } else {
-                    homeViewModel.onLikedSong(songId ?: "", userId ?: "", albumId = albumId ?: "")
+        this.binding.mpLikeBtn.setOnClickListener {
+            // Immediately toggle the like state
+            val isLiked = !homeViewModel.isLikedSong.value
+            updateLikedButtonStateSong(isLiked) // Update UI immediately
+            if (isLiked) {
+                homeViewModel.onLikedSong(songId ?: "", userId ?: "", albumId = albumId ?: "")
+            } else {
+                homeViewModel.onUnLikedSong(songId ?: "", userId ?: "", albumId = albumId ?: "")
+            }
+        }
+    }
+
+    // Update this observer to ensure it updates the button state when the state changes
+    private fun likedFunctionalityObserver() {
+        lifecycleScope.launch {
+            homeViewModel.isLikedSong.collect { state ->
+                updateLikedButtonStateSong(state)
+            }
+        }
+
+        lifecycleScope.launch {
+            homeViewModel.likedSong.collect { state ->
+                when (state) {
+                    is UiStates.Loading -> {
+                        // Handle loading state if needed
+                    }
+                    is UiStates.Success -> {
+                        // Optionally handle success state if needed
+                    }
+                    is UiStates.Failure -> {
+                        Toast.makeText(requireContext(), state.error, Toast.LENGTH_SHORT).show()
+                    }
+                    is UiStates.Initial -> {
+                        // Handle initial state if needed
+                    }
                 }
             }
+        }
 
+        lifecycleScope.launch {
+            homeViewModel.unLikedSong.collect { state ->
+                when (state) {
+                    is UiStates.Loading -> {
+                        // Handle loading state if needed
+                    }
+                    is UiStates.Success -> {
+                        // Optionally handle success state if needed
+                    }
+                    is UiStates.Failure -> {
+                        Toast.makeText(requireContext(), state.error, Toast.LENGTH_SHORT).show()
+                    }
+                    is UiStates.Initial -> {
+                        // Handle initial state if needed
+                    }
+                }
+            }
+        }
     }
+
 
 
     private fun handleMediaPlayerObserver() {
@@ -261,24 +249,36 @@ class MusicPlayerBottomSheet : BottomSheetDialogFragment() {
 
 
     private fun initUi(song: Song) {
-        glide
-            .load(song.imageUrl)
+        // Load image asynchronously with Glide
+        glide.load(song.imageUrl)
             .apply(
                 RequestOptions()
-                    .placeholder(R.drawable.default_image) // Replace with your default image resource
-                    .error(R.drawable.default_image) // Shown when there is an error loading the image
+                    .placeholder(R.drawable.default_image) // Default image resource
+                    .error(R.drawable.default_image) // Shown when an error occurs loading the image
+                    .diskCacheStrategy(DiskCacheStrategy.ALL) // Caches both original and resized images
             )
             .into(binding.mpCurrentSongPoster)
 
+        // Set song metadata
         binding.mpSongTitle.text = song.title
         binding.mpArtist.text = song.description
         binding.mpTitleSong.text = song.title
-        //binding.
-
         binding.mpLyricsPreview.lpLyrics.text = song.lyrics
 
+        // Calculate audio duration asynchronously
+        lifecycleScope.launch(Dispatchers.IO) {
+            val audioDuration = AudioDuration.getAudioFileDuration(song.audioFile)
 
+            homeViewModel.isLikedSong(songId = song.songId, userId = userId?:"")
+
+            withContext(Dispatchers.Main) {
+                // Update seek bar and duration on the main thread
+                binding.mpSeekBar.max = audioDuration.toInt()
+                binding.mpEndProgressText.text = AudioDuration.formatDuration(audioDuration.toLong())
+            }
+        }
     }
+
 
 
     private fun updateLikedButtonStateSong(isLiked: Boolean) {
@@ -318,7 +318,8 @@ class MusicPlayerBottomSheet : BottomSheetDialogFragment() {
             homeViewModel.playbackPosition.collect { seekBarPosition ->
 
                 binding.mpSeekBar.progress = seekBarPosition
-                binding.mpInitialProgressText.text = seekBarPosition.toString()
+                val seekBar = seekBarPosition
+                binding.mpInitialProgressText.text = AudioDuration.formatDuration(seekBar.toLong())
 
             }
 

@@ -42,6 +42,7 @@ import com.example.yourappname.utils.PlaylistUtils
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
@@ -70,6 +71,8 @@ class LibPlaylistFragment : Fragment() {
     private var currentSongId = ""
     private var albumDuration = ""
     private var album: Album? = null
+
+    private var isAlbumDeleted = false
     private var artist: Artist? = null
 
     private val adapter by lazy {
@@ -80,7 +83,6 @@ class LibPlaylistFragment : Fragment() {
 
             },
             onItemClicked = { pos, song ->
-
 
 
                 if (homeViewModel.currentArtistId.value != args.artistId && homeViewModel.currentAlbumId.value != args.albumId) {
@@ -117,59 +119,67 @@ class LibPlaylistFragment : Fragment() {
         return binding.root
     }
 
-
+    @SuppressLint("SuspiciousIndentation")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        val user = userObject.getUser()
-        userId = user?.userId
-        albumId = user?.likedAlbums
+
+        Log.d("LibPlaylistFragment", "onViewCreated: ")
+
+        // Initialize user data asynchronously to avoid UI blocking
+        lifecycleScope.launch(Dispatchers.IO) {
+            val user = userObject.getUser()
+            userId = user?.userId
+            albumId = user?.likedAlbums
+
+            // Now switch to Main thread to perform UI operations
+            withContext(Dispatchers.Main) {
+                // Initialize bottomBinding and playListBottomSheet after loading user data
+                bottomBinding = MoreBottomSheetLayoutBinding.inflate(layoutInflater)
+                playListBottomSheet = MoreBottomSheetLayoutBinding.inflate(layoutInflater)
+                setRecyclerView()
+                onMoreClick()
+            }
 
 
-        val artist = args.artistId
-        val albumId = args.albumId
+            val artist = args.artistId
+            val albumId = args.albumId
 
-        if (albumId != null) {
-
-            homeViewModel.getCurrentAlbum(albumId = albumId)
-            homeViewModel.isLikedAlbum(albumId = albumId, user?.userId ?: "1234")
-            handleClickOnLikedAlbum(albumId = albumId, userId = user?.userId ?: "1234")
-
-            albumObservers()
-            onMoreClick()
+            // Set up observers before making data fetch calls (on the main thread)
 
 
-            Log.d("AlbumIdArg", albumId.toString())
+            // Trigger ViewModel data fetches based on whether albumId or artistId is available
+            if (albumId != null) {
+                Log.d("AlbumIdArg", albumId.toString())
+
+                // Fetch album data asynchronously
+                homeViewModel.getCurrentAlbum(albumId = albumId)
+                homeViewModel.isLikedAlbum(albumId = albumId, user?.userId ?: "1234")
+
+                // Set up album observers after triggering fetch
+                albumObservers()
+                removeSongObserver()
+
+            } else {
+                // Fetch artist data asynchronously
+                homeViewModel.getCurrentArtist(artistId = artist ?: "")
+                homeViewModel.isArtistLiked(artistId = artist ?: "", userId = userId ?: "")
+
+                // Set up artist observers after triggering fetch
+                artistObserver()
+            }
+
+            observer()
+            songObserver()
 
 
-        } else {
-            homeViewModel.getCurrentArtist(artistId = artist ?: "")
-            homeViewModel.isArtistLiked(artistId = artist ?: "", userId = userId ?: "")
-            handleClickOnLikedArtist(artistId = artist ?: "", userId = userId ?: "")
-            artistObserver()
-            onMoreClick()
-            //shareActionForArtist(artist?:"")
+            // Set up RecyclerView and click listeners on the main thread
+            handleClickOnLikedSong()
+            // setRecyclerView()
+            onClick()
         }
 
-
-        bottomBinding = MoreBottomSheetLayoutBinding.inflate(layoutInflater)
-        playListBottomSheet = MoreBottomSheetLayoutBinding.inflate(layoutInflater)
-
-
-        setRecyclerView()
-//        PlaylistUtils.checkAndRequestPermissions(
-//            context = requireContext(),
-//            requestPermissionsLauncher = requestPermissionsLauncher,
-//            onPermissionsGranted = { foregroundNotification() }
-//        )
-
-        // Display playlist duration (if you need this as well)
-
-
-        onClick()
-        songObserver()
-        observer()
-
     }
+
 
     private fun observer() {
         lifecycleScope.launch {
@@ -224,7 +234,7 @@ class LibPlaylistFragment : Fragment() {
 
             }
         }
-        if (homeViewModel.currentArtistId.value == args.artistId || homeViewModel.currentAlbumId.value == args.albumId) {
+        if (args.albumId != null && homeViewModel.currentAlbumId.value == args.albumId || args.artistId != null && homeViewModel.currentArtistId.value == args.artistId) {
             lifecycleScope.launch {
                 homeViewModel.currentSong.collect { currentSong ->
                     Log.d("CurrentIndex", currentSong.toString())
@@ -294,7 +304,8 @@ class LibPlaylistFragment : Fragment() {
 
 
         lifecycleScope.launch {
-            homeViewModel.deleteAlbum.collect { state ->
+
+            homeViewModel.deleteAlbum.collectLatest { state ->
                 when (state) {
                     is UiStates.Loading -> {
                         //Toast.makeText(requireContext(), "Loading", Toast.LENGTH_SHORT).show()
@@ -302,20 +313,27 @@ class LibPlaylistFragment : Fragment() {
 
                     is UiStates.Success -> {
                         Toast.makeText(requireContext(), state.data, Toast.LENGTH_SHORT).show()
-                        if (args.albumId == homeViewModel.currentAlbumId.value){
-                            homeViewModel.resetSongListSent()
-                            findNavController().popBackStack()
-                        }
-                        else{
-                            findNavController().popBackStack()
-                        }
 
+                        homeViewModel.resetDeleteAlbumState()
+
+                        isAlbumDeleted = true
+                        if (args.albumId == homeViewModel.currentAlbumId.value) {
+                            homeViewModel.resetSongListSent()
+
+
+                            findNavController().popBackStack()
+                        } else {
+                            findNavController().popBackStack()
+                        }
 
 
                     }
 
                     is UiStates.Failure -> {
                         Toast.makeText(requireContext(), state.error, Toast.LENGTH_SHORT).show()
+
+                        //  isAlbumDeleted = true
+                        homeViewModel.resetDeleteAlbumState()
 
                     }
 
@@ -328,25 +346,61 @@ class LibPlaylistFragment : Fragment() {
         }
 
 
-
-
-
-
-
         lifecycleScope.launch {
-            homeViewModel.isLikedAlbum.collect { state ->
-                updateLikeButtonStateAlbum(state)
-
-                isLikedAlbum = state
-            }
-
-        }
-
-        lifecycleScope.launch {
-            homeViewModel.likedAlbum.collect { state ->
+            homeViewModel.unLikedAlbum.collect { state ->
                 when (state) {
                     is UiStates.Loading -> {
                         // Toast.makeText(requireContext(), "Loading", Toast.LENGTH_SHORT).show()
+                        binding.playlistLoadingScreen.loading.visibility = View.VISIBLE
+
+
+                    }
+
+                    is UiStates.Success -> {
+                        binding.playlistLoadingScreen.loading.visibility = View.GONE
+                        homeViewModel.resetLikeAlbumState()
+
+                        if (args.albumId == homeViewModel.currentAlbumId.value) {
+                            homeViewModel.resetSongListSent()
+                            findNavController().popBackStack()
+                        } else {
+                            findNavController().popBackStack()
+                        }
+
+
+                    }
+
+                    is UiStates.Failure -> {
+                        binding.playlistLoadingScreen.loading.visibility = View.GONE
+                        homeViewModel.resetLikeAlbumState()
+
+
+                        Toast.makeText(requireContext(), state.error, Toast.LENGTH_SHORT).show()
+
+
+                    }
+
+                    is UiStates.Initial -> {
+
+                    }
+                }
+            }
+
+
+        }
+
+
+    }
+
+    private fun removeSongObserver() {
+        lifecycleScope.launch() {
+            homeViewModel.removeSongFromPlaylist.collect { state ->
+                when (state) {
+                    is UiStates.Loading -> {
+                        //withContext(Dispatchers.Main) {
+                        binding.playlistLoadingScreen.loading.visibility = View.VISIBLE
+
+                        // }
 
 
                     }
@@ -354,44 +408,15 @@ class LibPlaylistFragment : Fragment() {
                     is UiStates.Success -> {
                         // Toast.makeText(requireContext(), state.data, Toast.LENGTH_SHORT).show()
 
-
-                    }
-
-                    is UiStates.Failure -> {
-                        Toast.makeText(requireContext(), state.error, Toast.LENGTH_SHORT).show()
-
-
-                    }
-
-                    is UiStates.Initial -> {
-
-                    }
-                }
-            }
-
-        }
-        lifecycleScope.launch {
-            homeViewModel.unLikedAlbum.collect { state ->
-                when (state) {
-                    is UiStates.Loading -> {
-                       // Toast.makeText(requireContext(), "Loading", Toast.LENGTH_SHORT).show()
-                        binding.playlistLoadingScreen.loading.visibility = View.VISIBLE
-
-
-                    }
-
-                    is UiStates.Success -> {
-                        Toast.makeText(requireContext(), state.data, Toast.LENGTH_SHORT).show()
                         binding.playlistLoadingScreen.loading.visibility = View.GONE
+                        //homeViewModel.getCurrentAlbum(albumId = args.albumId?:"")
+                        // homeViewModel.
 
-                        if (args.albumId == homeViewModel.currentAlbumId.value){
+                        if (args.albumId == homeViewModel.currentAlbumId.value) {
+
+
                             homeViewModel.resetSongListSent()
-                            findNavController().popBackStack()
-                            binding.playlistLoadingScreen.loading.visibility = View.GONE
-                        }
-                        else{
-                            findNavController().popBackStack()
-                            binding.playlistLoadingScreen.loading.visibility = View.GONE
+
                         }
 
 
@@ -415,54 +440,6 @@ class LibPlaylistFragment : Fragment() {
 
 
         }
-        lifecycleScope.launch {
-            homeViewModel.removeSongFromPlaylist.collect { state ->
-                when (state) {
-                    is UiStates.Loading -> {
-                        binding.playlistLoadingScreen.loading.visibility = View.VISIBLE
-
-
-                    }
-
-                    is UiStates.Success -> {
-                        Toast.makeText(requireContext(), state.data, Toast.LENGTH_SHORT).show()
-                        binding.playlistLoadingScreen.loading.visibility = View.GONE
-
-                        if (args.albumId== homeViewModel.currentAlbumId.value){
-                            homeViewModel.resetSongListSent()
-                            findNavController().popBackStack()
-                            binding.playlistLoadingScreen.loading.visibility = View.GONE
-                        }
-                        else{
-                            findNavController().popBackStack()
-                            binding.playlistLoadingScreen.loading.visibility = View.GONE
-                        }
-
-
-
-
-                        //findNavController().popBackStack()
-
-
-                    }
-
-                    is UiStates.Failure -> {
-                        binding.playlistLoadingScreen.loading.visibility = View.GONE
-
-                        Toast.makeText(requireContext(), state.error, Toast.LENGTH_SHORT).show()
-
-
-                    }
-
-                    is UiStates.Initial -> {
-
-                    }
-                }
-            }
-
-
-        }
-
     }
 
     private fun songObserver() {
@@ -485,7 +462,7 @@ class LibPlaylistFragment : Fragment() {
                     }
 
                     is UiStates.Success -> {
-                        Toast.makeText(requireContext(), state.data, Toast.LENGTH_SHORT).show()
+                        // Toast.makeText(requireContext(), state.data, Toast.LENGTH_SHORT).show()
 
 
                     }
@@ -514,7 +491,7 @@ class LibPlaylistFragment : Fragment() {
                     }
 
                     is UiStates.Success -> {
-                        Toast.makeText(requireContext(), state.data, Toast.LENGTH_SHORT).show()
+                        // Toast.makeText(requireContext(), state.data, Toast.LENGTH_SHORT).show()
 
 
                     }
@@ -547,8 +524,8 @@ class LibPlaylistFragment : Fragment() {
                     }
 
                     is UiStates.Success -> {
-                        Toast.makeText(requireContext(), state.data.toString(), Toast.LENGTH_SHORT)
-                            .show()
+//                        Toast.makeText(requireContext(), state.data.toString(), Toast.LENGTH_SHORT)
+//                            .show()
                         initUi(null, state.data)
                         artist = state.data
                         homeViewModel.songListFunc(state.data?.songs ?: emptyList())
@@ -568,35 +545,7 @@ class LibPlaylistFragment : Fragment() {
             }
 
         }
-        lifecycleScope.launch {
-            homeViewModel.likedArtist.collect { state ->
-                when (state) {
-                    is UiStates.Loading -> {
-                        // Toast.makeText(requireContext(), "Loading", Toast.LENGTH_SHORT).show()
 
-
-                    }
-
-                    is UiStates.Success -> {
-//                        Toast.makeText(requireContext(), state.data.toString(), Toast.LENGTH_SHORT)
-//                            .show()
-                        //initUi(null,state.data)
-
-                    }
-
-                    is UiStates.Failure -> {
-                        Toast.makeText(requireContext(), state.error, Toast.LENGTH_SHORT).show()
-
-
-                    }
-
-                    is UiStates.Initial -> {
-
-                    }
-                }
-            }
-
-        }
         lifecycleScope.launch {
             homeViewModel.unLikedArtist.collect { state ->
                 when (state) {
@@ -611,26 +560,23 @@ class LibPlaylistFragment : Fragment() {
                     is UiStates.Success -> {
                         Toast.makeText(requireContext(), state.data.toString(), Toast.LENGTH_SHORT)
                             .show()
+                        homeViewModel.resetLikeArtistState()
+                        binding.playlistLoadingScreen.loading.visibility = View.GONE
 
-                        if (args.artistId == homeViewModel.currentArtistId.value){
+
+                        if (args.artistId == homeViewModel.currentArtistId.value) {
                             homeViewModel.resetSongListSent()
                             findNavController().popBackStack()
-                            binding.playlistLoadingScreen.loading.visibility = View.GONE
-                        }
-                        else{
+                        } else {
                             findNavController().popBackStack()
-                            binding.playlistLoadingScreen.loading.visibility = View.GONE
                         }
-
-
-
-
 
 
                     }
 
                     is UiStates.Failure -> {
                         Toast.makeText(requireContext(), state.error, Toast.LENGTH_SHORT).show()
+                        homeViewModel.resetLikeArtistState()
 
                         binding.playlistLoadingScreen.loading.visibility = View.GONE
 
@@ -643,15 +589,7 @@ class LibPlaylistFragment : Fragment() {
             }
 
         }
-        lifecycleScope.launch {
-            homeViewModel.isLikedArtist.collect { state ->
 
-                updateLikeButtonStateAlbum(state)
-
-
-            }
-
-        }
 
     }
 
@@ -723,14 +661,22 @@ class LibPlaylistFragment : Fragment() {
     }
 
 
-
     private fun onClick() {
         binding.playlistPlayBtn.setOnClickListener {
+
+
             if (homeViewModel.currentArtistId.value != args.artistId && homeViewModel.currentAlbumId.value != args.albumId) {
                 homeViewModel.resetSongListSent()
+//                lifecycleScope.launch(Dispatchers.IO) {
+//                    withContext(Dispatchers.IO){
+//                        if (args.albumId != null){
+//                            homeViewModel.addIntoRecentPlay(userId?:"",args.albumId)
+//                        }
+//                    }
+//                }
 
                 checkAndRequestPermissions()
-               // observer()
+                // observer()
             } else {
                 checkAndRequestPermissions()
                 //observer()
@@ -753,6 +699,10 @@ class LibPlaylistFragment : Fragment() {
     private fun handleClickOnLikedSong() {
         this.bottomBinding.moreBottomLinearlayoutLike
             .setOnClickListener {
+                val value = !homeViewModel.isLikedSong.value
+                updateLikedButtonStateSong(value)
+
+
                 if (homeViewModel.isLikedSong.value) {
                     homeViewModel.onUnLikedSong(
                         currentSongId,
@@ -766,29 +716,6 @@ class LibPlaylistFragment : Fragment() {
 
     }
 
-    private fun handleClickOnLikedAlbum(albumId: String, userId: String) {
-        binding.playlistLikedBtn.setOnClickListener {
-            Log.d("LikedSong343", isLikedAlbum.toString())
-            if (homeViewModel.isLikedAlbum.value) {
-                homeViewModel.onUnLikedAlbum(albumId, userId)
-            } else {
-                homeViewModel.onLikedAlbum(albumId, userId)
-            }
-
-        }
-
-    }
-
-
-    private fun handleClickOnLikedArtist(artistId: String, userId: String) {
-        binding.playlistLikedBtn.setOnClickListener {
-            if (homeViewModel.isLikedArtist.value) {
-                homeViewModel.onUnlikedLikedArtist(artistId = artistId, userId = userId)
-            } else {
-                homeViewModel.onLikedArtist(artistId = artistId, userId = userId)
-            }
-        }
-    }
 
     private fun handlePlayPause() {
         lifecycleScope.launch {
@@ -880,17 +807,6 @@ class LibPlaylistFragment : Fragment() {
 
     }
 
-
-
-
-
-    private fun updateLikeButtonStateAlbum(isLiked: Boolean) {
-        if (isLiked) {
-            binding.playlistLikedBtn.setImageResource(R.drawable.liked_button)
-        } else {
-            binding.playlistLikedBtn.setImageResource(R.drawable.ic_unlike)
-        }
-    }
 
     private fun updateLikedButtonStateSong(isLiked: Boolean) {
         if (isLiked) {
@@ -1006,6 +922,7 @@ class LibPlaylistFragment : Fragment() {
 
 
         playListBottomSheet.moreBottomLinearlayoutDeletePlaylist.setOnClickListener {
+            isAlbumDeleted = false
 
             if (album.createdBy == userObject.getUser()?.userId) {
                 homeViewModel.deleteAlbum(id = album.id)
@@ -1063,21 +980,31 @@ class LibPlaylistFragment : Fragment() {
             bottomBinding = MoreBottomSheetLayoutBinding.inflate(layoutInflater)
         }
 
-
-        homeViewModel.isLikedSong(songId = song.songId, userId = userId ?: "1234")
+        lifecycleScope.launch {
+            homeViewModel.isLikedSong(songId = song.songId, userId = userId ?: "1234")
+        }
 
 
         // on below line we are inflating a layout file which we have created.
         bottomBinding.moreBottomLinearlayoutDeletePlaylist.visibility = View.GONE
         bottomBinding.moreBottomLinearlayoutEditPlaylist.visibility = View.GONE
 
-        if (album?.visibility == false || album?.createdBy != userId) {
+        if (album?.visibility == false
+        //||
+        //album?.createdBy != userId
+        ) {
             bottomBinding.moreBottomLinearlayoutLike.visibility = View.GONE
 
 
         } else if (album?.createdBy == userId) {
             bottomBinding.moreBottomLinearlayoutRemoveFromPlaylist.setOnClickListener {
-                homeViewModel.removeSongFromAlbum(albumId = args.albumId ?: "", songId = song.songId)
+                lifecycleScope.launch {
+                    homeViewModel.removeSongFromAlbum(
+                        albumId = args.albumId ?: "",
+                        songId = song.songId
+                    )
+
+                }
                 dialog.dismiss()
             }
         }

@@ -170,7 +170,7 @@ class ArtistRepoImplementation(
                 }
 
             }.addOnSuccessListener {
-                result.invoke(UiStates.Success("Liked Successfully"))
+                result.invoke(UiStates.Success("Unliked Successfully"))
             }
                 .addOnFailureListener {
                     result.invoke(UiStates.Failure("Error"))

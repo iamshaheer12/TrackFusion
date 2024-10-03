@@ -18,13 +18,16 @@ import com.bumptech.glide.request.RequestOptions
 import com.example.testprojectmusicplayer.R
 import com.example.testprojectmusicplayer.databinding.FragmentMainBinding
 import com.example.testprojectmusicplayer.model.Song
+import com.example.testprojectmusicplayer.utils.AudioDuration
 import com.example.testprojectmusicplayer.utils.UiStates
 import com.example.testprojectmusicplayer.utils.UserObject
 import com.example.testprojectmusicplayer.viewModel.HomeViewModel
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -51,6 +54,11 @@ class MainFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
+
+
+
+
+
         binding = FragmentMainBinding.inflate(layoutInflater)
         // Inflate the layout for this fragment
         return binding.root
@@ -58,26 +66,34 @@ class MainFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        val user = userObject.getUser()
-        userId = user?.userId
-        albumId = user?.likedAlbums
 
+        // Launch a coroutine to handle asynchronous tasks
+      //  lifecycleScope.launch(Dispatchers.IO) {
+            // Fetch user data in the background thread
+            val user = userObject.getUser()
+            userId = user?.userId
+            albumId = user?.likedAlbums
 
-        val navHostFragment =
-            childFragmentManager.findFragmentById(binding.nestedNavHost.id) as NavHostFragment
-        navController = navHostFragment.navController
-        binding.bottomNav.setupWithNavController(navController = navController)
+            // Switch to the main thread for UI-related operations
+         //   withContext(Dispatchers.Main) {
+                // Initialize the navigation controller
+                val navHostFragment =
+                    childFragmentManager.findFragmentById(binding.nestedNavHost.id) as NavHostFragment
+                navController = navHostFragment.navController
+                binding.bottomNav.setupWithNavController(navController)
 
-        viewModel.setupPlaybackCallback()
+                // Set up all the observers and handle user interactions
+                observer()
+               // likedFunctionalityObserver()
+               // handleClickOnLikedSong()
+                handlePlayPause()
+                playPauseObserver()
 
-        observer()
-        likedFunctionalityObserver()
-        handleClickOnLikedSong()
-        handlePlayPause()
-        playPauseObserver()
-        handlePlaybackPositionOrSeekBar()
-        onClick()
-    }
+                onClick()
+            }
+        //}
+   // }
+
 
 
     private fun onClick() {
@@ -92,6 +108,7 @@ class MainFragment : Fragment() {
         }
 
 
+
     }
 
     private fun observer() {
@@ -99,7 +116,11 @@ class MainFragment : Fragment() {
             viewModel.currentSong.collectLatest { song ->
                 if (song != null) {
                     initUi(song)
+                    handlePlaybackPositionOrSeekBar()
+
+
                     songId = song.songId
+
                 } else {
                     binding.mainBottomSheetForSong.root.visibility = View.GONE
                 }
@@ -256,40 +277,30 @@ class MainFragment : Fragment() {
     }
 
     private fun handlePlaybackPositionOrSeekBar() {
-        // Set up the SeekBar listener for user interaction
-        binding.mainBottomSheetForSong.mpSeekBar.setOnSeekBarChangeListener(object :
-            SeekBar.OnSeekBarChangeListener {
-            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-                if (fromUser) {
-                    // Update the playback position in the ViewModel when the user drags the SeekBar
-                    viewModel.seekTo(progress)
+
+            lifecycleScope.launch {
+                viewModel.playbackPosition.collect { seekBarPosition ->
+
+                    Log.d("PlaybackMain", "handlePlaybackPositionOrSeekBar: $seekBarPosition")
+                    Log.d("PlaybackMain", "handlePlaybackPositionOrSeekBar: ${binding.mainBottomSheetForSong.mpSeekBar.max}")
+
+                    binding.mainBottomSheetForSong.mpSeekBar.progress = seekBarPosition
+
+
                 }
             }
 
-            override fun onStartTrackingTouch(seekBar: SeekBar?) {
-                // Optional: You can pause the position updates when the user is tracking
-            }
 
-            override fun onStopTrackingTouch(seekBar: SeekBar?) {
-                // Optional: You can resume position updates when the user stops tracking
-            }
-        })
-
-        // Observe the playback position from the ViewModel to continuously update the SeekBar
-        lifecycleScope.launch {
-            viewModel.playbackPosition.collect { livePlaybackPosition ->
-                // Only update the SeekBar's progress if the user is not currently dragging it
-                binding.mainBottomSheetForSong.mpSeekBar.progress = livePlaybackPosition
-            }
-        }
     }
-
-
 
     private fun initUi(song: Song) {
 
         binding.mainBottomSheetForSong.btmSheetSongTitle.text = song.title
         binding.mainBottomSheetForSong.btmSheetSongArtist.text = song.description
+        val duration = AudioDuration.getAudioFileDuration(song.audioFile).toInt()
+        Log.d("InitUI", "Song duration: $duration")
+        binding.mainBottomSheetForSong.mpSeekBar.max =duration
+       // Log.d("InitUI", "Song duration: $duration")
 
         glide
             .load(song.imageUrl)
@@ -307,7 +318,6 @@ class MainFragment : Fragment() {
         // Create an instance of the MusicPlayerBottomSheet
         val musicPlayerBottomSheet = MusicPlayerBottomSheet()
 
-        // Show the bottom sheet
         musicPlayerBottomSheet.show(
             requireActivity().supportFragmentManager,
             musicPlayerBottomSheet.tag

@@ -83,6 +83,7 @@
             app:layout_constraintEnd_toStartOf="@+id/btm_sheet_song_play_btn"
             app:layout_constraintTop_toTopOf="parent"
             android:layout_marginEnd="16dp"
+            android:visibility="gone"
             />
         <SeekBar
             android:id="@+id/mp_seek_bar"

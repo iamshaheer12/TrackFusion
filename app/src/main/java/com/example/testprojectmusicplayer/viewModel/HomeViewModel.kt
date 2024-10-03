@@ -36,6 +36,8 @@ class HomeViewModel @Inject constructor(
 
     private var isSongListSent = false
 
+    private var isServiceSet = false
+
 
 
     private val _songListState = MutableStateFlow<UiStates<List<Song>>>(UiStates.Initial)
@@ -129,7 +131,7 @@ class HomeViewModel @Inject constructor(
 
 
     init {
-        setupPlaybackCallback()
+      //  setupPlaybackCallback()
     }
 
 
@@ -153,7 +155,7 @@ class HomeViewModel @Inject constructor(
 
     }
 
-    fun isLikedSong(songId: String, userId: String) {
+      suspend fun  isLikedSong(songId: String, userId: String) {
         viewModelScope.launch {
 
             songRepository.isSongLikedByUser(songId = songId, userId = userId) { state ->
@@ -163,17 +165,27 @@ class HomeViewModel @Inject constructor(
         }
     }
 
+    fun resetLikeArtistState(){
+        _unLikedArtist.value = UiStates.Initial
+    }
+    fun resetLikeAlbumState(){
+        _unLikedAlbum.value = UiStates.Initial
+    }
 
-    fun removeSongFromAlbum(songId: String, albumId: String) {
+
+  suspend  fun removeSongFromAlbum(songId: String, albumId: String) {
         viewModelScope.launch {
-            _removeSongFromPlaylist.update {UiStates.Loading}
+            _removeSongFromPlaylist.update { UiStates.Loading }
 
             albumRepository.removeSongFromAlbum(songId = songId, albumId = albumId) {
+                state ->
                 _removeSongFromPlaylist.update {
-                    Log.d("removeSongFromAlbum", "removeSongFromAlbum: ")
-                    it
+                    state
                 }
+                Log.d("removeSongFromAlbum", "removeSongFromAlbum: ")
+
             }
+
         }
     }
 
@@ -225,6 +237,10 @@ class HomeViewModel @Inject constructor(
             }
         }
     }
+    fun resetDeleteAlbumState(){
+        _deleteAlbum.value = UiStates.Initial
+    }
+
 
     fun onLikedArtist(artistId: String, userId: String) {
         viewModelScope.launch {
@@ -409,7 +425,11 @@ class HomeViewModel @Inject constructor(
                 if (albumId != null) {
                     if (!isSongListSent && albumId != _currentAlbumId.value) {
                         updateSongList()
-                        //addIntoRecentPlay()
+                        if (!isServiceSet){
+                            isServiceSet = true
+                            setupPlaybackCallback()
+                        }
+
                         isSongListSent = true
 
                         _currentAlbumId.update {
@@ -447,6 +467,10 @@ class HomeViewModel @Inject constructor(
                 } else {
                     if (!isSongListSent && artistId != _currentArtistId.value) {
                         updateSongList()
+                        if (!isServiceSet){
+                            isServiceSet = true
+                            setupPlaybackCallback()
+                        }
                         isSongListSent = true
                         _currentArtistId.update {
                             artistId
@@ -494,6 +518,7 @@ class HomeViewModel @Inject constructor(
             }
         }
     }
+
 
     fun pauseSong() {
         audioPlaybackServiceProvider.getService { service ->
@@ -586,17 +611,21 @@ class HomeViewModel @Inject constructor(
 
     }
 
-    fun setupPlaybackCallback() {
+    private fun setupPlaybackCallback() {
         try {
             audioPlaybackServiceProvider.getService { service ->
-                Log.d("callbackSet", service.toString())
                 service.setPlaybackCallback(object : AudioPlaybackService.PlaybackCallback {
                     override fun onIndexChanged(index: Int) {
+
+
                         _currentSongIndex.value = index
+                    // Use postValue if this happens in background thread
+                        Log.d("CurrentSongIndex12",index.toString())
                     }
 
                     override fun onPlaybackPositionChanged(position: Int) {
                         _playbackPosition.value = position
+                        Log.d("PlabackPostion12",position.toString())
                     }
 
                     override fun onPlaybackCompleted() {
@@ -623,9 +652,10 @@ class HomeViewModel @Inject constructor(
                 })
             }
         } catch (e: IllegalStateException) {
-            Log.e("HomeViewModel123", "Error initializing service: ${e.message}")
+            Log.e("HomeViewModel", "Error initializing service: ${e.message}")
         }
     }
+
 
 
 

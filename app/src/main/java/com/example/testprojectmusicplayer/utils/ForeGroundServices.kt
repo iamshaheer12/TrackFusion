@@ -26,6 +26,7 @@ import com.example.testprojectmusicplayer.model.Song
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 class AudioPlaybackService : Service() {
@@ -64,9 +65,14 @@ class AudioPlaybackService : Service() {
 
     override fun onCreate() {
         super.onCreate()
+
+       // setPlaybackCallback()
+        notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        createNotificationChannel()
+
+
         setupMediaPlayer()
         createNotificationChannel()
-       // setPlaybackCallback()
 
         mediaSession = MediaSessionCompat(this, "AudioPlaybackService").apply {
             setCallback(mediaSessionCallback)
@@ -116,38 +122,44 @@ class AudioPlaybackService : Service() {
                     val newSong = audioFiles[index]
                     val currentSong = mediaPlayer?.let {
                         it.isPlaying || it.currentPosition > 0
-                    } == true && audioFiles.getOrNull(currentSongIndex)?.audioFile == newSong.audioFile
+                    } == true && audioFiles.getOrNull(currentSongIndex)?.songId == newSong.songId
+
 
                     if (currentSong && mediaPlayer?.isPlaying == false) {
-                        mediaPlayer?.start()
-                        notifyPlaybackStateChanged(true)
-                        updateNotification()
+                        resumePlayback()
+//                        mediaPlayer?.start()
+//                        notifyPlaybackStateChanged(true)
+//                        updateNotification()
                         return@launch
                     }
+                    else{
+                        mediaPlayer?.reset()
+                        mediaPlayer?.setDataSource(newSong.audioFile)
+                        mediaPlayer?.prepareAsync()
 
-                    mediaPlayer?.reset()
-                    mediaPlayer?.setDataSource(newSong.audioFile)
-                    mediaPlayer?.prepareAsync()
+                        mediaPlayer?.setOnPreparedListener {
+                            it.start()
+                            notifyPlaybackStateChanged(true)
+                            notifyPositionChange()
+                            updateNotification()
+                        }
 
-                    mediaPlayer?.setOnPreparedListener {
-                        it.start()
-                        notifyPlaybackStateChanged(true)
-                        notifyPositionChange()
-                        updateNotification()
+                        mediaPlayer?.setOnCompletionListener {
+                            nextSong()
+                           // notifyPlaybackCompleted()
+                        }
+
+                        mediaPlayer?.setOnErrorListener { _, what, extra ->
+                            handlePlaybackError("Error code: $what Extra code: $extra")
+                            true
+                        }
+
+                        notifySongChanged(newSong)
+                        currentSongIndex = index
+
                     }
 
-                    mediaPlayer?.setOnCompletionListener {
-                        nextSong()
-                        notifyPlaybackCompleted()
-                    }
 
-                    mediaPlayer?.setOnErrorListener { _, what, extra ->
-                        handlePlaybackError("Error code: $what Extra code: $extra")
-                        true
-                    }
-
-                    notifySongChanged(newSong)
-                    currentSongIndex = index
 
                 } catch (e: Exception) {
                     Log.e("AudioPlaybackService", "Error playing song: ${e.message}")
@@ -185,22 +197,30 @@ class AudioPlaybackService : Service() {
     fun nextSong() {
         if (currentSongIndex < audioFiles.size - 1) {
             currentSongIndex++
+            notifySongChanged(audioFiles[currentSongIndex])
+            notifyIndexChanged(currentSongIndex)
+
+            playSong(currentSongIndex)
+        } else {
+            currentSongIndex = 0
             playSong(currentSongIndex)
             notifySongChanged(audioFiles[currentSongIndex])
-         //   notifyIndexChanged(currentSongIndex)
-        } else {
-            stopPlayback()
+            notifyIndexChanged(currentSongIndex)
         }
     }
 
     fun previousSong() {
         if (currentSongIndex > 0) {
             currentSongIndex--
-            playSong(currentSongIndex)
             notifySongChanged(audioFiles[currentSongIndex])
+            notifyIndexChanged(currentSongIndex)
+            playSong(currentSongIndex)
         }
         else{
-            stopPlayback()
+           currentSongIndex = 0
+            playSong(currentSongIndex)
+            notifySongChanged(audioFiles[currentSongIndex])
+            notifyIndexChanged(currentSongIndex)
 
         }
     }
@@ -223,7 +243,7 @@ class AudioPlaybackService : Service() {
         mediaPlayer = MediaPlayer().apply {
             setOnCompletionListener {
                 nextSong()
-                notifyPlaybackCompleted()
+                //notifyPlaybackCompleted()
             }
             setOnSeekCompleteListener {
                 notifyPositionChange()
@@ -239,6 +259,10 @@ class AudioPlaybackService : Service() {
     private fun notifySongChanged(song: Song) {
         playbackCallback?.onSongChanged(song)
         Log.d("SongChanged", song.toString())
+    }
+
+    private fun notifyIndexChanged(index: Int) {
+        playbackCallback?.onIndexChanged(index)
     }
 
     private fun notifyPlaybackStateChanged(isPlaying: Boolean) {
@@ -258,12 +282,21 @@ class AudioPlaybackService : Service() {
     }
 
     private fun notifyPositionChange() {
-        val position = mediaPlayer?.currentPosition ?: 0
-        playbackCallback?.onPlaybackPositionChanged(position)
+
+        serviceScope.launch {
+            while (mediaPlayer?.isPlaying == true) {
+                val position = mediaPlayer?.currentPosition
+                playbackCallback?.onPlaybackPositionChanged(position?:0)
+                delay(1000L) // Update every second
+            }
+        }
+
     }
 
     @SuppressLint("RemoteViewLayout")
     private fun updateNotification() {
+        val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+
         val customView = RemoteViews(packageName, R.layout.notification_layout)
         val currentSong = audioFiles.getOrNull(currentSongIndex)
         customView.setTextViewText(R.id.notification_title, currentSong?.title ?: "Unknown Title")
@@ -287,12 +320,12 @@ class AudioPlaybackService : Service() {
         notification = NotificationCompat.Builder(this, notificationChannelId)
             .setSmallIcon(R.drawable.default_image)
             .setCustomContentView(customView)
+            .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
             .setCustomBigContentView(customView)
             .setStyle(
-                androidx.media.app.NotificationCompat.MediaStyle()
-                    .setMediaSession(mediaSession.sessionToken)
-                    .setShowActionsInCompactView(0, 1, 2)
+                NotificationCompat.DecoratedCustomViewStyle()
             )
+
             .setPriority(NotificationCompat.PRIORITY_LOW)
             .setOngoing(true)
             .build()
@@ -304,9 +337,9 @@ class AudioPlaybackService : Service() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val channel = NotificationChannel(notificationChannelId, "Media Playback", NotificationManager.IMPORTANCE_LOW).apply {
                 description = "Media Playback Notifications"
-                setShowBadge(false)
+                setShowBadge(true)
             }
-            notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+
             notificationManager.createNotificationChannel(channel)
         }
     }
@@ -328,7 +361,7 @@ class AudioPlaybackService : Service() {
     }
 
 
-     val mediaSessionCallback = object : MediaSessionCompat.Callback() {
+     private val mediaSessionCallback = object : MediaSessionCompat.Callback() {
         override fun onPlay() {
             resumePlayback()
         }

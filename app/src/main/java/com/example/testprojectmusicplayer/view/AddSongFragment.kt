@@ -115,7 +115,8 @@ class AddSongFragment : Fragment() {
                     is UiStates.Success -> {
                         binding.adProgressBar.visibility = View.GONE
                         Toast.makeText(requireContext(), state.data, Toast.LENGTH_SHORT).show()
-                        findNavController().popBackStack()
+                       // findNavController().popBackStack()
+                        adapter.clearSelections()
 
                     }
 
@@ -123,6 +124,7 @@ class AddSongFragment : Fragment() {
                         binding.adProgressBar.visibility = View.GONE
 
                         Toast.makeText(requireContext(), state.error, Toast.LENGTH_SHORT).show()
+                        adapter.clearSelections()
 
                     }
 
