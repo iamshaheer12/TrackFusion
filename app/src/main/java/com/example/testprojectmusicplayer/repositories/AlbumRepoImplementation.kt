@@ -3,7 +3,6 @@ package com.example.testprojectmusicplayer.repositories
 import android.annotation.SuppressLint
 import android.util.Log
 import com.example.testprojectmusicplayer.model.Album
-import com.example.testprojectmusicplayer.model.Artist
 import com.example.testprojectmusicplayer.utils.FireStoreCons
 import com.example.testprojectmusicplayer.utils.UiStates
 import com.google.android.gms.tasks.Tasks
@@ -12,9 +11,6 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.toObject
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitAll
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
 

@@ -110,7 +110,7 @@ class EditProfileFragment : Fragment() {
                         userId = userData?.userId ?: "",
                         imageUrl = imageUrl,  // update it for if image url is empty then user image url 
                         likedSong = userData?.likedSong ?: emptyList(),
-                        likedAlbums = userData?.likedAlbums ?: "",
+                        likedAlbums = (userData?.likedAlbums ?: "") as MutableList<String>,
                         likedArtist = userData?.likedArtist ?: emptyList(),
                         recentlyPlayedSongs = userData?.recentlyPlayedSongs ?: emptyList()
 

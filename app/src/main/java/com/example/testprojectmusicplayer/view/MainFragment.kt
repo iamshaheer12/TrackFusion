@@ -72,8 +72,7 @@ class MainFragment : Fragment() {
             // Fetch user data in the background thread
             val user = userObject.getUser()
             userId = user?.userId
-            albumId = user?.likedAlbums
-
+            albumId = user?.likedAlbums?.firstOrNull() ?: ""
             // Switch to the main thread for UI-related operations
          //   withContext(Dispatchers.Main) {
                 // Initialize the navigation controller

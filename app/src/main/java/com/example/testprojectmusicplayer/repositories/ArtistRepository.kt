@@ -1,7 +1,6 @@
 package com.example.testprojectmusicplayer.repositories
 
 import com.example.testprojectmusicplayer.model.Artist
-import com.example.testprojectmusicplayer.model.Song
 import com.example.testprojectmusicplayer.utils.UiStates
 
 interface ArtistRepository {

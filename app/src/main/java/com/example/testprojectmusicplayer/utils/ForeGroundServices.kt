@@ -306,7 +306,7 @@ class AudioPlaybackService : Service() {
             customView.setImageViewUri(R.id.notification_image, Uri.parse(imageUrl))
         }
 
-        if (mediaPlayer?.isPlaying == true) {
+        if (mediaPlayer?.isPlaying == false) {
             customView.setImageViewResource(R.id.notification_play, R.drawable.ic_play_button_green)
             customView.setOnClickPendingIntent(R.id.notification_play, getPendingIntent(ACTION_PAUSE))
         } else {

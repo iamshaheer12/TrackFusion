@@ -1,8 +1,8 @@
 package com.example.testprojectmusicplayer.model
 
-import android.os.Parcel
 import android.os.Parcelable
 import kotlinx.parcelize.Parcelize
+import java.util.Collections.emptyList
 
 @Parcelize
 data class User(
@@ -14,6 +14,6 @@ data class User(
     var imageUrl : String = "",
     val likedSong: List<String> = emptyList(),
     val likedArtist: List<String> = emptyList(),
-    var likedAlbums: String = "",
+    var likedAlbums: MutableList<String> = emptyList(),
     val recentlyPlayedSongs: List<String> = emptyList()
 ) : Parcelable

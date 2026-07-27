@@ -129,8 +129,7 @@ class LibPlaylistFragment : Fragment() {
         lifecycleScope.launch(Dispatchers.IO) {
             val user = userObject.getUser()
             userId = user?.userId
-            albumId = user?.likedAlbums
-
+            albumId = user?.likedAlbums?.firstOrNull() ?: ""
             // Now switch to Main thread to perform UI operations
             withContext(Dispatchers.Main) {
                 // Initialize bottomBinding and playListBottomSheet after loading user data

@@ -123,12 +123,13 @@ class PlaylistFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        requestPermissionResult()
 
         // Fetch user data asynchronously to avoid blocking the main thread
         lifecycleScope.launch(Dispatchers.IO) {
             val user = userObject.getUser()
             userId = user?.userId
-            albumId = user?.likedAlbums
+            albumId = user?.likedAlbums?.firstOrNull() ?: ""
 
             val artist = args.artistId
             val albumId = args.albumId

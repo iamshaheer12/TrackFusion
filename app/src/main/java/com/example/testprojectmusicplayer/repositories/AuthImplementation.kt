@@ -21,6 +21,7 @@ import com.google.gson.Gson
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import androidx.core.content.edit
 
 class AuthRepoImplementation(
     private val firestore: FirebaseFirestore,
@@ -49,7 +50,7 @@ class AuthRepoImplementation(
         firebaseAuth.sendSignInLinkToEmail(email, actionCodeSettings)
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
-                    sharedPref.edit().putString(SharedPrefConstants.LOGGING_EMAIL,email).apply()
+                    sharedPref.edit { putString(SharedPrefConstants.LOGGING_EMAIL, email) }
                     result.invoke(UiStates.Success("Sign-in link sent to $email. Please check your inbox."))
                 } else {
                     result.invoke(UiStates.Failure(task.exception?.localizedMessage ?: "Failed to send sign-in link."))
@@ -72,10 +73,15 @@ class AuthRepoImplementation(
                         val user = task.result?.user
                         if (user != null) {
                             // Store additional user data if needed
-                            sharedPref.edit().putString(SharedPrefConstants.STORE_SESSION,gson.toJson(user)).apply()
+                            sharedPref.edit {
+                                putString(
+                                    SharedPrefConstants.STORE_SESSION,
+                                    gson.toJson(user)
+                                )
+                            }
                         }
                         // Clear the pending email
-                        sharedPref.edit().putString(SharedPrefConstants.LOGGING_EMAIL,null).apply()
+                        sharedPref.edit { putString(SharedPrefConstants.LOGGING_EMAIL, null) }
                         result.invoke(UiStates.Success("Logged In Successfully"))
                         // Navigate to the desired screen
                     } else {
@@ -167,7 +173,7 @@ class AuthRepoImplementation(
                                     when (albumResult) {
                                         is UiStates.Success -> {
                                             // Store the album ID in the user
-                                            user.likedAlbums = albumResult.data
+                                            user.likedAlbums.add(albumResult.data?:"")
                                             // Update user with the album ID
                                             updateUser(user) { uiStates ->
                                                 when (uiStates) {
@@ -278,7 +284,12 @@ class AuthRepoImplementation(
                 if (it.isSuccessful){
                     val user = it.result.toObject(User::class.java)
                     result.invoke(user)
-                    sharedPref.edit().putString(SharedPrefConstants.STORE_SESSION,gson.toJson(user)).apply()
+                    sharedPref.edit {
+                        putString(
+                            SharedPrefConstants.STORE_SESSION,
+                            gson.toJson(user)
+                        )
+                    }
 
                 }
                 else{
@@ -298,7 +309,12 @@ class AuthRepoImplementation(
             val document = firestore.collection(FireStoreCons.USER).document(user.userId)
             document.set(user) // Assuming you meant to set the `user` object, not `document`
                 .addOnCompleteListener {
-                    sharedPref.edit().putString(SharedPrefConstants.STORE_SESSION, gson.toJson(user)).apply()
+                    sharedPref.edit {
+                        putString(
+                            SharedPrefConstants.STORE_SESSION,
+                            gson.toJson(user)
+                        )
+                    }
                     result.invoke(UiStates.Success("User Updated Successfully"))
                 }
                 .addOnFailureListener {
@@ -315,7 +331,7 @@ class AuthRepoImplementation(
          try {
             firebaseAuth.signOut()  // Signs out the user from Firebase Authentication
 
-             sharedPref.edit().putString(SharedPrefConstants.STORE_SESSION, null).apply()
+             sharedPref.edit { putString(SharedPrefConstants.STORE_SESSION, null) }
 
              // Invoke the callback with success state
             result(UiStates.Success("Sign out successful"))

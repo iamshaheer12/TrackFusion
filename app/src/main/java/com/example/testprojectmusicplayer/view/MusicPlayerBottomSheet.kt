@@ -70,9 +70,9 @@ class MusicPlayerBottomSheet : BottomSheetDialogFragment() {
             // Fetch user data in the background
             val user = userObject.getUser()
             userId = user?.userId
-            albumId = user?.likedAlbums
+             albumId = user?.likedAlbums?.firstOrNull() ?: ""
 
-            // Switch to the main thread for UI-related tasks
+        // Switch to the main thread for UI-related tasks
             //withContext(Dispatchers.Main) {
                 // Initialize BottomSheetBehavior
                 val bottomSheetBehavior = BottomSheetBehavior.from(view.parent as View)

@@ -1,6 +1,5 @@
 package com.example.testprojectmusicplayer.model
 
-import android.os.Parcel
 import android.os.Parcelable
 import kotlinx.parcelize.Parcelize
 @Parcelize
