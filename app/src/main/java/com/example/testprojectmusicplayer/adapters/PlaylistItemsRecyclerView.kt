@@ -1,18 +1,15 @@
 package com.example.testprojectmusicplayer.adapters
 
 import android.annotation.SuppressLint
-import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
-import com.bumptech.glide.Glide
 import com.bumptech.glide.RequestManager
 import com.bumptech.glide.request.RequestOptions
 import com.example.testprojectmusicplayer.R
 import com.example.testprojectmusicplayer.databinding.PlaylistSongItemCardBinding
 import com.example.testprojectmusicplayer.model.Song
-import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
 class PlaylistItemsRecyclerView @Inject constructor(

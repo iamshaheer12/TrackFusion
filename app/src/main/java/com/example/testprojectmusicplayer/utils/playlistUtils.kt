@@ -1,16 +1,16 @@
-package com.example.yourappname.utils // Change to your actual package name
+package com.example.testprojectmusicplayer.utils // Change to your actual package name
 
 import android.Manifest
 import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.media.MediaPlayer
 import android.net.Uri
 import android.os.Build
 import android.provider.Settings
 import android.util.Log
 import androidx.activity.result.ActivityResultLauncher
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 import com.example.testprojectmusicplayer.model.Song
 import java.io.IOException
@@ -69,7 +69,7 @@ object PlaylistUtils {
         // Check for POST_NOTIFICATIONS permission
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             if (ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS)
-                != android.content.pm.PackageManager.PERMISSION_GRANTED
+                != PackageManager.PERMISSION_GRANTED
             ) {
                 permissionsToRequest.add(Manifest.permission.POST_NOTIFICATIONS)
             }
@@ -78,7 +78,7 @@ object PlaylistUtils {
         // Check for FOREGROUND_SERVICE_MEDIA_PLAYBACK permission
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             if (ContextCompat.checkSelfPermission(context, Manifest.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK)
-                != android.content.pm.PackageManager.PERMISSION_GRANTED
+                != PackageManager.PERMISSION_GRANTED
             ) {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
                     permissionsToRequest.add(Manifest.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK)
@@ -88,7 +88,7 @@ object PlaylistUtils {
 
         // Check for FOREGROUND_SERVICE permission
         if (ContextCompat.checkSelfPermission(context, Manifest.permission.FOREGROUND_SERVICE)
-            != android.content.pm.PackageManager.PERMISSION_GRANTED
+            != PackageManager.PERMISSION_GRANTED
         ) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
                 permissionsToRequest.add(Manifest.permission.FOREGROUND_SERVICE)

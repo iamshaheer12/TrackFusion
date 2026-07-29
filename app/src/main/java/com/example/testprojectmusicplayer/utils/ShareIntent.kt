@@ -1,9 +1,6 @@
 package com.example.testprojectmusicplayer.utils
 
-import android.content.Context
 import android.content.Intent
-import androidx.core.content.ContextCompat.startActivity
-import dagger.hilt.android.qualifiers.ApplicationContext
 
 object ShareIntent {
 

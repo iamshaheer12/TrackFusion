@@ -5,7 +5,6 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.constraintlayout.widget.ConstraintSet
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
@@ -20,13 +19,11 @@ import com.example.testprojectmusicplayer.adapters.OnItemClickListener1
 import com.example.testprojectmusicplayer.databinding.FragmentLibraryBinding
 import com.example.testprojectmusicplayer.model.User
 import com.example.testprojectmusicplayer.utils.AlbumArtist
-import com.example.testprojectmusicplayer.utils.MediaItem
 import com.example.testprojectmusicplayer.utils.UiStates
 import com.example.testprojectmusicplayer.utils.UserObject
 import com.example.testprojectmusicplayer.viewModel.FilterType
 import com.example.testprojectmusicplayer.viewModel.LibraryViewModel
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 

@@ -12,7 +12,6 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
-import com.example.testprojectmusicplayer.R
 import com.example.testprojectmusicplayer.databinding.FragmentCreatePlaylistBinding
 import com.example.testprojectmusicplayer.model.Album
 import com.example.testprojectmusicplayer.model.User
@@ -20,7 +19,6 @@ import com.example.testprojectmusicplayer.utils.UiStates
 import com.example.testprojectmusicplayer.utils.UserObject
 import com.example.testprojectmusicplayer.viewModel.CreatePlaylistViewModel
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 

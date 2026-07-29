@@ -2,7 +2,6 @@ package com.example.testprojectmusicplayer.utils
 
 import android.content.SharedPreferences
 import com.example.testprojectmusicplayer.model.User
-import com.google.firebase.auth.FirebaseAuth
 import com.google.gson.Gson
 import javax.inject.Inject
 import javax.inject.Singleton

@@ -1,9 +1,6 @@
 package com.example.testprojectmusicplayer.viewModel
 
-import com.example.testprojectmusicplayer.utils.AudioPlaybackServiceProvider
 import android.util.Log
-import android.view.View
-import com.example.testprojectmusicplayer.utils.MediaItem
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.testprojectmusicplayer.model.Album
@@ -13,12 +10,13 @@ import com.example.testprojectmusicplayer.repositories.AlbumRepository
 import com.example.testprojectmusicplayer.repositories.ArtistRepository
 import com.example.testprojectmusicplayer.repositories.SongRepository
 import com.example.testprojectmusicplayer.utils.AudioPlaybackService
+import com.example.testprojectmusicplayer.utils.AudioPlaybackServiceProvider
+import com.example.testprojectmusicplayer.utils.MediaItem
 import com.example.testprojectmusicplayer.utils.UiStates
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject

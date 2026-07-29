@@ -11,7 +11,6 @@ import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.RequestManager
 import com.bumptech.glide.request.RequestOptions
-
 import com.example.testprojectmusicplayer.R
 import com.example.testprojectmusicplayer.databinding.FragmentProfileBinding
 import com.example.testprojectmusicplayer.model.User
@@ -19,7 +18,6 @@ import com.example.testprojectmusicplayer.utils.UiStates
 import com.example.testprojectmusicplayer.utils.UserObject
 import com.example.testprojectmusicplayer.viewModel.UserViewModel
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 

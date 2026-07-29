@@ -12,7 +12,6 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import com.example.testprojectmusicplayer.R
-import com.example.testprojectmusicplayer.databinding.FragmentSplashScreenBinding
 import com.example.testprojectmusicplayer.databinding.FragmentStartingBinding
 import com.example.testprojectmusicplayer.utils.UiStates
 import com.example.testprojectmusicplayer.viewModel.AuthViewModel

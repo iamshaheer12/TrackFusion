@@ -4,14 +4,12 @@ import android.annotation.SuppressLint
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import com.bumptech.glide.Glide
 import com.bumptech.glide.RequestManager
 import com.example.testprojectmusicplayer.R
 import com.example.testprojectmusicplayer.databinding.PlaylistWithTitleDescriptionCardBinding
 import com.example.testprojectmusicplayer.model.Album
 import com.example.testprojectmusicplayer.model.Song
 import com.example.testprojectmusicplayer.utils.MusicItem
-import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
 class MusicRecyclerViewAdapter @Inject constructor(

@@ -9,7 +9,6 @@ import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import com.example.testprojectmusicplayer.R
 import com.example.testprojectmusicplayer.adapters.GenresAdapterForSearch
-import com.example.testprojectmusicplayer.adapters.RecentGridAdapter
 import com.example.testprojectmusicplayer.databinding.FragmentSearchBinding
 import com.example.testprojectmusicplayer.model.RecentPlayCard
 import dagger.hilt.android.AndroidEntryPoint

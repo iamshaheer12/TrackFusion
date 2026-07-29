@@ -13,8 +13,6 @@ import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.RequestManager
-
-import com.example.testprojectmusicplayer.R
 import com.example.testprojectmusicplayer.adapters.AddSongAdapter
 import com.example.testprojectmusicplayer.databinding.FragmentAddSongBinding
 import com.example.testprojectmusicplayer.utils.UiStates

@@ -1,6 +1,5 @@
 package com.example.testprojectmusicplayer.view
 
-import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -14,7 +13,6 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.RequestManager
 import com.bumptech.glide.request.RequestOptions
-
 import com.example.testprojectmusicplayer.R
 import com.example.testprojectmusicplayer.databinding.FragmentEditProfileBinding
 import com.example.testprojectmusicplayer.model.User

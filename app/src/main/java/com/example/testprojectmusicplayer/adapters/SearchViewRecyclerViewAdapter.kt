@@ -4,7 +4,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import com.bumptech.glide.Glide
 import com.bumptech.glide.RequestManager
 import com.bumptech.glide.request.RequestOptions
 import com.example.testprojectmusicplayer.R
@@ -15,8 +14,8 @@ import com.example.testprojectmusicplayer.model.Album
 import com.example.testprojectmusicplayer.model.Artist
 import com.example.testprojectmusicplayer.model.Song
 import com.example.testprojectmusicplayer.utils.MediaItem
-import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
+
 class MediaAdapter @Inject constructor(
     private var items: List<MediaItem>,
     private val itemClickListener: OnItemClickListener,

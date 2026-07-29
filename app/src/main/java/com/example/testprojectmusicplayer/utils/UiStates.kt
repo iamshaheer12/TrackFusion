@@ -1,7 +1,4 @@
 package com.example.testprojectmusicplayer.utils
-
-import java.lang.Error
-
 sealed class UiStates<out T> {
     data object Loading:UiStates<Nothing>()
     data object Initial : UiStates<Nothing>()

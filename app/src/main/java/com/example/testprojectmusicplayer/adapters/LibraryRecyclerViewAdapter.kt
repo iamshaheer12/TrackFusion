@@ -12,7 +12,6 @@ import com.example.testprojectmusicplayer.databinding.SearchArtistItemsBinding
 import com.example.testprojectmusicplayer.model.Album
 import com.example.testprojectmusicplayer.model.Artist
 import com.example.testprojectmusicplayer.utils.AlbumArtist
-import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
 class LibraryRecyclerViewAdapter @Inject constructor(
