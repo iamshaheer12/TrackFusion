@@ -6,21 +6,30 @@
     android:id="@+id/search_song_item"
     android:layout_marginTop="16dp"
 
-    android:background="@color/spotify_background_black"
+    android:background="@color/surface"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginBottom="8dp"
     >
 
-    <ImageView
-        android:id="@+id/search_song_image"
+    <FrameLayout
+        android:id="@+id/search_song_image_container"
         android:layout_width="90dp"
         android:layout_height="90dp"
-        android:scaleType="centerCrop"
-        android:src="@drawable/playlist_poster"
+        android:background="@drawable/bg_rounded_artwork"
+        android:clipToOutline="true"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toStartOf="parent">
+
+        <ImageView
+            android:id="@+id/search_song_image"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scaleType="centerCrop"
+            android:src="@drawable/playlist_poster" />
+
+    </FrameLayout>
 
     <LinearLayout
         android:layout_width="0dp"
@@ -29,7 +38,7 @@
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:gravity="center_vertical"
-        app:layout_constraintStart_toEndOf="@+id/search_song_image"
+        app:layout_constraintStart_toEndOf="@+id/search_song_image_container"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -41,9 +50,9 @@
             android:layout_height="wrap_content"
             android:ellipsize="end"
             android:maxLines="1"
-            android:text="Shukran Allah"
+            android:text="@string/shukran_allah"
             android:textStyle="bold"
-            android:textColor="@color/spotify_white" />
+            android:textColor="@color/on_surface" />
 
         <TextView
             android:id="@+id/search_song_description"
@@ -51,8 +60,8 @@
             android:layout_height="wrap_content"
             android:maxLines="1"
             android:ellipsize="end"
-            android:text="Pritam, Amit Mishra Sonu Nigham, Shilpa Rao, A.R.Rahman, Momina Mustehsan"
-            android:textColor="@color/spotify_light_gray"
+            android:text="@string/pritam_amit_mishra_sonu_nigham_shilpa_rao_a_r_rahman_momina_mustehsan"
+            android:textColor="@color/on_surface_variant"
             android:layout_marginTop="2dp" />
     </LinearLayout>
 

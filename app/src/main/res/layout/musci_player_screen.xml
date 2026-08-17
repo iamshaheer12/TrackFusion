@@ -1,31 +1,31 @@
 <?xml version="1.0" encoding="utf-8"?>
-
-<ScrollView
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:background="@color/spotify_dark_gray"
+    android:background="@color/now_playing_surface"
+    android:fillViewport="true"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
+
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:layout_marginStart="16dp"
-        android:layout_marginEnd="16dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-       >
+        android:paddingStart="@dimen/activity_horizontal_margin"
+        android:paddingEnd="@dimen/activity_horizontal_margin"
+        android:paddingBottom="@dimen/spacing_24">
+
         <ImageView
-
             android:id="@+id/mp_arrow_down"
+            android:layout_width="@dimen/touch_target"
+            android:layout_height="@dimen/touch_target"
+            android:layout_marginStart="@dimen/spacing_4"
+            android:layout_marginTop="@dimen/spacing_8"
             android:clickable="true"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
             android:focusable="true"
-            android:foregroundGravity="center_vertical"
+            android:padding="@dimen/spacing_8"
             android:src="@drawable/ic_arrow_down"
+            app:tint="@color/on_surface"
             app:layout_constraintStart_toStartOf="parent"
-            android:layout_marginTop="16dp"
-
-
             app:layout_constraintTop_toTopOf="parent" />
 
         <LinearLayout
@@ -37,202 +37,230 @@
             app:layout_constraintBottom_toBottomOf="@+id/mp_arrow_down"
             app:layout_constraintEnd_toStartOf="@+id/mp_more_menu"
             app:layout_constraintStart_toEndOf="@+id/mp_arrow_down"
-            app:layout_constraintTop_toTopOf="parent">
+            app:layout_constraintTop_toTopOf="@+id/mp_arrow_down">
 
             <TextView
                 android:id="@+id/mp_playing_from_search"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-
-                android:gravity="center"
-                android:text="PLAYING FROM SEARCH"
-                android:textColor="@android:color/white"
-                android:textSize="12sp"
                 android:ellipsize="end"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+                android:gravity="center"
+                android:letterSpacing="0.15"
+                android:maxLines="1"
+                android:text="PLAYING FROM SEARCH"
+                android:textColor="@color/on_surface_variant"
+                android:textSize="11sp"
+                tools:ignore="HardcodedText" />
 
             <TextView
                 android:id="@+id/mp_title_song"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:gravity="center"
-                android:layout_marginTop="4dp"
-                android:text="PLAYING FROM SEARCH"
-                android:textColor="@android:color/white"
-                android:textSize="11sp"
-                android:textStyle="bold"
                 android:ellipsize="end"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+                android:gravity="center"
+                android:maxLines="1"
+                android:text="PLAYING FROM SEARCH"
+                android:textColor="@color/on_surface"
+                android:textSize="12sp"
+                android:textStyle="bold"
+                tools:ignore="HardcodedText" />
 
         </LinearLayout>
+
         <ImageView
             android:id="@+id/mp_more_menu"
+            android:layout_width="@dimen/touch_target"
+            android:layout_height="@dimen/touch_target"
+            android:layout_marginEnd="@dimen/spacing_4"
+            android:layout_marginTop="@dimen/spacing_8"
             android:clickable="true"
             android:focusable="true"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:padding="@dimen/spacing_8"
             android:src="@drawable/ic_more_vert"
-            android:layout_marginTop="16dp"
+            app:tint="@color/on_surface_variant"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent"/>
+            app:layout_constraintTop_toTopOf="parent" />
+
         <ImageView
-                android:id="@+id/mp_current_song_poster"
-                android:layout_width="match_parent"
-                android:layout_marginTop="32dp"
-
-                 android:layout_height="360dp"
-                   android:scaleType="centerCrop"
-                app:layout_constraintTop_toBottomOf="@id/mp_appbar_title"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                android:src="@drawable/playlist_poster"/>
-        <TextView
-                android:id="@+id/mp_song_title"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="STAY (with Justin Bieber)"
-                android:textColor="@android:color/white"
-                android:textSize="20sp"
-                android:textStyle="bold"
-                app:layout_constraintTop_toBottomOf="@id/mp_current_song_poster"
-                app:layout_constraintStart_toStartOf="parent"
+            android:id="@+id/mp_current_song_poster"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_marginStart="@dimen/spacing_16"
+            android:layout_marginEnd="@dimen/spacing_16"
+            android:layout_marginTop="@dimen/spacing_32"
+            android:background="@drawable/bg_rounded_artwork"
+            android:clipToOutline="true"
+            android:scaleType="centerCrop"
+            android:src="@drawable/playlist_poster"
+            app:layout_constraintDimensionRatio="1:1"
             app:layout_constraintEnd_toEndOf="parent"
-                android:layout_marginTop="32dp"/>
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/mp_appbar_title"
+            app:layout_constraintWidth_default="percent"
+            app:layout_constraintWidth_percent="0.9" />
 
+        <TextView
+            android:id="@+id/mp_song_title"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/spacing_32"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:text="STAY (with Justin Bieber)"
+            android:textColor="@color/on_surface"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/mp_current_song_poster"
+            tools:ignore="HardcodedText" />
 
-            <TextView
-                android:id="@+id/mp_artist"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="The Kid LAROI, Justin Bieber"
-                android:textColor="@android:color/white"
-                android:textSize="14sp"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/mp_song_title"
-                app:layout_constraintStart_toStartOf="parent"
-                android:layout_marginTop="4dp"/>
-
-
+        <TextView
+            android:id="@+id/mp_artist"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/spacing_4"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:text="The Kid LAROI, Justin Bieber"
+            android:textColor="@color/on_surface_variant"
+            android:textSize="14sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/mp_song_title"
+            tools:ignore="HardcodedText" />
 
         <SeekBar
-                android:id="@+id/mp_seek_bar"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+            android:id="@+id/mp_seek_bar"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/spacing_24"
+            android:maxHeight="4dp"
+            android:minHeight="4dp"
+            android:progress="20"
+            android:progressBackgroundTint="@color/on_surface_variant"
+            android:progressTint="@color/spotify_green"
+            android:splitTrack="false"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/mp_artist" />
 
-                android:progress="20"
-
-                app:layout_constraintTop_toBottomOf="@id/mp_artist"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                android:layout_marginTop="24dp"/>
         <TextView
             android:id="@+id/mp_initial_progress_text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/spacing_2"
+            android:layout_marginTop="@dimen/spacing_4"
             android:text="1:23"
-            android:layout_marginStart="14dp"
-             android:textColor="@color/spotify_light_gray"
-            android:textSize="14sp"
+            android:textColor="@color/on_surface_variant"
+            android:textSize="12sp"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/mp_seek_bar"/>
+            app:layout_constraintTop_toBottomOf="@+id/mp_seek_bar"
+            tools:ignore="HardcodedText" />
+
         <TextView
             android:id="@+id/mp_end_progress_text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginEnd="@dimen/spacing_2"
+            android:layout_marginTop="@dimen/spacing_4"
             android:text="4:23"
-            android:layout_marginEnd="14dp"
-            android:textColor="@color/spotify_light_gray"
-            android:textSize="14sp"
+            android:textColor="@color/on_surface_variant"
+            android:textSize="12sp"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/mp_seek_bar"/>
+            app:layout_constraintTop_toBottomOf="@+id/mp_seek_bar"
+            tools:ignore="HardcodedText" />
 
         <ImageView
             android:id="@+id/mp_shuffle_btn"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="14dp"
+            android:layout_width="@dimen/control_icon"
+            android:layout_height="@dimen/control_icon"
+            android:layout_marginStart="@dimen/spacing_4"
             android:clickable="true"
             android:focusable="true"
             android:src="@drawable/ic_shuffle"
+            app:tint="@color/on_surface_variant"
             app:layout_constraintBottom_toBottomOf="@+id/mp_btn_row"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/mp_initial_progress_text"
-            tools:ignore="TouchTargetSizeCheck" />
+            app:layout_constraintTop_toBottomOf="@+id/mp_initial_progress_text" />
 
         <LinearLayout
             android:id="@+id/mp_btn_row"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
+            android:layout_marginTop="@dimen/spacing_8"
             android:gravity="center"
+            android:orientation="horizontal"
             app:layout_constraintEnd_toStartOf="@+id/mp_like_btn"
             app:layout_constraintStart_toEndOf="@id/mp_shuffle_btn"
             app:layout_constraintTop_toBottomOf="@+id/mp_initial_progress_text">
+
             <ImageView
                 android:id="@+id/mp_previous_btn"
-                android:layout_marginEnd="32dp"
+                android:layout_width="@dimen/touch_target"
+                android:layout_height="@dimen/touch_target"
+                android:layout_marginEnd="@dimen/spacing_20"
+                android:clickable="true"
                 android:focusable="true"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:padding="@dimen/spacing_4"
                 android:src="@drawable/ic_previous_play"
-                android:clickable="true"/>
+                app:tint="@color/on_surface" />
+
             <ImageView
                 android:id="@+id/mp_play_btn"
-                android:layout_width="60dp"
-                android:layout_height="60dp"
-                android:src="@drawable/ic_pause_circle"
+                android:layout_width="64dp"
+                android:layout_height="64dp"
+                android:clickable="true"
                 android:focusable="true"
-                android:clickable="true"/>
+                android:padding="@dimen/spacing_4"
+                android:src="@drawable/ic_pause_button_green" />
+
             <ImageView
                 android:id="@+id/mp_next_btn"
-                android:layout_marginStart="32dp"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:src="@drawable/ic_next_play"
+                android:layout_width="@dimen/touch_target"
+                android:layout_height="@dimen/touch_target"
+                android:layout_marginStart="@dimen/spacing_20"
+                android:clickable="true"
                 android:focusable="true"
-                android:clickable="true"/>
-
-
+                android:padding="@dimen/spacing_4"
+                android:src="@drawable/ic_next_play"
+                app:tint="@color/on_surface" />
 
         </LinearLayout>
 
         <ImageView
             android:id="@+id/mp_like_btn"
-            android:layout_width="30dp"
-            android:layout_height="30dp"
-            android:layout_marginEnd="14dp"
-            android:focusable="true"
+            android:layout_width="@dimen/control_icon"
+            android:layout_height="@dimen/control_icon"
+            android:layout_marginEnd="@dimen/spacing_4"
             android:clickable="true"
+            android:focusable="true"
             android:src="@drawable/ic_unlike"
+            android:visibility="visible"
+            app:tint="@color/on_surface_variant"
             app:layout_constraintBottom_toBottomOf="@+id/mp_btn_row"
             app:layout_constraintEnd_toEndOf="parent"
-            android:visibility="visible"
             app:layout_constraintTop_toBottomOf="@+id/mp_initial_progress_text" />
+
         <include
             android:id="@+id/mp_lyrics_preview"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_width="wrap_content"
+            android:layout_marginTop="@dimen/spacing_32"
             layout="@layout/lyrics_preview_card"
-            android:layout_margin="32dp"
-            app:layout_constraintTop_toBottomOf="@+id/mp_like_btn"
-            app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            />
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/mp_btn_row" />
+
         <include
             android:id="@+id/mp_artist_card"
-            layout="@layout/about_artist_card"
-            android:layout_height="wrap_content"
             android:layout_width="match_parent"
-            android:layout_marginTop="16dp"
-            app:layout_constraintTop_toBottomOf="@+id/mp_lyrics_preview"
-            app:layout_constraintStart_toStartOf="parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/spacing_16"
+            layout="@layout/about_artist_card"
             app:layout_constraintEnd_toEndOf="parent"
-            />
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/mp_lyrics_preview" />
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 </ScrollView>
-

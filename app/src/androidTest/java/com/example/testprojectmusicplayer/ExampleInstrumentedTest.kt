@@ -1,12 +1,15 @@
 package com.example.testprojectmusicplayer
 
-import androidx.test.platform.app.InstrumentationRegistry
+import android.content.ComponentName
+import androidx.media3.session.MediaController
+import androidx.media3.session.SessionToken
 import androidx.test.ext.junit.runners.AndroidJUnit4
-
+import androidx.test.platform.app.InstrumentationRegistry
+import com.example.testprojectmusicplayer.utils.PlaybackService
+import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith
-
-import org.junit.Assert.*
+import java.util.concurrent.TimeUnit
 
 /**
  * Instrumented test, which will execute on an Android device.
@@ -20,5 +23,18 @@ class ExampleInstrumentedTest {
         // Context of the app under test.
         val appContext = InstrumentationRegistry.getInstrumentation().targetContext
         assertEquals("com.example.testprojectmusicplayer", appContext.packageName)
+    }
+
+    @Test
+    fun mediaControllerConnectsToPlaybackService() {
+        val context = InstrumentationRegistry.getInstrumentation().targetContext
+        val sessionToken = SessionToken(context, ComponentName(context, PlaybackService::class.java))
+        val controllerFuture = MediaController.Builder(context, sessionToken).buildAsync()
+        try {
+            val controller = controllerFuture.get(5, TimeUnit.SECONDS)
+            assertEquals(sessionToken.packageName, controller.connectedToken?.packageName)
+        } finally {
+            controllerFuture.cancel(false)
+        }
     }
 }

@@ -19,6 +19,7 @@
     <string name="suggested_artists">Suggested Artists</string>
     <string name="lyrics_preview">Lyrics preview</string>
     <string name="artist_songs">Artist,Songs</string>
+    <string name="search_hint">Artists, songs, or podcasts</string>
     <string name="search">Search</string>
     <string name="browse_all">Browse all</string>
     <string name="your_library">Your Library</string>
@@ -36,6 +37,16 @@
     <string name="like"> Add to Liked Song</string>
     <string name="add_song_to_albums">Add song to Albums</string>
     <string name="update">Update</string>
+    <string name="spotify_badge">Spotify</string>
+    <string name="this_is_the">This is the</string>
+    <string name="dark_theme">Dark theme</string>
+    <string name="orignal_sound_track_jsadhjashdh">Orignal Sound Track jsadhjashdh</string>
+    <string name="various_artists">Various Artists</string>
+    <string name="shukran_allah">Shukran Allah</string>
+    <string name="various_artistsjfdjhdhfdjhfjdfhjdhfjdjfhjdhfjdhfjdfhdjhfjdhffhj">Various Artistsjfdjhdhfdjhfjdfhjdhfjdjfhjdhfjdhfjdfhdjhfjdhffhj</string>
+    <string name="south_asian_sufi">South Asian Sufi</string>
+    <string name="atif_aslam">Atif Aslam</string>
+    <string name="pritam_amit_mishra_sonu_nigham_shilpa_rao_a_r_rahman_momina_mustehsan">Pritam, Amit Mishra Sonu Nigham, Shilpa Rao, A.R.Rahman, Momina Mustehsan</string>
     <string-array name="gender">
         <item>Male</item>
         <item>Female</item>

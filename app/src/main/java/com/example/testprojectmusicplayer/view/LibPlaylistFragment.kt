@@ -250,7 +250,7 @@ class LibPlaylistFragment : Fragment() {
                 homeViewModel.isPlaying.collect { isPlaying ->
                     isPlayingAll = isPlaying
                     val playButtonIcon =
-                        if (isPlaying) R.drawable.ic_play else R.drawable.ic_play_button_green
+                        if (isPlaying) R.drawable.ic_pause_button_green else R.drawable.ic_play_button_green
                     binding.playlistPlayBtn.setImageResource(playButtonIcon)
                 }
             }

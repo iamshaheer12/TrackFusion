@@ -2,14 +2,16 @@
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:background="@color/spotify_background_black"
+    android:background="@color/surface"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:fillViewport="true">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_marginStart="16dp"
         android:layout_marginEnd="16dp"
+        android:paddingTop="16dp"
         android:layout_height="wrap_content">
 
         <GridView
@@ -35,8 +37,8 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="24dp"
             android:text="@string/to_get_you_started"
-            android:textColor="@color/spotify_white"
-            android:textSize="@dimen/heading_text_size"
+            android:textColor="@color/on_surface"
+            android:textSize="@dimen/section_title_size"
             android:textStyle="bold"
             android:visibility="gone"
             app:layout_constraintStart_toStartOf="parent"
@@ -47,21 +49,21 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
-
             android:orientation="horizontal"
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/hm_get_started_txt"
             tools:listitem="@layout/card_with_cornered_image_description" />
+
         <TextView
             android:id="@+id/hm_recently_played_txt"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="24dp"
             android:text="@string/recently_played"
-            android:textColor="@color/spotify_white"
-            android:textSize="@dimen/heading_text_size"
+            android:textColor="@color/on_surface"
+            android:textSize="@dimen/section_title_size"
             android:visibility="gone"
             android:textStyle="bold"
             app:layout_constraintStart_toStartOf="parent"
@@ -72,7 +74,6 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
-
             android:orientation="horizontal"
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
             app:layout_constraintEnd_toEndOf="parent"
@@ -87,10 +88,9 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="24dp"
             android:text="@string/recommended_for_today"
-            android:textColor="@color/spotify_white"
-            android:textSize="@dimen/heading_text_size"
+            android:textColor="@color/on_surface"
+            android:textSize="@dimen/section_title_size"
             android:textStyle="bold"
-
             android:visibility="gone"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/hm_recent_played_recyclerview" />
@@ -100,21 +100,21 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
-
             android:orientation="horizontal"
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/hm_recommended_txt"
             tools:listitem="@layout/playlist_with_title_description_card" />
+
         <TextView
             android:id="@+id/hm_artists_txt"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="24dp"
             android:text="@string/suggested_artists"
-            android:textColor="@color/spotify_white"
-            android:textSize="@dimen/heading_text_size"
+            android:textColor="@color/on_surface"
+            android:textSize="@dimen/section_title_size"
             android:visibility="gone"
             android:textStyle="bold"
             app:layout_constraintStart_toStartOf="parent"
@@ -124,9 +124,7 @@
             android:id="@+id/hm_artist_recyclerview"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
             android:layout_marginBottom="20dp"
-
             android:orientation="horizontal"
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
             app:layout_constraintBottom_toBottomOf="parent"
@@ -135,48 +133,16 @@
             app:layout_constraintTop_toBottomOf="@+id/hm_artists_txt"
             tools:listitem="@layout/artist_card" />
 
-
-        <androidx.constraintlayout.widget.Guideline
-            android:id="@+id/guideline_middle"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            app:layout_constraintGuide_percent="0.7" />
-
-
-
-
         <ProgressBar
             android:id="@+id/loading_screen12"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:indeterminate="true"
-            android:indeterminateTint="@color/spotify_white"
+            android:indeterminateTint="@color/spotify_green"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent" />
 
-
-
-        <!--        <include-->
-<!--            android:id="@+id/loading_screen12"-->
-<!--            layout="@layout/loading_screen"-->
-
-<!--            android:layout_width="0dp"-->
-<!--            android:layout_height="0dp"-->
-<!--            app:layout_constraintBottom_toBottomOf="parent"-->
-<!--            app:layout_constraintStart_toStartOf="parent"-->
-<!--            app:layout_constraintTop_toTopOf="parent"-->
-
-<!--            app:layout_constraintEnd_toEndOf="parent" />-->
-
-
-
-
-
-
     </androidx.constraintlayout.widget.ConstraintLayout>
 </ScrollView>
-
-

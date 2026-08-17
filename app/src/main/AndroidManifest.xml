@@ -42,17 +42,11 @@
             </intent-filter>
         </activity>
         <service
-            android:name=".utils.AudioPlaybackService"
-
-            android:exported="false"
+            android:name=".utils.PlaybackService"
+            android:exported="true"
             android:foregroundServiceType="mediaPlayback">
             <intent-filter>
-                <action android:name="com.example.testprojectmusicplayer.ACTION_PLAY" />
-                <action android:name="com.example.testprojectmusicplayer.ACTION_PLAY_ALL" />
-                <action android:name="com.example.testprojectmusicplayer.ACTION_PAUSE" />
-                <action android:name="com.example.testprojectmusicplayer.ACTION_STOP" />
-                <action android:name="com.example.testprojectmusicplayer.ACTION_NEXT" />
-                <action android:name="com.example.testprojectmusicplayer.ACTION_PREVIOUS" />
+                <action android:name="androidx.media3.session.MediaSessionService" />
             </intent-filter>
         </service>
 <!--        <service android:name=".utils.ForeGround"-->

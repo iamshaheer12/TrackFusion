@@ -248,7 +248,7 @@ class MainFragment : Fragment() {
     private fun updatePlayPauseButtonState(isPlaying: Boolean) {
         if (isPlaying) {
 
-            this.binding.mainBottomSheetForSong.btmSheetSongPlayBtn.setImageResource(R.drawable.ic_play)
+            this.binding.mainBottomSheetForSong.btmSheetSongPlayBtn.setImageResource(R.drawable.ic_pause_button_green)
 
 
         } else {

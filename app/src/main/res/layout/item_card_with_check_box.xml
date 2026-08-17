@@ -39,7 +39,7 @@
             android:maxLines="1"
             android:text="Shukran Allah"
             android:textStyle="bold"
-            android:textColor="@color/spotify_white" />
+            android:textColor="@color/on_surface" />
 
         <TextView
             android:id="@+id/ads_description"
@@ -48,7 +48,7 @@
             android:maxLines="1"
             android:ellipsize="end"
             android:text="@string/playlist_item_text"
-            android:textColor="@color/spotify_light_gray"
+            android:textColor="@color/on_surface_variant"
             android:layout_marginTop="2dp" />
     </LinearLayout>
 
@@ -58,7 +58,7 @@
         android:layout_height="wrap_content"
         android:clickable="true"
         android:focusable="true"
-        android:buttonTint="@color/spotify_white"
+        android:buttonTint="@color/on_surface_variant"
     app:layout_constraintEnd_toEndOf="parent"
     app:layout_constraintTop_toTopOf="parent"
     app:layout_constraintBottom_toBottomOf="parent" />

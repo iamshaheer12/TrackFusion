@@ -1,7 +1,7 @@
 package com.example.testprojectmusicplayer.di
 
 import android.content.Context
-import com.example.testprojectmusicplayer.utils.AudioPlaybackServiceProvider
+import com.example.testprojectmusicplayer.utils.MediaControllerProvider
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -15,7 +15,7 @@ object AudioPlaybackModule {
 
     @Singleton
     @Provides
-    fun provideAudioPlaybackServiceProvider(context: Context): AudioPlaybackServiceProvider {
-        return AudioPlaybackServiceProvider(context)
+    fun provideMediaControllerProvider(context: Context): MediaControllerProvider {
+        return MediaControllerProvider(context)
     }
 }

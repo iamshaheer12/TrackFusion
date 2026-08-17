@@ -3,7 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:translationZ="8dp"
-    android:background="@color/spotify_black"
+    android:background="@color/scrim_black"
     android:id="@+id/loading"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <ProgressBar

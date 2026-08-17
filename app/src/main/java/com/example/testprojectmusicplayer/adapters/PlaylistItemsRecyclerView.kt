@@ -42,7 +42,7 @@ class PlaylistItemsRecyclerView @Inject constructor(
             val color = if (item.songId == currentSongId) {
                 ContextCompat.getColor(context, R.color.spotify_green)
             } else {
-                ContextCompat.getColor(context, R.color.spotify_white)
+                ContextCompat.getColor(context, R.color.on_surface)
             }
 
             binding.adsTitle.setTextColor(color)

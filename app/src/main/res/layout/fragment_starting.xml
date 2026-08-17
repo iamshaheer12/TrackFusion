@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-  android:background="@color/spotify_background_black"
+  android:background="@color/surface"
     android:layout_height="match_parent"
     tools:context=".view.StartingFragment">
     <androidx.constraintlayout.widget.Guideline
@@ -28,7 +28,7 @@
         android:layout_height="wrap_content"
         android:gravity="center"
         android:text="Millions of songs\nFree on Spotify"
-        android:textColor="@color/spotify_white"
+        android:textColor="@color/on_surface"
         android:textSize="32sp"
         android:textStyle="bold"
         app:layout_constraintTop_toBottomOf="@+id/st_logo"
@@ -95,7 +95,7 @@
         android:text="Log in"
         android:textSize="@dimen/default_text_size"
         android:textStyle="bold"
-        android:textColor="@color/spotify_white"
+        android:textColor="@color/on_surface"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/st_google_sign_btn"/>

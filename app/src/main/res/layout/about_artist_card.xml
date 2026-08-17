@@ -5,10 +5,11 @@
     android:clickable="true"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     app:cardCornerRadius="12dp"
+    app:cardElevation="8dp"
     android:layout_height="wrap_content">
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:background="@color/spotify_dark_gray"
+        android:background="@color/surface_container"
         android:paddingBottom="16dp"
         android:layout_height="match_parent">
         <ImageView
@@ -25,7 +26,7 @@
             android:id="@+id/aba_artist_name"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textColor="@color/spotify_white"
+            android:textColor="@color/on_surface"
             android:text="Anuv Jain"
             android:textStyle="bold"
             android:textSize="@dimen/default_text_size"
@@ -36,7 +37,7 @@
             android:id="@+id/aba_listener_no"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textColor="@color/spotify_light_gray"
+            android:textColor="@color/on_surface_variant"
             android:text="8.6M monthly listeners"
 
             app:layout_constraintStart_toStartOf="parent"
@@ -47,7 +48,7 @@
             android:id="@+id/aba_description"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textColor="@color/spotify_light_gray"
+            android:textColor="@color/on_surface_variant"
             android:maxLines="3"
             android:ellipsize="end"
             android:text="Hi! Anuv Jain. I try to tell stories through my music. I hope you like them."

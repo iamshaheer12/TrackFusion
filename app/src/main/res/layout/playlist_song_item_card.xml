@@ -11,15 +11,24 @@
     android:layout_marginBottom="8dp"
    >
 
-    <ImageView
-        android:id="@+id/ads_image"
+    <FrameLayout
+        android:id="@+id/ads_image_container"
         android:layout_width="90dp"
         android:layout_height="90dp"
-        android:scaleType="centerCrop"
-        android:src="@drawable/playlist_poster"
+        android:background="@drawable/bg_rounded_artwork"
+        android:clipToOutline="true"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toStartOf="parent">
+
+        <ImageView
+            android:id="@+id/ads_image"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scaleType="centerCrop"
+            android:src="@drawable/playlist_poster" />
+
+    </FrameLayout>
 
 <!--    <ImageView-->
 <!--        android:id="@+id/ads_playing_gif"-->
@@ -42,7 +51,7 @@
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:gravity="center_vertical"
-        app:layout_constraintStart_toEndOf="@+id/ads_image"
+        app:layout_constraintStart_toEndOf="@+id/ads_image_container"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/psi_more">
@@ -53,9 +62,9 @@
             android:layout_height="wrap_content"
             android:ellipsize="end"
             android:maxLines="1"
-            android:text="Shukran Allah"
+            android:text="@string/shukran_allah"
             android:textStyle="bold"
-            android:textColor="@color/spotify_white" />
+            android:textColor="@color/on_surface" />
 
         <TextView
             android:id="@+id/ads_description"
@@ -64,7 +73,7 @@
             android:maxLines="1"
             android:ellipsize="end"
             android:text="@string/playlist_item_text"
-            android:textColor="@color/spotify_light_gray"
+            android:textColor="@color/on_surface_variant"
             android:layout_marginTop="2dp" />
     </LinearLayout>
 

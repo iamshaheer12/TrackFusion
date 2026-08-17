@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/spotify_background_black"
+    android:background="@color/surface"
     xmlns:tools="http://schemas.android.com/tools"
     tools:context=".view.SearchScreen2Fragment">
 
@@ -29,10 +29,11 @@
 
                 <ImageView
                     android:id="@+id/search_arrow_back"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:layout_width="@dimen/touch_target"
+                    android:layout_height="@dimen/touch_target"
                     android:clickable="true"
                     android:focusable="true"
+                    android:padding="@dimen/spacing_8"
                     android:src="@drawable/arrow_back"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
@@ -41,9 +42,18 @@
                 <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/search_layout"
                     android:layout_width="0dp"
-                    android:layout_height="50dp"
-                    android:layout_margin="8dp"
+                    android:layout_height="48dp"
+                    android:layout_margin="@dimen/spacing_8"
                     android:focusable="true"
+                    android:hint="@string/search_hint"
+                    app:boxBackgroundColor="@color/surface_container"
+                    app:boxBackgroundMode="filled"
+                    app:boxCornerRadiusBottomEnd="@dimen/radius_medium"
+                    app:boxCornerRadiusBottomStart="@dimen/radius_medium"
+                    app:boxCornerRadiusTopEnd="@dimen/radius_medium"
+                    app:boxCornerRadiusTopStart="@dimen/radius_medium"
+                    app:boxStrokeWidth="0dp"
+                    app:hintTextColor="@color/on_surface_variant"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toEndOf="@+id/search_arrow_back"
@@ -53,15 +63,14 @@
                         android:id="@+id/search_text"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
-                        android:maxLines="1"
                         android:focusable="true"
                         android:inputType="text"
-                        android:textColor="@color/spotify_dark_gray"
-                        android:textSize="18sp"
+                        android:maxLines="1"
                         android:paddingTop="8dp"
                         android:paddingBottom="8dp"
-                    />
-
+                        android:textColor="@color/on_surface"
+                        android:textColorHint="@color/on_surface_variant"
+                        android:textSize="16sp" />
 
                 </com.google.android.material.textfield.TextInputLayout>
 
@@ -117,7 +126,8 @@
         android:layout_height="50dp"
 
         android:layout_gravity="center"
-        android:progressBackgroundTint="@color/spotify_white"
+        android:indeterminateTint="@color/spotify_green"
+        android:progressBackgroundTint="@color/spotify_green"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"

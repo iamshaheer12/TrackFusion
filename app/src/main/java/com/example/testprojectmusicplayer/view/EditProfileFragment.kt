@@ -17,6 +17,7 @@ import com.example.testprojectmusicplayer.R
 import com.example.testprojectmusicplayer.databinding.FragmentEditProfileBinding
 import com.example.testprojectmusicplayer.model.User
 import com.example.testprojectmusicplayer.utils.UiStates
+import com.example.testprojectmusicplayer.utils.ThemeManager
 import com.example.testprojectmusicplayer.utils.UserObject
 import com.example.testprojectmusicplayer.viewModel.UserViewModel
 import dagger.hilt.android.AndroidEntryPoint
@@ -118,6 +119,14 @@ class EditProfileFragment : Fragment() {
                 )
             }
 
+        }
+
+        binding.editProfileDarkModeSwitch.isChecked = ThemeManager.isDark(requireContext())
+        binding.editProfileDarkModeSwitch.setOnCheckedChangeListener { _, isChecked ->
+            ThemeManager.setDark(requireContext(), isChecked)
+        }
+        binding.editProfileThemeRow.setOnClickListener {
+            binding.editProfileDarkModeSwitch.isChecked = !binding.editProfileDarkModeSwitch.isChecked
         }
     }
 

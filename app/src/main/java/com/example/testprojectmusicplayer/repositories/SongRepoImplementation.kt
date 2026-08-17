@@ -154,6 +154,11 @@ class SongRepoImplementation(
     }
 
     private fun addSongInRepositoryOnLike(id: String, songId: String, result: (UiStates<String>) -> Unit) {
+        if (id.isBlank()) {
+            result.invoke(UiStates.Success("Successfully Liked Song"))
+            return
+        }
+
         val document = firestore.collection(FireStoreCons.ALBUM_COLLECTION).document(id)
 
         firestore.runTransaction { transaction ->
@@ -174,6 +179,11 @@ class SongRepoImplementation(
     }
 
     private fun removeSongInRepositoryOnUnLike(id: String, songId: String, result: (UiStates<String>) -> Unit){
+        if (id.isBlank()) {
+            result.invoke(UiStates.Success("Successfully Unliked Song"))
+            return
+        }
+
         val document = firestore.collection(FireStoreCons.ALBUM_COLLECTION).document(id)
         val transaction = firestore.runTransaction {
                 transaction ->
@@ -185,6 +195,10 @@ class SongRepoImplementation(
 
             }
 
+        }.addOnSuccessListener {
+            result.invoke(UiStates.Success("Successfully Removed Song from Album"))
+        }.addOnFailureListener {
+            result.invoke(UiStates.Failure("Failed to Remove Song from Album"))
         }
     }
 

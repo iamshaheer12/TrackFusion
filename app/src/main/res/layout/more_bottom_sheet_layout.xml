@@ -3,7 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:backgroundTint="@color/spotify_dark_gray"
+    android:backgroundTint="@color/surface_container_high"
     app:cardCornerRadius="8dp"
     android:layout_height="wrap_content">
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -17,6 +17,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:src="@drawable/ic_horizontal_rule_24"
+            app:tint="@color/on_surface_variant"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
@@ -49,7 +50,7 @@
                 android:textStyle="bold"
                 android:textSize="@dimen/default_text_size"
                 android:text="Bolna (From Kapoor  Sons (since 1921)) "
-                android:textColor="@color/spotify_white"
+                android:textColor="@color/on_surface"
                 android:maxLines="2"
                 android:ellipsize="end"/>
             <TextView
@@ -59,7 +60,7 @@
                 android:layout_marginTop="4dp"
                 android:textSize="16sp"
                 android:text="Bolna (From Kapoor  Sons (since 1921)) "
-                android:textColor="@color/spotify_light_gray"
+                android:textColor="@color/on_surface_variant"
                 android:maxLines="2"
                 android:ellipsize="end"/>
 
@@ -91,7 +92,8 @@
                 android:id="@+id/more_bottom_sheet_like_icn"
                 android:layout_width="25dp"
                 android:layout_height="25dp"
-                android:src="@drawable/ic_unlike"/>
+                android:src="@drawable/ic_unlike"
+                app:tint="@color/on_surface_variant"/>
             <TextView
                 android:id="@+id/more_bottom_sheet_like_text"
                 android:layout_marginStart="16dp"
@@ -100,7 +102,7 @@
                 android:text="@string/like"
                 android:gravity="center"
                 android:layout_gravity="center"
-                android:textColor="@color/spotify_white"
+                android:textColor="@color/on_surface"
                 android:textSize="@dimen/default_text_size"/>
 
         </LinearLayout>
@@ -119,7 +121,8 @@
                 android:id="@+id/more_bottom_sheet_playlist"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:src="@drawable/music_24"/>
+                android:src="@drawable/music_24"
+                app:tint="@color/on_surface_variant"/>
             <TextView
                 android:id="@+id/more_bottom_sheet_playlist_text"
                 android:layout_marginStart="16dp"
@@ -128,7 +131,7 @@
                 android:text="Add to other Playlist"
                 android:gravity="center"
                 android:layout_gravity="center"
-                android:textColor="@color/spotify_white"
+                android:textColor="@color/on_surface"
                 android:textSize="@dimen/default_text_size"/>
 
         </LinearLayout>
@@ -148,7 +151,8 @@
                 android:id="@+id/more_bottom_sheet_share_icn"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:src="@drawable/share_24"/>
+                android:src="@drawable/share_24"
+                app:tint="@color/on_surface_variant"/>
             <TextView
                 android:id="@+id/more_bottom_sheet_share_text"
                 android:layout_marginStart="16dp"
@@ -159,7 +163,7 @@
                 android:gravity="center"
                 android:layout_gravity="center"
 
-                android:textColor="@color/spotify_white"
+                android:textColor="@color/on_surface"
                 android:textSize="@dimen/default_text_size"/>
 
         </LinearLayout>
@@ -179,7 +183,8 @@
                 android:id="@+id/more_bottom_sheet_remove_icn"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:src="@drawable/remove_circle_outline_24"/>
+                android:src="@drawable/remove_circle_outline_24"
+                app:tint="@color/on_surface_variant"/>
             <TextView
                 android:id="@+id/more_bottom_sheet_remove_playlist"
                 android:layout_marginStart="16dp"
@@ -190,7 +195,7 @@
                 android:gravity="center"
                 android:layout_gravity="center"
 
-                android:textColor="@color/spotify_white"
+                android:textColor="@color/on_surface"
                 android:textSize="@dimen/default_text_size"/>
 
         </LinearLayout>
@@ -211,7 +216,8 @@
                 android:id="@+id/more_bottom_sheet_edit_icn"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:src="@drawable/edit_24"/>
+                android:src="@drawable/edit_24"
+                app:tint="@color/on_surface_variant"/>
             <TextView
                 android:id="@+id/more_bottom_sheet_edit_playlist"
                 android:layout_marginStart="16dp"
@@ -222,7 +228,7 @@
                 android:gravity="center"
                 android:layout_gravity="center"
 
-                android:textColor="@color/spotify_white"
+                android:textColor="@color/on_surface"
                 android:textSize="@dimen/default_text_size"/>
 
         </LinearLayout>
@@ -244,7 +250,8 @@
                 android:id="@+id/more_bottom_sheet_delete_icn"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:src="@drawable/outline_delete_24"/>
+                android:src="@drawable/outline_delete_24"
+                app:tint="@color/on_surface_variant"/>
             <TextView
                 android:id="@+id/more_bottom_sheet_delete_playlist"
                 android:layout_marginStart="16dp"
@@ -255,7 +262,7 @@
                 android:gravity="center"
                 android:layout_gravity="center"
 
-                android:textColor="@color/spotify_white"
+                android:textColor="@color/on_surface"
                 android:textSize="@dimen/default_text_size"/>
 
         </LinearLayout>

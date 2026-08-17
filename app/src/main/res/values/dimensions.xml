@@ -22,5 +22,30 @@
     <dimen name="activity_margin_half">8dp</dimen>
     <dimen name="activity_margin_content">24dp</dimen>
 
+    <!-- Design system: spacing -->
+    <dimen name="spacing_2">2dp</dimen>
+    <dimen name="spacing_4">4dp</dimen>
+    <dimen name="spacing_6">6dp</dimen>
+    <dimen name="spacing_8">8dp</dimen>
+    <dimen name="spacing_12">12dp</dimen>
+    <dimen name="spacing_16">16dp</dimen>
+    <dimen name="spacing_20">20dp</dimen>
+    <dimen name="spacing_24">24dp</dimen>
+    <dimen name="spacing_32">32dp</dimen>
 
+    <!-- Design system: corner radius -->
+    <dimen name="radius_small">8dp</dimen>
+    <dimen name="radius_medium">12dp</dimen>
+    <dimen name="radius_large">16dp</dimen>
+    <dimen name="radius_xl">24dp</dimen>
+
+    <!-- Design system: sizes -->
+    <dimen name="artwork_small">48dp</dimen>
+    <dimen name="artwork_medium">64dp</dimen>
+    <dimen name="artwork_large">88dp</dimen>
+    <dimen name="mini_player_height">72dp</dimen>
+    <dimen name="touch_target">48dp</dimen>
+    <dimen name="control_icon">28dp</dimen>
+    <dimen name="section_title_size">22sp</dimen>
+    <dimen name="section_subtitle_size">14sp</dimen>
 </resources>

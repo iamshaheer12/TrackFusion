@@ -1,23 +1,32 @@
 package com.example.testprojectmusicplayer.viewModel
 
+import android.net.Uri
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.media3.common.C
+import androidx.media3.common.MediaItem as Media3MediaItem
+import androidx.media3.common.MediaMetadata
+import androidx.media3.common.PlaybackException
+import androidx.media3.common.Player
+import androidx.media3.session.MediaController
 import com.example.testprojectmusicplayer.model.Album
 import com.example.testprojectmusicplayer.model.Artist
 import com.example.testprojectmusicplayer.model.Song
 import com.example.testprojectmusicplayer.repositories.AlbumRepository
 import com.example.testprojectmusicplayer.repositories.ArtistRepository
 import com.example.testprojectmusicplayer.repositories.SongRepository
-import com.example.testprojectmusicplayer.utils.AudioPlaybackService
-import com.example.testprojectmusicplayer.utils.AudioPlaybackServiceProvider
+import com.example.testprojectmusicplayer.utils.MediaControllerProvider
 import com.example.testprojectmusicplayer.utils.MediaItem
 import com.example.testprojectmusicplayer.utils.UiStates
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -26,7 +35,7 @@ class HomeViewModel @Inject constructor(
     private val songRepository: SongRepository,
     private val albumRepository: AlbumRepository,
     private val artistRepository: ArtistRepository,
-    private val audioPlaybackServiceProvider: AudioPlaybackServiceProvider
+    private val mediaControllerProvider: MediaControllerProvider
 
 ) : ViewModel() {
 
@@ -35,6 +44,10 @@ class HomeViewModel @Inject constructor(
     private var isSongListSent = false
 
     private var isServiceSet = false
+
+    private var listenerRegistered = false
+
+    private var positionJob: Job? = null
 
 
 
@@ -129,7 +142,7 @@ class HomeViewModel @Inject constructor(
 
 
     init {
-      //  setupPlaybackCallback()
+      //  setupControllerListener()
     }
 
 
@@ -384,25 +397,33 @@ class HomeViewModel @Inject constructor(
 
     fun playSong() {
         viewModelScope.launch {
-            try {
-                val songList = (_songListState.value as? UiStates.Success)?.data ?: emptyList()
-                if (songList.isNotEmpty()){
-                    _currentSong.value =
-                        songList[currentSongIndex.value]
-                    _isPlaying.value = true
+            val songList = (_songListState.value as? UiStates.Success)?.data ?: emptyList()
+            if (songList.isEmpty()) {
+                _currentSong.value = null
+                return@launch
+            }
+            _currentSong.value = songList[currentSongIndex.value]
+            _isPlaying.value = true
 
+            mediaControllerProvider.getController { controller ->
+                val targetSong = songList.getOrNull(currentSongIndex.value)
+                val playingSameSong =
+                    targetSong != null && controller.currentMediaItem?.mediaId == targetSong.songId
+
+                if (controller.mediaItemCount == 0) {
+                    controller.setMediaItems(
+                        songList.map { song -> song.toPlayableMediaItem() },
+                        currentSongIndex.value,
+                        0L
+                    )
+                    controller.prepare()
+                } else if (!playingSameSong) {
+                    controller.seekTo(currentSongIndex.value, 0L)
+                    if (controller.playbackState == Player.STATE_IDLE) {
+                        controller.prepare()
+                    }
                 }
-                else{
-                    _currentSong.value = null
-                }
-
-
-                audioPlaybackServiceProvider.getService { service ->
-                    service.playSong(currentSongIndex.value)
-
-                }
-            } catch (e: IllegalStateException) {
-                Log.e("HomeViewModel", "Error getting service: ${e.message}")
+                controller.play()
             }
         }
     }
@@ -425,7 +446,7 @@ class HomeViewModel @Inject constructor(
                         updateSongList()
                         if (!isServiceSet){
                             isServiceSet = true
-                            setupPlaybackCallback()
+                            setupControllerListener()
                         }
 
                         isSongListSent = true
@@ -467,7 +488,7 @@ class HomeViewModel @Inject constructor(
                         updateSongList()
                         if (!isServiceSet){
                             isServiceSet = true
-                            setupPlaybackCallback()
+                            setupControllerListener()
                         }
                         isSongListSent = true
                         _currentArtistId.update {
@@ -519,8 +540,8 @@ class HomeViewModel @Inject constructor(
 
 
     fun pauseSong() {
-        audioPlaybackServiceProvider.getService { service ->
-            service.pausePlayback()
+        mediaControllerProvider.getController { controller ->
+            controller.pause()
         }
         _isPlaying.value = false
     }
@@ -528,48 +549,33 @@ class HomeViewModel @Inject constructor(
 
     fun stopPlayback() {
         viewModelScope.launch {
-            try {
-                val service = audioPlaybackServiceProvider.getService { service ->
-                    service.stopPlayback()
-                }
-            } catch (e: IllegalStateException) {
-                Log.e("HomeViewModel", "Service not available: ${e.message}")
-                // Handle the error or notify the user
+            mediaControllerProvider.getController { controller ->
+                controller.stop()
             }
         }
     }
 
     private fun updateSongList() {
         viewModelScope.launch {
-            try {
-                val songList = (_songListState.value as? UiStates.Success)?.data ?: emptyList()
+            val songList = (_songListState.value as? UiStates.Success)?.data ?: emptyList()
+            if (songList.isEmpty()) return@launch
 
-
-
-                audioPlaybackServiceProvider.getService { service ->
-                    service.updateSongList(songList)
-                }
-            } catch (e: IllegalStateException) {
-                Log.e("HomeViewModel", "Service not available: ${e.message}")
-                // Handle the error or notify the user
+            mediaControllerProvider.getController { controller ->
+                controller.setMediaItems(
+                    songList.map { song -> song.toPlayableMediaItem() },
+                    currentSongIndex.value.coerceIn(0, songList.lastIndex),
+                    0L
+                )
             }
         }
     }
 
     fun seekTo(position: Int) {
         viewModelScope.launch {
-            try {
-                 audioPlaybackServiceProvider.getService { service ->
-                    service.seekTo(position)
-                }
-                _playbackPosition.value  = position
-            //                update {
-//                    position
-//                }
-            } catch (e: IllegalStateException) {
-                Log.e("HomeViewModel", "Service not available: ${e.message}")
-                // Handle the error or notify the user
+            mediaControllerProvider.getController { controller ->
+                controller.seekTo(position.toLong())
             }
+            _playbackPosition.value = position
         }
     }
 
@@ -591,75 +597,110 @@ class HomeViewModel @Inject constructor(
 
     fun onClickNext() {
         viewModelScope.launch {
-            audioPlaybackServiceProvider.getService { service ->
-                service.nextSong()
-               // setupPlaybackCallback()
+            mediaControllerProvider.getController { controller ->
+                controller.seekToNext()
             }
         }
     }
 
     fun onClickPrevious() {
-
         viewModelScope.launch {
-            audioPlaybackServiceProvider.getService { service ->
-              service.previousSong()
+            mediaControllerProvider.getController { controller ->
+                controller.seekToPrevious()
             }
-
-        }
-
-    }
-
-    private fun setupPlaybackCallback() {
-        try {
-            audioPlaybackServiceProvider.getService { service ->
-                service.setPlaybackCallback(object : AudioPlaybackService.PlaybackCallback {
-                    override fun onIndexChanged(index: Int) {
-
-
-                        _currentSongIndex.value = index
-                    // Use postValue if this happens in background thread
-                        Log.d("CurrentSongIndex12",index.toString())
-                    }
-
-                    override fun onPlaybackPositionChanged(position: Int) {
-                        _playbackPosition.value = position
-                        Log.d("PlabackPostion12",position.toString())
-                    }
-
-                    override fun onPlaybackCompleted() {
-                        _isPlaying.value = false
-                    }
-
-                    override fun onPlaybackStopped() {
-                        _isPlaying.value = false
-                        Log.d("PlaybackStopped", "Playback stopped.")
-                    }
-
-                    override fun onPlaybackError(error: String) {
-                        // Handle playback error (e.g., show a message to the user)
-                    }
-
-                    override fun onSongChanged(song: Song) {
-                        _currentSong.value = song
-                        Log.d("CurrentsongCallback", song.toString())
-                    }
-
-                    override fun onPlaybackStateChanged(isPlaying: Boolean) {
-                        _isPlaying.value = isPlaying
-                    }
-                })
-            }
-        } catch (e: IllegalStateException) {
-            Log.e("HomeViewModel", "Error initializing service: ${e.message}")
         }
     }
 
+    private fun setupControllerListener() {
+        mediaControllerProvider.getController { controller ->
+            if (!listenerRegistered) {
+                controller.addListener(playerListener)
+                listenerRegistered = true
+            }
+            syncStateFromController(controller)
+            startPositionUpdates()
+        }
+    }
 
+    private fun syncStateFromController(controller: MediaController) {
+        val index = controller.currentMediaItemIndex
+        val songList = (_songListState.value as? UiStates.Success)?.data ?: emptyList()
+        if (index != C.INDEX_UNSET && index in songList.indices) {
+            _currentSongIndex.value = index
+            _currentSong.value = songList[index]
+        }
+        _isPlaying.value = controller.isPlaying
+        if (controller.currentPosition > 0L) {
+            _playbackPosition.value = controller.currentPosition.toInt()
+        }
+    }
 
+    private fun startPositionUpdates() {
+        positionJob?.cancel()
+        positionJob = viewModelScope.launch {
+            while (isActive) {
+                if (mediaControllerProvider.isConnected()) {
+                    mediaControllerProvider.getController { controller ->
+                        _playbackPosition.value = controller.currentPosition.toInt()
+                    }
+                }
+                delay(1000L)
+            }
+        }
+    }
+
+    private val playerListener = object : Player.Listener {
+        override fun onIsPlayingChanged(isPlaying: Boolean) {
+            _isPlaying.value = isPlaying
+        }
+
+        override fun onPlaybackStateChanged(playbackState: Int) {
+            if (playbackState == Player.STATE_ENDED) {
+                _isPlaying.value = false
+            }
+        }
+
+        override fun onMediaItemTransition(mediaItem: Media3MediaItem?, reason: Int) {
+            mediaControllerProvider.getController { controller ->
+                val index = controller.currentMediaItemIndex
+                _currentSongIndex.value = index
+                val songList = (_songListState.value as? UiStates.Success)?.data ?: emptyList()
+                _currentSong.value = songList.getOrNull(index)
+            }
+        }
+
+        override fun onPositionDiscontinuity(
+            oldPosition: Player.PositionInfo,
+            newPosition: Player.PositionInfo,
+            reason: Int
+        ) {
+            _playbackPosition.value = newPosition.positionMs.toInt()
+        }
+
+        override fun onPlayerError(error: PlaybackException) {
+            _isPlaying.value = false
+            Log.e("HomeViewModel", "Playback error: ${error.message}")
+        }
+    }
+
+    private fun Song.toPlayableMediaItem(): Media3MediaItem {
+        return Media3MediaItem.Builder()
+            .setMediaId(songId)
+            .setUri(audioFile)
+            .setMediaMetadata(
+                MediaMetadata.Builder()
+                    .setTitle(title)
+                    .setArtist(description)
+                    .setArtworkUri(Uri.parse(imageUrl))
+                    .build()
+            )
+            .build()
+    }
 
     override fun onCleared() {
+        positionJob?.cancel()
+        mediaControllerProvider.releaseController()
         super.onCleared()
-        audioPlaybackServiceProvider.unbindService()
     }
 
 }

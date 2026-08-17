@@ -30,7 +30,7 @@
         android:layout_width="170dp"
         android:layout_height="wrap_content"
         android:maxLines="1"
-        android:text="Orignal Sound Track jsadhjashdh  "
+        android:text="@string/orignal_sound_track_jsadhjashdh"
         android:textStyle="bold"
         android:ellipsize="end"
 
@@ -42,7 +42,7 @@
         android:layout_width="170dp"
         android:layout_height="wrap_content"
         android:maxLines="1"
-        android:text="Various Artists"
+        android:text="@string/various_artists"
         android:layout_marginTop="2dp"
         android:ellipsize="end"
         app:layout_constraintEnd_toEndOf="parent"
